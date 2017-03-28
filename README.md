@@ -8,6 +8,18 @@
 
 * [GNU grep](./gnu_grep.md)
 
+Rough drafts
+
+* [Cat, Less, Tail and Head](./tail_less_cat_head.md)
+* [Wheres my file](./wheres_my_file.md)
+* [File attributes](./file_attributes.md)
+* [Sorting stuff](./sorting_stuff.md)
+* [Whats the difference](./whats_the_difference.md)
+* [Restructure text](./restructure_text.md)
+* [GNU sed](./gnu_sed.md)
+* [GNU awk](./gnu_awk.md)
+* [Perl the swiss knife](./perl_the_swiss_knife.md)
+* [Miscellaneous](./miscellaneous.md) 
 <br>
 
 ## <a name="ebook"></a>ebook
