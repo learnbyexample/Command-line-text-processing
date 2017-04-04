@@ -20,6 +20,15 @@ Rough drafts
 * [GNU awk](./gnu_awk.md)
 * [Perl the swiss knife](./perl_the_swiss_knife.md)
 * [Miscellaneous](./miscellaneous.md) 
+
+<br>
+
+## <a name="exercises"></a>exercises
+
+Check out [exercises](./exercises) directory to test yourself, right from the command line itself
+
+As of now, only a few `grep` exercises has been added. Stay tuned for more
+
 <br>
 
 ## <a name="ebook"></a>ebook
