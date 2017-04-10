@@ -11,6 +11,6 @@ Note: All files present in the directory should be given as file inputs to grep
         Word2: far
 
 
-4) Match lines containing the word: you
+4) Match lines containing the whole word: you
     and NOT containing the case insensitive string: How
 

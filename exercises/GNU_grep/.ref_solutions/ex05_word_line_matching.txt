@@ -11,6 +11,6 @@ Solution: grep -x 'Hello World' *
         Word2: far
 Solution: grep -w -e 'far' -e 'He' *
 
-4) Match lines containing the word: you
+4) Match lines containing the whole word: you
     and NOT containing the case insensitive string: How
 Solution: grep -w 'you' * | grep -vi 'how'
