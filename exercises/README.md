@@ -126,3 +126,31 @@ $ alias cs='source ../solve -s'
 $ alias cq='source ../solve -q'
 $ alias ca='source ../solve'
 ```
+
+<br>
+
+If wrong solution is submitted, the expected output is shown. This also helps to better understand the question as I found it difficult to convey the intent of question clearly with words alone...
+
+```bash
+$ source ../solve -q
+1) Match lines containing the string: day
+
+
+2) Match lines containing the string: it
+
+
+3) Match lines containing the string: do you
+
+$ grep 'do' sample.txt 
+How do you do?
+Just do it
+No doubt you like it too
+Much ado about nothing
+$ source ../solve -s
+---------------------------------------------
+Mismatch for question 1:
+Expected output is:
+Good day
+Today is sunny
+---------------------------------------------
+```
