@@ -117,14 +117,20 @@ Reference solution: grep 'do you' sample.txt
 * Create aliases for different commands for easy use, after checking that the aliases are available of course
 
 ```bash
-$ type cs cq ca
+$ type cs cq ca nq pq
 bash: type: cs: not found
 bash: type: cq: not found
 bash: type: ca: not found
+bash: type: nq: not found
+bash: type: pq: not found
 
 $ alias cs='source ../solve -s'
 $ alias cq='source ../solve -q'
 $ alias ca='source ../solve'
+$ # to go to directory of next question
+$ nq() { d=$(basename "$PWD"); nd=$(printf "../ex%02d*/" $((${d:2:2}+1))); cd $nd ; }
+$ # to go to directory of previous question
+$ pq() { d=$(basename "$PWD"); pd=$(printf "../ex%02d*/" $((${d:2:2}-1))); cd $pd ; }
 ```
 
 <br>
