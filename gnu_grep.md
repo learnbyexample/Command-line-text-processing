@@ -759,6 +759,10 @@ Sugar is sweet,
 And so are you.
 ```
 
+Screenshot for above example:
+
+![highlighting string](./images/highlight_string_whole_file_op.png)
+
 <br>
 
 #### <a name="the-dot-meta-character"></a>The dot meta character
