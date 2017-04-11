@@ -3,6 +3,13 @@
 **Table of Contents**
 
 * [cat](#cat)
+    * [Concatenate files](#concatenate-files)
+    * [Accepting input from stdin](#accepting-input-from-stdin)
+    * [Squeeze consecutive empty lines](#squeeze-consecutive-empty-lines)
+    * [Prefix line numbers](#prefix-line-numbers)
+    * [Viewing special characters](#viewing-special-characters)
+    * [Writing text to file](#writing-text-to-file)
+    * [tac](#tac)
 * [less](#less)
 * [tail](#tail)
 * [head](#head)
@@ -12,24 +19,167 @@
 
 ## <a name="cat"></a>cat
 
->concatenate files and print on the standard output
+```bash
+$ man cat
+CAT(1)                           User Commands                          CAT(1)
 
-**Options**
+NAME
+       cat - concatenate files and print on the standard output
 
-* `-n` number output lines
-* `-s` squeeze repeated empty lines into single empty line
-* `-e` show non-printing characters and end of line
-* `-A` in addition to `-e`, also shows tab characters
+SYNOPSIS
+       cat [OPTION]... [FILE]...
 
-**Examples**
+DESCRIPTION
+       Concatenate FILE(s) to standard output.
 
-* `cat > sample.txt` create a new file for writing, use `Ctrl+d` on a newline to save the file and quit
-    * [difference between Ctrl+c and Ctrl+d to signal end of stdin input in bash](https://unix.stackexchange.com/questions/16333/how-to-signal-the-end-of-stdin-input-in-bash)
-* `cat sample.txt` display the contents of file sample.txt
-* `cat power.log timing.log area.log > report.log` concatenate the contents of all three files and save to report.log
-* `tac sample.txt` display the lines of file sample.txt in reversed order
-* [cat Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/cat?sort=votes&pageSize=15)
-* [cat Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/cat?sort=votes&pageSize=15)
+       With no FILE, or when FILE is -, read standard input.
+...
+```
+
+* For below examples, `marks_201*` files contain 3 fields delimited by TAB
+* To avoid formatting issues, TAB has been converted to spaces using `col -x` while pasting the output here
+
+<br>
+
+#### <a name="concatenate-files"></a>Concatenate files
+
+* To save the output of concatenation, just redirect stdout
+
+```bash
+$ ls
+marks_2015.txt  marks_2016.txt  marks_2017.txt
+
+$ cat marks_201*
+Name    Maths   Science
+foo     67      78
+bar     87      85
+Name    Maths   Science
+foo     70      75
+bar     85      88
+Name    Maths   Science
+foo     68      76
+bar     90      90
+
+$ # save stdout to a file
+$ cat marks_201* > all_marks.txt
+```
+
+<br>
+
+#### <a name="accepting-input-from-stdin"></a>Accepting input from stdin
+
+```bash
+$ # combining input from stdin and other files
+$ printf 'Name\tMaths\tScience \nbaz\t56\t63\nbak\t71\t65\n' | cat - marks_2015.txt
+Name    Maths   Science
+baz     56      63
+bak     71      65
+Name    Maths   Science
+foo     67      78
+bar     87      85
+
+$ # - can be placed in whatever order is required
+$ printf 'Name\tMaths\tScience \nbaz\t56\t63\nbak\t71\t65\n' | cat marks_2015.txt -
+Name    Maths   Science
+foo     67      78
+bar     87      85
+Name    Maths   Science
+baz     56      63
+bak     71      65
+```
+
+<br>
+
+#### <a name="squeeze-consecutive-empty-lines"></a>Squeeze consecutive empty lines
+
+```bash
+$ printf 'hello\n\n\nworld\n\nhave a nice day\n'
+hello
+
+
+world
+
+have a nice day
+$ printf 'hello\n\n\nworld\n\nhave a nice day\n' | cat -s
+hello
+
+world
+
+have a nice day
+```
+
+<br>
+
+#### <a name="prefix-line-numbers"></a>Prefix line numbers
+
+```bash
+$ # number all lines
+$ cat -n marks_201*
+     1  Name    Maths   Science
+     2  foo     67      78
+     3  bar     87      85
+     4  Name    Maths   Science
+     5  foo     70      75
+     6  bar     85      88
+     7  Name    Maths   Science
+     8  foo     68      76
+     9  bar     90      90
+
+$ # number only non-empty lines
+$ printf 'hello\n\n\nworld\n\nhave a nice day\n' | cat -sb
+     1	hello
+
+     2	world
+
+     3	have a nice day
+```
+
+<br>
+
+#### <a name="viewing-special-characters"></a>Viewing special characters
+
+* End of line identified by `$`
+* Useful for example to see trailing spaces
+
+```bash
+$ cat -E marks_2015.txt 
+Name    Maths   Science $
+foo     67      78$
+bar     87      85$
+```
+
+* TAB identified by `^I`
+
+```bash
+$ cat -T marks_2015.txt 
+Name^IMaths^IScience 
+foo^I67^I78
+bar^I87^I85
+```
+
+* Non-printing characters
+* See [Show Non-Printing Characters](http://docstore.mik.ua/orelly/unix/upt/ch25_07.htm) for more detailed info
+
+```bash
+$ # NUL character
+$ printf 'foo\0bar\0baz\n' | cat -v
+foo^@bar^@baz
+
+$ # to check for dos-style line endings
+$ printf 'Hello World!\r\n' | cat -v
+Hello World!^M
+
+$ printf 'Hello World!\r\n' | dos2unix | cat -v
+Hello World!
+```
+
+* the `-A` option is equivalent to `-vET`
+* the `-e` option is equivalent to `-vE`
+* If `dos2unix` and `unix2dos` are not available, see [How to convert DOS/Windows newline (CRLF) to Unix newline (\n)](https://stackoverflow.com/questions/2613800/how-to-convert-dos-windows-newline-crlf-to-unix-newline-n-in-a-bash-script)
+
+<br>
+
+#### <a name="writing-text-to-file"></a>Writing text to file
 
 ```bash
 $ cat > sample.txt
@@ -39,14 +189,64 @@ Press Ctrl+d on a newline to save and quit.
 $ cat sample.txt 
 This is an example of adding text to a new file using cat command.
 Press Ctrl+d on a newline to save and quit.
-
-$ wc sample.txt 
-  2  23 111 sample.txt
-
-$ tac sample.txt 
-Press Ctrl+d on a newline to save and quit.
-This is an example of adding text to a new file using cat command.
 ```
+
+* See also how to use [heredoc](http://mywiki.wooledge.org/HereDocument)
+    * [How can I write a here doc to a file](https://stackoverflow.com/questions/2953081/how-can-i-write-a-here-doc-to-a-file-in-bash-script)
+* See also [difference between Ctrl+c and Ctrl+d to signal end of stdin input in bash](https://unix.stackexchange.com/questions/16333/how-to-signal-the-end-of-stdin-input-in-bash)
+
+<br>
+
+#### <a name="tac"></a>tac
+
+```bash
+$ whatis tac
+tac (1)              - concatenate and print files in reverse
+
+$ seq 3 | tac
+3
+2
+1
+
+$ tac marks_2015.txt 
+bar	87	85
+foo	67	78
+Name	Maths	Science 
+```
+
+* Useful in cases where logic is easier to write when working on reversed file
+* Consider this made up log file, many **Warning** lines but need to extract only from last such **Warning** upto **Error** line
+
+```bash
+$ cat report.log 
+blah blah
+Warning: something went wrong
+more blah
+whatever
+Warning: something else went wrong
+some text
+some more text
+Error: something seriously went wrong
+blah blah blah
+
+$ tac report.log | sed -n '/Error:/,/Warning:/p' | tac
+Warning: something else went wrong
+some text
+some more text
+Error: something seriously went wrong
+```
+
+* Similarly, if characters in lines have to be reversed, use the `rev` command
+
+```bash
+$ whatis rev
+rev (1)              - reverse lines characterwise
+```
+
+**Further Reading**
+
+* [cat Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/cat?sort=votes&pageSize=15)
+* [cat Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/cat?sort=votes&pageSize=15)
 
 <br>
 
