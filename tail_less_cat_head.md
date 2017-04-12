@@ -10,6 +10,8 @@
     * [Viewing special characters](#viewing-special-characters)
     * [Writing text to file](#writing-text-to-file)
     * [tac](#tac)
+    * [Useless use of cat](#useless-use-of-cat)
+    * [Further Reading for cat](#further-reading-for-cat)
 * [less](#less)
 * [tail](#tail)
 * [head](#head)
@@ -43,6 +45,7 @@ DESCRIPTION
 
 #### <a name="concatenate-files"></a>Concatenate files
 
+* One or more files can be given as input and hence a lot of times, `cat` is used to quickly see contents of small single file on terminal
 * To save the output of concatenation, just redirect stdout
 
 ```bash
@@ -243,7 +246,54 @@ $ whatis rev
 rev (1)              - reverse lines characterwise
 ```
 
-**Further Reading**
+<br>
+
+#### <a name="useless-use-of-cat"></a>Useless use of cat
+
+* `cat` is used so frequently to view contents of a file that somehow users think other commands cannot handle file input
+* [UUOC](https://en.wikipedia.org/wiki/Cat_(Unix)#Useless_use_of_cat)
+* [Useless Use of Cat Award](http://porkmail.org/era/unix/award.html)
+
+```bash
+$ cat report.log | grep -E 'Warning|Error'
+Warning: something went wrong
+Warning: something else went wrong
+Error: something seriously went wrong
+$ grep -E 'Warning|Error' report.log
+Warning: something went wrong
+Warning: something else went wrong
+Error: something seriously went wrong
+```
+
+* Use [input redirection](http://wiki.bash-hackers.org/howto/redirection_tutorial) if a command doesn't accept file input
+
+```bash
+$ cat marks_2015.txt | tr 'A-Z' 'a-z'
+name    maths   science
+foo     67      78
+bar     87      85
+$ tr 'A-Z' 'a-z' < marks_2015.txt
+name    maths   science
+foo     67      78
+bar     87      85
+```
+
+* However, `cat` should definitely be used where **concatenation** is needed
+
+```bash
+$ grep -c 'foo' marks_201*
+marks_2015.txt:1
+marks_2016.txt:1
+marks_2017.txt:1
+
+$ # concatenation allows to get overall count in one-shot in this case
+$ cat marks_201* | grep -c 'foo'
+3
+```
+
+<br>
+
+#### <a name="further-reading-for-cat"></a>Further Reading for cat
 
 * [cat Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/cat?sort=votes&pageSize=15)
 * [cat Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/cat?sort=votes&pageSize=15)
