@@ -16,7 +16,16 @@
     * [Navigation commands](#navigation-commands)
     * [Further Reading for less](#further-reading-for-less)
 * [tail](#tail)
+    * [linewise tail](#linewise-tail)
+    * [characterwise tail](#characterwise-tail)
+    * [multiple file input for tail](#multiple-file-input-for-tail)
+    * [Further Reading for tail](#further-reading-for-tail)
 * [head](#head)
+    * [linewise head](#linewise-head)
+    * [characterwise head](#characterwise-head)
+    * [multiple file input for head](#multiple-file-input-for-head)
+    * [combining head and tail](#combining-head-and-tail)
+    * [Further Reading for head](#further-reading-for-head)
 * [Text Editors](#text-editors)
 
 <br>
@@ -363,16 +372,145 @@ Commonly used commands are given below, press `h` for summary of options
 
 ## <a name="tail"></a>tail
 
->output the last part of files
+```bash
+$ man tail
+TAIL(1)                          User Commands                         TAIL(1)
 
-**Examples**
+NAME
+       tail - output the last part of files
 
-* `tail report.log` by default display last 10 lines
-* `tail -20 report.log` display last 20 lines
-* `tail -5 report.log` display last 5 lines
-* `tail power.log timing.log` display last 10 lines of both files preceded by filename header
-* `tail -q power.log timing.log > result.log` save last 10 lines of both files without filename header to result.log
-* `tail -n +3 report.log` display all lines starting from third line (i.e all lines except first two lines)
+SYNOPSIS
+       tail [OPTION]... [FILE]...
+
+DESCRIPTION
+       Print  the  last  10  lines of each FILE to standard output.  With more
+       than one FILE, precede each with a header giving the file name.
+
+       With no FILE, or when FILE is -, read standard input.
+...
+```
+
+<br>
+
+#### <a name="linewise-tail"></a>linewise tail
+
+Consider this sample file, with line numbers prefixed
+
+```bash
+$ cat sample.txt 
+ 1) Hello World!
+ 2) 
+ 3) Good day
+ 4) How do you do?
+ 5) 
+ 6) Just do it
+ 7) Believe it!
+ 8) 
+ 9) Today is sunny
+10) Not a bit funny
+11) No doubt you like it too
+12) 
+13) Much ado about nothing
+14) He he he
+15) Adios amigo
+```
+
+* default behavior - display last 10 lines
+
+```bash
+$ tail sample.txt 
+ 6) Just do it
+ 7) Believe it!
+ 8) 
+ 9) Today is sunny
+10) Not a bit funny
+11) No doubt you like it too
+12) 
+13) Much ado about nothing
+14) He he he
+15) Adios amigo
+```
+
+* Use `-n` option to control number of lines to filter
+
+```bash
+$ tail -n3 sample.txt 
+13) Much ado about nothing
+14) He he he
+15) Adios amigo
+
+$ # some versions of tail allow to skip explicit n character
+$ tail -5 sample.txt 
+11) No doubt you like it too
+12) 
+13) Much ado about nothing
+14) He he he
+15) Adios amigo
+```
+
+* when number is prefixed with `+` sign, all lines are fetched from that particular line number to end of file
+
+```bash
+$ tail -n +10 sample.txt 
+10) Not a bit funny
+11) No doubt you like it too
+12) 
+13) Much ado about nothing
+14) He he he
+15) Adios amigo
+
+$ seq 13 17 | tail -n +3
+15
+16
+17
+```
+
+<br>
+
+#### <a name="characterwise-tail"></a>characterwise tail
+
+* Note that this works byte wise and not suitable for multi-byte character encodings
+
+```bash
+$ # last three characters including the newline character
+$ echo 'Hi there!' | tail -c3
+e!
+
+$ # excluding the first character
+$ echo 'Hi there!' | tail -c +2
+i there!
+```
+
+<br>
+
+#### <a name="multiple-file-input-for-tail"></a>multiple file input for tail
+
+```bash
+$ tail -n2 report.log sample.txt 
+==> report.log <==
+Error: something seriously went wrong
+blah blah blah
+
+==> sample.txt <==
+14) He he he
+15) Adios amigo
+
+$ # -q option to avoid filename in output
+$ tail -q -n2 report.log sample.txt 
+Error: something seriously went wrong
+blah blah blah
+14) He he he
+15) Adios amigo
+```
+
+<br>
+
+#### <a name="further-reading-for-tail"></a>Further Reading for tail
+
+* `tail -f` and related options are beyond the scope of this tutorial. Below links might be useful
+    * [look out for buffering](http://mywiki.wooledge.org/BashFAQ/009)
+    * [Piping tail -f output though grep twice](https://stackoverflow.com/questions/13858912/piping-tail-output-though-grep-twice)
+    * [tail and less](https://unix.stackexchange.com/questions/196168/does-less-have-a-feature-like-tail-follow-name-f)
 * [tail Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/tail?sort=votes&pageSize=15)
 * [tail Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/tail?sort=votes&pageSize=15)
 
@@ -380,14 +518,145 @@ Commonly used commands are given below, press `h` for summary of options
 
 ## <a name="head"></a>head
 
->output the first part of files
+```bash
+$ man head
+HEAD(1)                          User Commands                         HEAD(1)
 
-**Examples**
+NAME
+       head - output the first part of files
 
-* `head report.log` display first 10 lines
-* `head -20 report.log | tail report.log` display lines 11 to 20
-* `tail -30 report.log | head -5 report.log` display 5 lines prior to last 25 lines of file
-* `head -n -2 report.log` display all but last 2 lines
+SYNOPSIS
+       head [OPTION]... [FILE]...
+
+DESCRIPTION
+       Print  the  first  10 lines of each FILE to standard output.  With more
+       than one FILE, precede each with a header giving the file name.
+
+       With no FILE, or when FILE is -, read standard input.
+...
+```
+
+<br>
+
+#### <a name="linewise-head"></a>linewise head
+
+* default behavior - display starting 10 lines
+
+```bash
+$ head sample.txt 
+ 1) Hello World!
+ 2) 
+ 3) Good day
+ 4) How do you do?
+ 5) 
+ 6) Just do it
+ 7) Believe it!
+ 8) 
+ 9) Today is sunny
+10) Not a bit funny
+```
+
+* Use `-n` option to control number of lines to filter
+
+```bash
+$ head -n3 sample.txt 
+ 1) Hello World!
+ 2) 
+ 3) Good day
+
+$ # some versions of head allow to skip explicit n character
+$ head -4 sample.txt 
+ 1) Hello World!
+ 2) 
+ 3) Good day
+ 4) How do you do?
+```
+
+* when number is prefixed with `-` sign, all lines are fetched except those many lines to end of file
+
+```bash
+$ # except last 9 lines of file
+$ head -n -9 sample.txt 
+ 1) Hello World!
+ 2) 
+ 3) Good day
+ 4) How do you do?
+ 5) 
+ 6) Just do it
+
+$ # except last 2 lines
+$ seq 13 17 | head -n -2
+13
+14
+15
+```
+
+<br>
+
+#### <a name="characterwise-head"></a>characterwise head
+
+* Note that this works byte wise and not suitable for multi-byte character encodings
+
+```bash
+$ # if output of command doesn't end with newline, prompt will be on same line
+$ # to highlight working of command, the prompt for such cases is not shown here
+
+$ # first two characters
+$ echo 'Hi there!' | head -c2
+Hi
+
+$ # excluding last four characters
+$ echo 'Hi there!' | head -c -4
+Hi the
+```
+
+<br>
+
+#### <a name="multiple-file-input-for-head"></a>multiple file input for head
+
+```bash
+$ head -n3 report.log sample.txt 
+==> report.log <==
+blah blah
+Warning: something went wrong
+more blah
+
+==> sample.txt <==
+ 1) Hello World!
+ 2) 
+ 3) Good day
+
+$ # -q option to avoid filename in output
+$ head -q -n3 report.log sample.txt 
+blah blah
+Warning: something went wrong
+more blah
+ 1) Hello World!
+ 2) 
+ 3) Good day
+```
+
+<br>
+
+#### <a name="combining-head-and-tail"></a>combining head and tail
+
+* Despite involving two commands, often this combination is faster than equivalent sed/awk versions
+
+```bash
+$ head -n11 sample.txt | tail -n3
+ 9) Today is sunny
+10) Not a bit funny
+11) No doubt you like it too
+
+$ tail sample.txt | head -n2
+ 6) Just do it
+ 7) Believe it!
+```
+
+<br>
+
+#### <a name="further-reading-for-head"></a>Further Reading for head
+
 * [head Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/head?sort=votes&pageSize=15)
 
 <br>
@@ -410,3 +679,4 @@ Powerful text editors
 * [atom](https://atom.io/)
 * [sublime](https://www.sublimetext.com/)
 
+Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/editor-perf) for some performance/feature comparisons of various text editors
