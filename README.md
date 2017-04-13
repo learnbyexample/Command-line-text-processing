@@ -6,11 +6,11 @@
 
 ## <a name="chapters"></a>Chapters
 
+* [Cat, Less, Tail and Head](./tail_less_cat_head.md)
 * [GNU grep](./gnu_grep.md)
 
 Rough drafts
 
-* [Cat, Less, Tail and Head](./tail_less_cat_head.md)
 * [Wheres my file](./wheres_my_file.md)
 * [File attributes](./file_attributes.md)
 * [Sorting stuff](./sorting_stuff.md)
