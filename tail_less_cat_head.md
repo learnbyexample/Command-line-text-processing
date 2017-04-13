@@ -13,6 +13,8 @@
     * [Useless use of cat](#useless-use-of-cat)
     * [Further Reading for cat](#further-reading-for-cat)
 * [less](#less)
+    * [Navigation commands](#navigation-commands)
+    * [Further Reading for less](#further-reading-for-less)
 * [tail](#tail)
 * [head](#head)
 * [Text Editors](#text-editors)
@@ -135,6 +137,13 @@ $ printf 'hello\n\n\nworld\n\nhave a nice day\n' | cat -sb
      2	world
 
      3	have a nice day
+```
+
+* For more numbering options, check out the command `nl`
+
+```bash
+$ whatis nl
+nl (1)               - number lines of files
 ```
 
 <br>
@@ -302,11 +311,34 @@ $ cat marks_201* | grep -c 'foo'
 
 ## <a name="less"></a>less
 
->opposite of more
+```bash
+$ whatis less
+less (1)             - opposite of more
 
-`cat` command is not suitable for viewing contents of large files on the Terminal. `less` displays contents of a file, automatically fits to size of Terminal, allows scrolling in either direction and other options for effective viewing. Usually, `man` command uses `less` command to display the help page. The navigation options are similar to `vi` editor
+$ # By default, pager is used to display the man pages
+$ # and usually, pager is linked to less command
+$ type pager less
+pager is /usr/bin/pager
+less is /usr/bin/less
 
-**Navigation options**
+$ realpath /usr/bin/pager 
+/bin/less
+$ realpath /usr/bin/less
+/bin/less
+$ diff -s /usr/bin/pager /usr/bin/less
+Files /usr/bin/pager and /usr/bin/less are identical
+```
+
+* `cat` command is NOT suitable for viewing contents of large files on the Terminal
+* `less` displays contents of a file, automatically fits to size of Terminal, allows scrolling in either direction and other options for effective viewing
+* Usually, `man` command uses `less` command to display the help page
+* The navigation commands are similar to `vi` editor
+
+<br>
+
+#### <a name="navigation-commands"></a>Navigation commands
+
+Commonly used commands are given below, press `h` for summary of options
 
 * `g` go to start of file
 * `G` go to end of file
@@ -315,11 +347,14 @@ $ cat marks_201* | grep -c 'foo'
 * `?pattern` search for the given pattern in backward direction
 * `n` go to next pattern
 * `N` go to previous pattern
-* `h` help
 
-**Example and Further Reading**
+<br>
 
-* `less -s large_filename` display contents of file large_filename using less command, consecutive blank lines are squeezed as single blank line
+#### <a name="further-reading-for-less"></a>Further Reading for less
+
+* See `man less` for detailed info on commands and options. For example:
+    * `-s` option to squeeze consecutive blank lines
+    * `-N` option to prefix line number
 * `less` command is an [improved version](https://unix.stackexchange.com/questions/604/isnt-less-just-more) of `more` command
 * [differences between most, more and less](https://unix.stackexchange.com/questions/81129/what-are-the-differences-between-most-more-and-less)
 * [less Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/less?sort=votes&pageSize=15)
