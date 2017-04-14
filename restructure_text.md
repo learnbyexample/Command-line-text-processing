@@ -33,6 +33,15 @@ $ paste -d, <(seq 3) <(seq 4 6) <(seq 7 10)
 2,5,8
 3,6,9
 ,,10
+
+$ # interleave lines by using newline as delimiter
+$ paste -d'\n' <(seq 11 13) <(seq 101 103)
+11
+101
+12
+102
+13
+103
 ```
 
 * Single column to multiple columns
