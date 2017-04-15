@@ -33,7 +33,10 @@ As of now, only a few `grep` exercises has been added. Stay tuned for more
 
 ## <a name="ebook"></a>ebook
 
-After a basic pliable version is ready
+Includes only completed chapters
+
+* Read as ebook on [gitbook](https://learnbyexample.gitbooks.io/command-line-text-processing/content/)
+* Download ebook for offline reading - [link](https://www.gitbook.com/book/learnbyexample/command-line-text-processing/details)
 
 <br>
 
