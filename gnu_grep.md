@@ -314,8 +314,13 @@ $ grep -o 'are' poem.txt
 are
 are
 are
+
+$ # -c only gives count of matching lines
 $ grep -c 'e' poem.txt 
 4
+$ grep -co 'e' poem.txt
+4
+$ # so need another command to get count of all matches
 $ grep -o 'e' poem.txt | wc -l
 9
 ```
@@ -394,6 +399,20 @@ $ printf '#!/usr/bin/python3\n\nprint("Hello World")\n' > test_files/hello.py
 $ printf 'I like yellow\nWhat about you\n' > test_files/hidden_files/.fav_color.info
 ```
 
+From `man grep`
+
+```bash
+       -r, --recursive
+              Read all files  under  each  directory,  recursively,  following
+              symbolic  links only if they are on the command line.  Note that
+              if  no  file  operand  is  given,  grep  searches  the   working
+              directory.  This is equivalent to the -d recurse option.
+
+       -R, --dereference-recursive
+              Read  all  files  under each directory, recursively.  Follow all
+              symbolic links, unlike -r.
+```
+
 <br>
 
 #### <a name="basic-recursive-search"></a>Basic recursive search
@@ -401,6 +420,7 @@ $ printf 'I like yellow\nWhat about you\n' > test_files/hidden_files/.fav_color.
 * Note that `-H` option automatically activates for multiple file input
 
 ```bash
+$ # by default, current working directory is searched
 $ grep -r 'red'
 poem.txt:Roses are red,
 
