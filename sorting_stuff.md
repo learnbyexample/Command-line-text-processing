@@ -6,6 +6,9 @@
     * [Default sort](#default-sort)
     * [Reverse sort](#reverse-sort)
     * [Various number sorting](#various-number-sorting)
+    * [Random sort](#random-sort)
+    * [Specifying output file](#specifying-output-file)
+    * [Unique sort](#unique-sort)
 * [uniq](#uniq)
 * [comm](#comm)
 
@@ -80,6 +83,9 @@ you
 ```
 
 * heed hereunto
+* See also
+    * [arch wiki - locale](https://wiki.archlinux.org/index.php/locale)
+    * [Linux: Define Locale and Language Settings](https://www.shellhacks.com/linux-define-locale-language-settings/)
 
 ```bash
 $ info sort | tail
@@ -290,6 +296,150 @@ $ sort -V rubik_time.txt
 4m5.099s
 4m33.083s
 5m35.363s
+```
+
+<br>
+
+#### <a name="random-sort"></a>Random sort
+
+* Note that duplicate lines will always end up next to each other
+    * might be useful as a feature for some cases ;)
+    * Use `shuf` if this is not desirable
+* See also [How can I shuffle the lines of a text file on the Unix command line or in a shell script?](https://stackoverflow.com/questions/2153882/how-can-i-shuffle-the-lines-of-a-text-file-on-the-unix-command-line-or-in-a-shel)
+
+```bash
+$ cat nums.txt 
+1
+10
+10
+12
+23
+563
+
+$ # the two 10s will always be next to each other
+$ sort -R nums.txt 
+563
+12
+1
+10
+10
+23
+
+$ # duplicates can end up anywhere
+$ shuf nums.txt 
+10
+23
+1
+10
+563
+12
+```
+
+<br>
+
+#### <a name="specifying-output-file"></a>Specifying output file
+
+* The `-o` option can be used to specify output file
+* Useful for in place editing
+
+```bash
+$ sort -R nums.txt -o rand_nums.txt 
+$ cat rand_nums.txt
+23
+1
+10
+10
+563
+12
+
+$ sort -R nums.txt -o nums.txt
+$ cat nums.txt
+563
+23
+10
+10
+1
+12
+```
+
+* Use shell script looping if there multiple files to be sorted in place
+* Below snippet is for `bash` shell
+
+```bash
+$ for f in *.txt; do echo sort -V "$f" -o "$f"; done
+sort -V files.txt -o files.txt
+sort -V rubik_time.txt -o rubik_time.txt
+sort -V versions.txt -o versions.txt
+
+$ # remove echo once commands look fine
+$ for f in *.txt; do sort -V "$f" -o "$f"; done
+```
+
+<br>
+
+#### <a name="unique-sort"></a>Unique sort
+
+* Keep only first copy of lines that are deemed to be same according to `sort` option used
+
+```bash
+$ cat duplicates.txt 
+foo
+12 carrots
+foo
+12 apples
+5 guavas
+
+$ # only one copy of foo in output
+$ sort -u duplicates.txt 
+12 apples
+12 carrots
+5 guavas
+foo
+```
+
+* According to option used, definition of duplicate will vary
+* For example, when `-n` is used, matching numbers are deemed same even if rest of line differs
+    * Pipe the output to `uniq` if this is not desirable
+
+```bash
+$ # note how first copy of line starting with 12 is retained
+$ sort -nu duplicates.txt 
+foo
+5 guavas
+12 carrots
+
+$ # use uniq when entire line should be compared to find duplicates
+$ sort -n duplicates.txt | uniq
+foo
+5 guavas
+12 apples
+12 carrots
+```
+
+* Use `-f` option to ignore case of alphabets while determining duplicates
+
+```bash
+$ cat words.txt 
+CAR
+are
+car
+Are
+foot
+are
+
+$ # only the two 'are' were considered duplicates
+$ sort -u words.txt 
+are
+Are
+car
+CAR
+foot
+
+$ # note again that first copy of duplicate is retained
+$ sort -fu words.txt 
+are
+CAR
+foot
 ```
 
 More to follow...
