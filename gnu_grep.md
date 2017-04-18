@@ -73,6 +73,8 @@ DESCRIPTION
 ...
 ```
 
+**Note** For more detailed documentation and examples, use `info grep`
+
 <br>
 
 ## <a name="simple-string-search"></a>Simple string search
@@ -1209,6 +1211,17 @@ Violets are blue,
 
 ## <a name="perl-compatible-regular-expressions"></a>Perl Compatible Regular Expressions
 
+```bash
+$ # see also: https://github.com/learnbyexample/command_help
+$ man grep | sed -n '/^\s*-P/,/^$/p'
+       -P, --perl-regexp
+              Interpret the pattern as a  Perl-compatible  regular  expression
+              (PCRE).   This  is  highly  experimental and grep -P may warn of
+              unimplemented features.
+
+```
+
+* The man page informs that `-P` is *highly experimental*. So far, haven't faced any issues. But do keep this in mind.
 * Only a few highlights is presented here
 * For more info
     * `man pcrepattern` or [read it online](http://www.pcre.org/original/doc/html/pcrepattern.html)
