@@ -632,6 +632,7 @@ rest,up_5,63
 * [When -b to ignore leading blanks is needed](https://unix.stackexchange.com/a/104527/109046)
 * [sort Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sort?sort=votes&pageSize=15)
 * [sort on multiple columns using -k option](https://unix.stackexchange.com/questions/249452/unix-multiple-column-sort-issue)
+* [sort a string character wise](https://stackoverflow.com/questions/2373874/how-to-sort-characters-in-a-string)
 
 <br>
 
