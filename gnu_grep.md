@@ -1185,6 +1185,20 @@ semiprofessionals
 transcendentalist
 ```
 
+* Useful to spot repeated words
+* Use `-z` option (covered later) to match repetition in consecutive lines
+
+```bash
+$ cat story.txt 
+singing tin in the rain
+walking for for a cause
+have a nice day
+day and night
+
+$ grep -wE '(\w+)\W+\1' story.txt 
+walking for for a cause
+```
+
 <br>
 
 ## <a name="multiline-matching"></a>Multiline matching
