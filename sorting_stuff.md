@@ -9,6 +9,8 @@
     * [Random sort](#random-sort)
     * [Specifying output file](#specifying-output-file)
     * [Unique sort](#unique-sort)
+    * [Column based sorting](#column-based-sorting)
+    * [Further reading for sort](#further-reading-for-sort)
 * [uniq](#uniq)
 * [comm](#comm)
 
@@ -442,7 +444,194 @@ CAR
 foot
 ```
 
-More to follow...
+<br>
+
+#### <a name="column-based-sorting"></a>Column based sorting
+
+From `info sort`
+
+```
+‘-k POS1[,POS2]’
+‘--key=POS1[,POS2]’
+     Specify a sort field that consists of the part of the line between
+     POS1 and POS2 (or the end of the line, if POS2 is omitted),
+     _inclusive_.
+
+     Each POS has the form ‘F[.C][OPTS]’, where F is the number of the
+     field to use, and C is the number of the first character from the
+     beginning of the field.  Fields and character positions are
+     numbered starting with 1; a character position of zero in POS2
+     indicates the field’s last character.  If ‘.C’ is omitted from
+     POS1, it defaults to 1 (the beginning of the field); if omitted
+     from POS2, it defaults to 0 (the end of the field).  OPTS are
+     ordering options, allowing individual keys to be sorted according
+     to different rules; see below for details.  Keys can span multiple
+     fields.
+```
+
+* By default, blank characters (space and tab) serve as field separators
+
+```bash
+$ cat fruits.txt 
+apple   42
+guava   6
+fig     90
+banana  31
+
+$ sort fruits.txt 
+apple   42
+banana  31
+fig     90
+guava   6
+
+$ # sort based on 2nd column numbers
+$ sort -k2,2n fruits.txt 
+guava   6
+banana  31
+apple   42
+fig     90
+```
+
+* Using a different field separator
+* Consider the following sample input file having fields separated by `:`
+
+```bash
+$ # name:pet_name:no_of_pets
+$ cat pets.txt 
+foo:dog:2
+xyz:cat:1
+baz:parrot:5
+abcd:cat:3
+joe:dog:1
+bar:fox:1
+temp_var:squirrel:4
+boss:dog:10
+```
+
+* Sorting based on particular column or column to end of line
+* In case of multiple entries, by default `sort` would use content of remaining parts of line to resolve
+
+```bash
+$ # only 2nd column
+$ # -k2,4 would mean 2nd column to 4th column
+$ sort -t: -k2,2 pets.txt 
+abcd:cat:3
+xyz:cat:1
+boss:dog:10
+foo:dog:2
+joe:dog:1
+bar:fox:1
+baz:parrot:5
+temp_var:squirrel:4
+
+$ # from 2nd column to end of line
+$ sort -t: -k2 pets.txt 
+xyz:cat:1
+abcd:cat:3
+joe:dog:1
+boss:dog:10
+foo:dog:2
+bar:fox:1
+baz:parrot:5
+temp_var:squirrel:4
+```
+
+* Multiple keys can be specified to resolve ties
+* Note that if there are still multiple entries with specified keys, remaining parts of lines would be used
+
+```bash
+$ # default sort for 2nd column, numeric sort on 3rd column to resolve ties
+$ sort -t: -k2,2 -k3,3n pets.txt 
+xyz:cat:1
+abcd:cat:3
+joe:dog:1
+foo:dog:2
+boss:dog:10
+bar:fox:1
+baz:parrot:5
+temp_var:squirrel:4
+
+$ # numeric sort on 3rd column, default sort for 2nd column to resolve ties
+$ sort -t: -k3,3n -k2,2 pets.txt 
+xyz:cat:1
+joe:dog:1
+bar:fox:1
+foo:dog:2
+abcd:cat:3
+temp_var:squirrel:4
+baz:parrot:5
+boss:dog:10
+```
+
+* Use `-s` option to retain original order of lines in case of tie
+
+```bash
+$ sort -s -t: -k2,2 pets.txt 
+xyz:cat:1
+abcd:cat:3
+foo:dog:2
+joe:dog:1
+boss:dog:10
+bar:fox:1
+baz:parrot:5
+temp_var:squirrel:4
+```
+
+* The `-u` option, as seen earlier, will retain only first match
+
+```bash
+$ sort -u -t: -k2,2 pets.txt 
+xyz:cat:1
+foo:dog:2
+bar:fox:1
+baz:parrot:5
+temp_var:squirrel:4
+
+$ sort -u -t: -k3,3n pets.txt 
+xyz:cat:1
+foo:dog:2
+abcd:cat:3
+temp_var:squirrel:4
+baz:parrot:5
+boss:dog:10
+```
+
+* Specifying particular characters within fields
+* If character position is not specified, defaults to `1` for starting column and `0` (last character) for ending column
+
+```bash
+$ cat marks.txt 
+fork,ap_12,54
+flat,up_342,1.2
+fold,tn_48,211
+more,ap_93,7
+rest,up_5,63
+
+$ # for 2nd column, sort numerically only from 4th character to end
+$ sort -t, -k2.4,2n marks.txt 
+rest,up_5,63
+fork,ap_12,54
+fold,tn_48,211
+more,ap_93,7
+flat,up_342,1.2
+
+$ # sort uniquely based on first two characters of line
+$ sort -u -k1.1,1.2 marks.txt 
+flat,up_342,1.2
+fork,ap_12,54
+more,ap_93,7
+rest,up_5,63
+```
+
+<br>
+
+#### <a name="further-reading-for-sort"></a>Further reading for sort
+
+* There are many other options apart from handful presented above. See `man sort` and `info sort` for detailed documentation and more examples
+* [sort like a master](http://www.skorks.com/2010/05/sort-files-like-a-master-with-the-linux-sort-command-bash/)
+* [When -b to ignore leading blanks is needed](https://unix.stackexchange.com/a/104527/109046)
+* [sort Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sort?sort=votes&pageSize=15)
+* [sort on multiple columns using -k option](https://unix.stackexchange.com/questions/249452/unix-multiple-column-sort-issue)
 
 <br>
 
