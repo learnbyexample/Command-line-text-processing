@@ -516,7 +516,7 @@ test_files/vibgyor.txt
 #### <a name="recursive-search-using-find-command"></a>Recursive search using find command
 
 * `find` is obviously more versatile
-* See also [this guide](https://github.com/learnbyexample/Linux_command_line/blob/master/Working_with_Files_and_Directories.md#find) for more examples/tutorials on using `find`
+* See also [this guide](./wheres_my_file.md#find) for more examples/tutorials on using `find`
 
 ```bash
 $ # all files, including hidden ones
@@ -1540,5 +1540,5 @@ Paraphrasing from `info grep`
     * [online regex tester and debugger](https://regex101.com/) - by default `pcre` flavor
 * Alternatives
     * [pcregrep](http://www.pcre.org/original/doc/html/pcregrep.html)
-    * [ap - silver searcher](https://github.com/ggreer/the_silver_searcher)
+    * [ag - silver searcher](https://github.com/ggreer/the_silver_searcher)
     * [ripgrep](https://github.com/BurntSushi/ripgrep)
