@@ -7,13 +7,15 @@
 ## <a name="chapters"></a>Chapters
 
 * [Cat, Less, Tail and Head](./tail_less_cat_head.md)
+    * cat, less, tail, head, Text Editors
 * [GNU grep](./gnu_grep.md)
+* [Sorting stuff](./sorting_stuff.md)
+    * sort, uniq, comm
 
 Rough drafts
 
 * [Wheres my file](./wheres_my_file.md)
 * [File attributes](./file_attributes.md)
-* [Sorting stuff](./sorting_stuff.md)
 * [Whats the difference](./whats_the_difference.md)
 * [Restructure text](./restructure_text.md)
 * [GNU sed](./gnu_sed.md)
