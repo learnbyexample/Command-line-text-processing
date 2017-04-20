@@ -21,6 +21,10 @@
     * [Column options](#column-options)
     * [Further reading for uniq](#further-reading-for-uniq)
 * [comm](#comm)
+    * [Default three column output](#default-three-column-output)
+    * [Suppressing columns](#suppressing-columns)
+    * [Files with duplicates](#files-with-duplicates)
+    * [Further reading for comm](#further-reading-for-comm)
 
 <br>
 
@@ -1029,42 +1033,53 @@ black
 
 ## <a name="comm"></a>comm
 
->compare two sorted files line by line
+```bash
+$ comm --version | head -n1
+comm (GNU coreutils) 8.25
 
-Without any options, it prints output in three columns - lines unique to file1, line unique to file2 and lines common to both files
+$ man comm
+COMM(1)                          User Commands                         COMM(1)
 
-**Options**
+NAME
+       comm - compare two sorted files line by line
 
-* `-1` suppress lines unique to file1
-* `-2` suppress lines unique to file2
-* `-3` suppress lines common to both files
+SYNOPSIS
+       comm [OPTION]... FILE1 FILE2
 
-**Examples**
+DESCRIPTION
+       Compare sorted files FILE1 and FILE2 line by line.
 
-* `comm -23 sorted_file1.txt sorted_file2.txt` print lines unique to sorted_file1.txt
-    * `comm -23 <(sort file1.txt) <(sort file2.txt)'` same command using process substitution, if sorted input files are not available
-* `comm -13 sorted_file1.txt sorted_file2.txt` print lines unique to sorted_file2.txt
-* `comm -12 sorted_file1.txt sorted_file2.txt` print lines common to both files
-* [comm Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/comm?sort=votes&pageSize=15)
+       When FILE1 or FILE2 (not both) is -, read standard input.
+
+       With  no  options,  produce  three-column  output.  Column one contains
+       lines unique to FILE1, column two contains lines unique to  FILE2,  and
+       column three contains lines common to both files.
+...
+```
+
+<br>
+
+#### <a name="default-three-column-output"></a>Default three column output
+
+Consider below sample input files
 
 ```bash
-$ echo -e 'Brown\nRed\nPurple\nBlue\nTeal\nYellow' | sort > colors_1.txt 
-$ echo -e 'Red\nGreen\nBlue\nBlack\nWhite' | sort > colors_2.txt 
-
-$ # the input files viewed side by side
+$ # sorted input files viewed side by side
 $ paste colors_1.txt colors_2.txt
 Blue    Black
 Brown   Blue
 Purple  Green
 Red     Red
 Teal    White
-Yellow  
+Yellow
 ```
 
-* examples
+* Without any option, `comm` gives 3 column output
+    * lines unique to first file
+    * lines unique to second file
+    * lines common to both files
 
 ```bash
-$ # 3 column output - unique to file1, file2 and common
 $ comm colors_1.txt colors_2.txt
         Black
                 Blue
@@ -1074,20 +1089,41 @@ Purple
                 Red
 Teal
         White
-Yellow 
+Yellow
+```
 
-$ # suppress 1 and 2 column, gives only common lines
+<br>
+
+#### <a name="suppressing-columns"></a>Suppressing columns
+
+* `-1` suppress lines unique to first file
+* `-2` suppress lines unique to second file
+* `-3` suppress lines common to both files
+
+```bash
+$ # suppressing column 3
+$ comm -3 colors_1.txt colors_2.txt
+        Black
+Brown
+        Green
+Purple
+Teal
+        White
+Yellow
+```
+
+* Combining options gives three distinct and useful constructs
+* First, getting only common lines to both files
+
+```bash
 $ comm -12 colors_1.txt colors_2.txt
 Blue
 Red
+```
 
-$ # suppress 1 and 3 column, gives lines unique to file2
-$ comm -13 colors_1.txt colors_2.txt
-Black
-Green
-White
+* Second, lines unique to first file
 
-$ # suppress 2 and 3 column, gives lines unique to file1
+```bash
 $ comm -23 colors_1.txt colors_2.txt
 Brown
 Purple
@@ -1095,3 +1131,55 @@ Teal
 Yellow
 ```
 
+* And the third, lines unique to second file
+
+```bash
+$ comm -13 colors_1.txt colors_2.txt
+Black
+Green
+White
+```
+
+* See also how the above three cases can be done [using grep alone](./gnu_grep.md#search-strings-from-file)
+    * **Note** input files do not need to be sorted for `grep` solution
+
+<br>
+
+#### <a name="files-with-duplicates"></a>Files with duplicates
+
+* As many duplicate lines match in both files, they'll be considered as common
+* Rest will be unique to respective files
+* This is useful for cases like finding lines present in first but not in second taking in to consideration count of duplicates as well
+    * This solution won't be possible with `grep`
+
+```bash
+$ paste list1 list2
+a       a
+a       b
+a       c
+b       c
+b       d
+c
+
+$ comm list1 list2
+                a
+a
+a
+                b
+b
+                c
+        c
+        d
+
+$ comm -23 list1 list2
+a
+a
+b
+```
+
+<br>
+
+#### <a name="further-reading-for-comm"></a>Further reading for comm
+
+* `man comm` and `info comm` for more options and detailed documentation
+* [comm Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/comm?sort=votes&pageSize=15)
