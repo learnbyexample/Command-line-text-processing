@@ -12,6 +12,14 @@
     * [Column based sorting](#column-based-sorting)
     * [Further reading for sort](#further-reading-for-sort)
 * [uniq](#uniq)
+    * [Default uniq](#default-uniq)
+    * [Only duplicates](#only-duplicates)
+    * [Only unique](#only-unique)
+    * [Prefix count](#prefix-count)
+    * [Ignoring case](#ignoring-case)
+    * [Combining multiple files](#combining-multiple-files)
+    * [Column options](#column-options)
+    * [Further reading for uniq](#further-reading-for-uniq)
 * [comm](#comm)
 
 <br>
@@ -19,7 +27,7 @@
 ## <a name="sort"></a>sort
 
 ```bash
-$ sort --version | head -1
+$ sort --version | head -n1
 sort (GNU coreutils) 8.25
 
 $ man sort
@@ -623,6 +631,25 @@ more,ap_93,7
 rest,up_5,63
 ```
 
+* If there are headers
+
+```bash
+$ cat header.txt 
+fruit   qty
+apple   42
+guava   6
+fig     90
+banana  31
+
+$ # separate and combine header and content to be sorted
+$ cat <(head -n1 header.txt) <(tail -n +2 header.txt | sort -k2nr)
+fruit   qty
+fig     90
+apple   42
+banana  31
+guava   6
+```
+
 <br>
 
 #### <a name="further-reading-for-sort"></a>Further reading for sort
@@ -638,56 +665,365 @@ rest,up_5,63
 
 ## <a name="uniq"></a>uniq
 
->report or omit repeated lines
+```bash
+$ uniq --version | head -n1
+uniq (GNU coreutils) 8.25
 
-This command is more specific to recognizing duplicates. Usually requires a sorted input as the comparison is made on adjacent lines only
+$ man uniq
+UNIQ(1)                          User Commands                         UNIQ(1)
 
-**Options**
+NAME
+       uniq - report or omit repeated lines
 
-* `-d` print only duplicate lines
-* `-c` prefix count to occurrences
-* `-u` print only unique lines
+SYNOPSIS
+       uniq [OPTION]... [INPUT [OUTPUT]]
 
-**Examples**
+DESCRIPTION
+       Filter  adjacent matching lines from INPUT (or standard input), writing
+       to OUTPUT (or standard output).
 
-* `sort test_list.txt | uniq` outputs lines of test_list.txt in sorted order with duplicate lines removed
-	* `uniq <(sort test_list.txt)` same command using process substitution
-	* `sort -u test_list.txt` equivalent command
-* `uniq -d sorted_list.txt` print only duplicate lines
-* `uniq -cd sorted_list.txt` print only duplicate lines and prefix the line with number of times it is repeated
-* `uniq -u sorted_list.txt` print only unique lines, repeated lines are ignored
-* [uniq Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/uniq?sort=votes&pageSize=15)
+       With no options, matching lines are merged to the first occurrence.
+...
+```
+
+<br>
+
+#### <a name="default-uniq"></a>Default uniq
 
 ```bash
-$ echo -e 'Blue\nRed\nGreen\nBlue\nRed\nBlack\nRed' > colors.txt 
-$ uniq colors.txt 
-Blue
-Red
-Green
-Blue
-Red
-Black
-Red
+$ cat word_list.txt 
+are
+are
+to
+good
+bad
+bad
+bad
+good
+are
+bad
 
-$ echo -e 'Blue\nRed\nGreen\nBlue\nRed\nBlack\nRed' | sort > sorted_colors.txt 
-$ uniq sorted_colors.txt
-Black
-Blue
-Green
-Red
+$ # adjacent duplicate lines are removed, leaving one copy
+$ uniq word_list.txt
+are
+to
+good
+bad
+good
+are
+bad
 
-$ uniq -d sorted_colors.txt 
-Blue
-Red
-
-$ uniq -cd sorted_colors.txt 
-      2 Blue
-      3 Red
-      
-$ uniq -u sorted_colors.txt 
-Black
-Green
+$ # To remove duplicates from entire file, input has to be sorted first
+$ # also showcases that uniq accepts stdin as input
+$ sort word_list.txt | uniq
+are
+bad
+good
+to
 ```
+
+<br>
+
+#### <a name="only-duplicates"></a>Only duplicates
+
+```bash
+$ # duplicates adjacent to each other
+$ uniq -d word_list.txt 
+are
+bad
+
+$ # duplicates in entire file
+$ sort word_list.txt | uniq -d
+are
+bad
+good
+```
+
+* To get only duplicates as well as show all duplicates
+
+```bash
+$ uniq -D word_list.txt 
+are
+are
+bad
+bad
+bad
+
+$ sort word_list.txt | uniq -D
+are
+are
+are
+bad
+bad
+bad
+bad
+good
+good
+```
+
+* To distinguish the different groups
+
+```bash
+$ # using --all-repeated=prepend will add a newline before the first group as well
+$ sort word_list.txt | uniq --all-repeated=separate
+are
+are
+are
+
+bad
+bad
+bad
+bad
+
+good
+good
+```
+
+<br>
+
+#### <a name="only-unique"></a>Only unique
+
+```bash
+$ # lines with no adjacent duplicates
+$ uniq -u word_list.txt
+to
+good
+good
+are
+bad
+
+$ # unique lines in entire file
+$ sort word_list.txt | uniq -u
+to
+```
+
+<br>
+
+#### <a name="prefix-count"></a>Prefix count
+
+```bash
+$ # adjacent lines
+$ uniq -c word_list.txt
+      2 are
+      1 to
+      1 good
+      3 bad
+      1 good
+      1 are
+      1 bad
+
+$ # entire file
+$ sort word_list.txt | uniq -c
+      3 are
+      4 bad
+      2 good
+      1 to
+
+$ # entire file, only duplicates
+$ sort word_list.txt | uniq -cd
+      3 are
+      4 bad
+      2 good
+```
+
+* Sorting by count
+
+```bash
+$ # sort by count
+$ sort word_list.txt | uniq -c | sort -n
+      1 to
+      2 good
+      3 are
+      4 bad
+
+$ # reverse the order, highest count first
+$ sort word_list.txt | uniq -c | sort -nr
+      4 bad
+      3 are
+      2 good
+      1 to
+```
+
+* To get only entries with min/max count, bit of [awk](./gnu_awk.md) magic would help
+
+```bash
+$ # consider this result
+$ sort colors.txt | uniq -c | sort -nr
+      3 Red
+      3 Blue
+      2 Yellow
+      1 Green
+      1 Black
+
+$ # to get all max count
+$ # save 1st line 1st column value to c and then print if 1st column equals c
+$ sort colors.txt | uniq -c | sort -nr | awk 'NR==1{c=$1} $1==c'
+      3 Red
+      3 Blue
+$ # to get all min count
+$ sort colors.txt | uniq -c | sort -n | awk 'NR==1{c=$1} $1==c'
+      1 Black
+      1 Green
+```
+
+* Get rough count of most used commands from `history`
+
+```bash
+$ # awk '{print $2}' will get the 2nd column alone
+$ history | awk '{print $2}' | sort | uniq -c | sort -nr | head
+    673 echo
+    583 grep
+    297 cd
+    297 awk
+    269 vi
+    265 perl
+    185 cat
+    147 sed
+    141 printf
+    138 rm
+```
+
+<br>
+
+#### <a name="ignoring-case"></a>Ignoring case
+
+```bash
+$ cat another_list.txt
+food
+Food
+good
+are
+bad
+Are
+
+$ # note how first copy is retained
+$ uniq -i another_list.txt 
+food
+good
+are
+bad
+Are
+
+$ uniq -iD another_list.txt 
+food
+Food
+```
+
+<br>
+
+#### <a name="combining-multiple-files"></a>Combining multiple files
+
+```bash
+$ sort -f word_list.txt another_list.txt | uniq -i
+are
+bad
+food
+good
+to
+
+$ sort -f word_list.txt another_list.txt | uniq -c
+      4 are
+      1 Are
+      5 bad
+      1 food
+      1 Food
+      3 good
+      1 to
+
+$ sort -f word_list.txt another_list.txt | uniq -ic
+      5 are
+      5 bad
+      2 food
+      3 good
+      1 to
+```
+
+* If only adjacent lines (not sorted) is required, need to concatenate files using another command
+
+```bash
+$ uniq -id word_list.txt
+are
+bad
+
+$ uniq -id another_list.txt
+food
+
+$ cat word_list.txt another_list.txt | uniq -id
+are
+bad
+food
+```
+
+<br>
+
+#### <a name="column-options"></a>Column options
+
+* `uniq` has few options dealing with column manipulations. Not extensive as `sort -k` but handy for some cases
+* First up, skipping fields
+    * No option to specify different delimiter
+    * From `info uniq`: Fields are sequences of non-space non-tab characters that are separated from each other by at least one space or tab
+
+```bash
+$ cat shopping.txt 
+lemon   5
+mango   5
+banana  8
+bread   1
+orange  5
+
+$ # skips first field
+$ # use -f3 to skip first three fields
+$ uniq -f1 shopping.txt 
+lemon   5
+banana  8
+bread   1
+orange  5
+```
+
+* Skipping characters
+
+```bash
+$ cat text 
+glue
+blue
+black
+stack
+stuck
+
+$ # don't consider first 2 characters
+$ uniq -s2 text 
+glue
+black
+stuck
+```
+
+* Upto specified characters
+
+```bash
+$ # consider only first 2 characters
+$ uniq -w2 text 
+glue
+blue
+stack
+```
+
+* Combining `-s` and `-w`
+* Can be combined with `-f` as well
+
+```bash
+$ # skip first 3 characters and then use next 2 characters
+$ uniq -s3 -w2 text 
+glue
+black
+```
+
+
+<br>
+
+#### <a name="further-reading-for-uniq"></a>Further reading for uniq
+
+* Do check out `man uniq` and `info uniq` for other options and more detailed documentation
+* [uniq Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/uniq?sort=votes&pageSize=15)
 
 <br>
 
