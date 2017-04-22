@@ -186,6 +186,8 @@ $ sort -nr numbers.txt
 
 * The `-n` option can handle negative numbers
 * As well as thousands separator and decimal point (depends on locale)
+* The `<()` syntax is [Process Substitution](http://mywiki.wooledge.org/ProcessSubstitution)
+    * to put it simply - allows output of command to be passed as input file to another command without needing to manually create a temporary file
 
 ```bash
 $ # multiple files are merged as single input by default
@@ -999,6 +1001,15 @@ $ uniq -s2 text
 glue
 black
 stuck
+
+$ # to visualize the above example
+$ # assume there are two fields and uniq is applied on 2nd column
+$ sed 's/^../& /' text 
+gl ue
+bl ue
+bl ack
+st ack
+st uck
 ```
 
 * Upto specified characters
@@ -1009,6 +1020,15 @@ $ uniq -w2 text
 glue
 blue
 stack
+
+$ # to visualize the above example
+$ # assume there are two fields and uniq is applied on 1st column
+$ sed 's/^../& /' text 
+gl ue
+bl ue
+bl ack
+st ack
+st uck
 ```
 
 * Combining `-s` and `-w`
