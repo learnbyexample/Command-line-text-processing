@@ -988,7 +988,7 @@ on
 
 ```bash
 $ # words made up of letters o and n, at least 2 letters
-$ grep -xE '[on]{2,}' /etc/dictionaries-common/words 
+$ grep -xE '[on]{2,}' /usr/share/dict/words 
 no
 non
 noon
@@ -1174,24 +1174,24 @@ $#
 
 ```bash
 $ # 5 letter words starting with c and ending with ty or ly
-$ grep -xE 'c..(ty|ly)' /etc/dictionaries-common/words 
+$ grep -xE 'c..(ty|ly)' /usr/share/dict/words 
 catty
 coyly
 curly
 
 $ # 7 letter words starting with e and ending with rted or sted
-$ grep -xE 'e..(rt|st)ed' /etc/dictionaries-common/words 
+$ grep -xE 'e..(rt|st)ed' /usr/share/dict/words 
 exerted
 existed
 
 $ # repeat a pattern 3 times
-$ grep -xE '([a-d][r-z]){3}' /etc/dictionaries-common/words 
+$ grep -xE '([a-d][r-z]){3}' /usr/share/dict/words 
 avatar
 awards
 cravat
 
 $ # nesting of () is allowed
-$ grep -E '([as](p|c)[r-t]){2}' /etc/dictionaries-common/words
+$ grep -E '([as](p|c)[r-t]){2}' /usr/share/dict/words
 scraps
 
 $ # can be used to match specific columns in well defined tables
@@ -1212,12 +1212,12 @@ foo:123:bar:baz
 
 ```bash
 $ # note how first three and last three letters are same
-$ grep -xE '([a-d]..)\1' /etc/dictionaries-common/words 
+$ grep -xE '([a-d]..)\1' /usr/share/dict/words 
 bonbon
 cancan
 chichi
 $ # note how adding quantifier is not same as back-referencing
-$ grep -m4 -xE '([a-d]..){2}' /etc/dictionaries-common/words
+$ grep -m4 -xE '([a-d]..){2}' /usr/share/dict/words
 abacus
 abided
 abides
@@ -1231,7 +1231,7 @@ all
 seen
 
 $ # 17 letter words with first and last as same letter
-$ grep -xE '(.)[a-z]{15}\1' /etc/dictionaries-common/words 
+$ grep -xE '(.)[a-z]{15}\1' /usr/share/dict/words 
 semiprofessionals
 transcendentalist
 ```
