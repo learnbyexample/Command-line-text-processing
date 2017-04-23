@@ -789,12 +789,15 @@ $ grep -E 'blue|you' poem.txt
 Violets are blue,
 And so are you.
 
+$ # extract case-insensitive e or f from anywhere in line
 $ echo 'Fantasy is my favorite genre' | grep -Eio 'e|f'
 F
 f
 e
 e
 e
+
+$ # extract case-insensitive e at end of line, f at start of line
 $ echo 'Fantasy is my favorite genre' | grep -Eio 'e$|^f'
 F
 e
@@ -828,12 +831,13 @@ Screenshot for above example:
 The `.` meta character matches is used to match any character
 
 ```bash
-$ # all two character words
+$ # any two characters surrounded by word boundaries
 $ echo 'I have 12, he has 132!' | grep -ow '..'
 12
 he
 
 $ # match three characters from start of line
+$ # \t (TAB) is single character here
 $ printf 'a\tbcd\n' | grep -o '^...'
 a       b
 
@@ -857,21 +861,27 @@ $ echo '1 & 2' | grep -o '.'
 Defines how many times a character (simplified for now) should be matched
 
 * `?` will try to match 0 or 1 time
+* For BRE, use `\?`
 
 ```bash
-$ printf 'spar\npar\npart\napparent\n' | grep -Ew 'part?'
-par
-part
+$ printf 'late\npale\nfactor\nrare\nact\n'
+late
+pale
+factor
+rare
+act
 
-$ printf 'spar\npar\npart\napparent\n' | grep -Ew 's?par'
-spar
-par
+$ # match a followed by t, with or without c in between
+$ printf 'late\npale\nfactor\nrare\nact\n' | grep -E 'ac?t'
+late
+factor
+act
 
-$ printf 'spar\npar\npart\napparent\n' | grep -E 'part?'
-spar
-par
-part
-apparent
+$ # same as using this alternation
+$ printf 'late\npale\nfactor\nrare\nact\n' | grep -E 'at|act'
+late
+factor
+act
 ```
 
 * `*` will try to match 0 or more times
@@ -1206,6 +1216,7 @@ $ grep -xE '([a-d]..)\1' /etc/dictionaries-common/words
 bonbon
 cancan
 chichi
+$ # note how adding quantifier is not same as back-referencing
 $ grep -m4 -xE '([a-d]..){2}' /etc/dictionaries-common/words
 abacus
 abided
