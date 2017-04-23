@@ -645,6 +645,10 @@ grep: Unmatched [ or [^
 $ # phew, -F is a life saver
 $ echo 'int a[5]' | grep -F 'a[5]'
 int a[5]
+
+$ # [ and ] are meta characters, details in following sections
+$ echo 'int a[5]' | grep 'a\[5]'
+int a[5]
 ```
 
 * By default, `grep` treats the search pattern as BRE (Basic Regular Expression)
@@ -717,21 +721,53 @@ $ printf 'foo\cbar' | grep -o '\\c'
 * The `-w` option works well to match whole words. But what about matching only start or end of words?
 * Anchors `\<` and `\>` will match start/end positions of a word
 * `\b` can also be used instead of `\<` and `\>` which matches either edge of a word
-* `\b` has an opposite `\B` which is quite useful too
 
 ```bash
+$ printf 'spar\npar\npart\napparent\n'
+spar
+par
+part
+apparent
+
+$ # words ending with par
 $ printf 'spar\npar\npart\napparent\n' | grep 'par\>'
 spar
 par
 
+$ # words starting with par
 $ printf 'spar\npar\npart\napparent\n' | grep '\<par'
 par
 part
+```
 
+* `-w` option is same as specifying both start and end word boundaries
+
+```bash
 $ printf 'spar\npar\npart\napparent\n' | grep '\<par\>'
 par
 
+$ printf 'spar\npar\npart\napparent\n' | grep '\bpar\b'
+par
+
+$ printf 'spar\npar\npart\napparent\n' | grep -w 'par'
+par
+```
+
+* `\b` has an opposite `\B` which is quite useful too
+
+```bash
+$ # string not surrounded by word boundary either side
 $ printf 'spar\npar\npart\napparent\n' | grep '\Bpar\B'
+apparent
+
+$ # word containing par but not as start of word
+$ printf 'spar\npar\npart\napparent\n' | grep '\Bpar'
+spar
+apparent
+
+$ # word containing par but not as end of word
+$ printf 'spar\npar\npart\napparent\n' | grep 'par\B'
+part
 apparent
 ```
 
