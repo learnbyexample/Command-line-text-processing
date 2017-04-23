@@ -765,7 +765,7 @@ e
 ```
 
 * A cool usecase of alternation is using `^` or `$` anchors to highlight searched term as well as display rest of unmatched lines
-    * the line anchors will match every input line, even empty lines are they are position markers
+    * the line anchors will match every input line, even empty lines as they are position markers
 
 ```bash
 $ grep --color=auto -E '^|are' poem.txt 
@@ -1015,6 +1015,10 @@ $ # get characters from start of line upto(not including) known identifier
 $ echo 'foo=bar; baz=123' | grep -oE '^[^=]+'
 foo
 
+$ # get characters at end of line from(not including) known identifier
+$ echo 'foo=bar; baz=123' | grep -oE '[^=]+$'
+123
+
 $ # get all sequence of characters surrounded by unique identifier
 $ echo 'I like "mango" and "guava"' | grep -oE '"[^"]+"'
 "mango"
@@ -1166,7 +1170,7 @@ $ grep -xE '([a-d]..)\1' /etc/dictionaries-common/words
 bonbon
 cancan
 chichi
-$ grep -xE '([a-d]..){2}' /etc/dictionaries-common/words | head -4
+$ grep -m4 -xE '([a-d]..){2}' /etc/dictionaries-common/words
 abacus
 abided
 abides
