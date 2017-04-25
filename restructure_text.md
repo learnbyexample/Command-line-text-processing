@@ -19,6 +19,9 @@
     * [Combining multiple input files](#combining-multiple-input-files)
     * [Transposing a table](#transposing-a-table)
     * [Further reading for pr](#further-reading-for-pr)
+* [fold](#fold)
+    * [Examples](#examples)
+    * [Further reading for fold](#further-reading-for-fold)
 
 <br>
 
@@ -611,4 +614,79 @@ poha       sevai         vadapav  shondesh
 
 * `man pr` and `info pr` for more options and detailed documentation
 * More examples [here](http://docstore.mik.ua/orelly/unix3/upt/ch21_15.htm)
+
+<br>
+
+## <a name="fold"></a>fold
+
+```bash
+$ fold --version | head -n1
+fold (GNU coreutils) 8.25
+
+$ man fold
+FOLD(1)                          User Commands                         FOLD(1)
+
+NAME
+       fold - wrap each input line to fit in specified width
+
+SYNOPSIS
+       fold [OPTION]... [FILE]...
+
+DESCRIPTION
+       Wrap input lines in each FILE, writing to standard output.
+
+       With no FILE, or when FILE is -, read standard input.
+...
+```
+
+<br>
+
+#### <a name="examples"></a>Examples
+
+```bash
+$ nl story.txt
+     1	The princess of a far away land fought bravely to rescue a travelling group from bandits. And the happy story ends here. Have a nice day.
+     2	Still here? okay, read on: The prince of Happalakkahuhu wished he could be as brave as his sister and vowed to train harder
+
+$ # default folding width is 80
+$ fold story.txt 
+The princess of a far away land fought bravely to rescue a travelling group from
+ bandits. And the happy story ends here. Have a nice day.
+Still here? okay, read on: The prince of Happalakkahuhu wished he could be as br
+ave as his sister and vowed to train harder
+
+$ fold story.txt | nl
+     1	The princess of a far away land fought bravely to rescue a travelling group from
+     2	 bandits. And the happy story ends here. Have a nice day.
+     3	Still here? okay, read on: The prince of Happalakkahuhu wished he could be as br
+     4	ave as his sister and vowed to train harder
+```
+
+* `-s` option breaks at spaces to avoid word splitting
+
+```bash
+$ fold -s story.txt 
+The princess of a far away land fought bravely to rescue a travelling group 
+from bandits. And the happy story ends here. Have a nice day.
+Still here? okay, read on: The prince of Happalakkahuhu wished he could be as 
+brave as his sister and vowed to train harder
+```
+
+* Use `-w` to change default width
+
+```bash
+$ fold -s -w60 story.txt 
+The princess of a far away land fought bravely to rescue a 
+travelling group from bandits. And the happy story ends 
+here. Have a nice day.
+Still here? okay, read on: The prince of Happalakkahuhu 
+wished he could be as brave as his sister and vowed to 
+train harder
+```
+
+<br>
+
+#### <a name="further-reading-for-fold"></a>Further reading for fold
+
+* `man fold` and `info fold` for more options and detailed documentation
 
