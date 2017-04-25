@@ -552,6 +552,24 @@ Red             Red
 Teal            White
 ```
 
+* For interleaving, specify newline as separator
+
+```bash
+$ pr -mts$'\n' fruits.txt price.txt
+Fruits
+Price
+apple
+182
+guava
+90
+watermelon
+35
+banana
+72
+pomegranate
+280
+```
+
 <br>
 
 #### <a name="transposing-a-table"></a>Transposing a table
