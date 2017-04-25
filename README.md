@@ -11,13 +11,14 @@
 * [GNU grep](./gnu_grep.md)
 * [Sorting stuff](./sorting_stuff.md)
     * sort, uniq, comm
+* [Restructure text](./restructure_text.md)
+    * paste, column, pr, fold
 
 Rough drafts
 
 * [Wheres my file](./wheres_my_file.md)
 * [File attributes](./file_attributes.md)
 * [Whats the difference](./whats_the_difference.md)
-* [Restructure text](./restructure_text.md)
 * [GNU sed](./gnu_sed.md)
 * [GNU awk](./gnu_awk.md)
 * [Perl the swiss knife](./perl_the_swiss_knife.md)
