@@ -1163,6 +1163,23 @@ White
 * See also how the above three cases can be done [using grep alone](./gnu_grep.md#search-strings-from-file)
     * **Note** input files do not need to be sorted for `grep` solution
 
+If different `sort` order than default is required, use `--nocheck-order` to ignore error message
+
+```bash
+$ comm -23 <(sort -n numbers.txt) <(sort -n nums.txt)
+3
+comm: file 1 is not in sorted order
+20
+53
+101
+
+$ comm --nocheck-order -23 <(sort -n numbers.txt) <(sort -n nums.txt)
+3
+20
+53
+101
+```
+
 <br>
 
 #### <a name="files-with-duplicates"></a>Files with duplicates
