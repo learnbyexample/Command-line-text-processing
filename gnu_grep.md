@@ -558,6 +558,37 @@ I
 What
 ```
 
+* Useful for matching more than one search string anywhere in file as well
+
+```bash
+$ # files containing 'you'
+$ grep -rl 'you'
+poem.txt
+test_files/hidden_files/.fav_color.info
+
+$ # files containing 'you' as well as 'are'
+$ grep -rlZ 'you' | xargs -0 grep -l 'are'
+poem.txt
+
+$ # files containing 'you' but NOT 'are'
+$ grep -rlZ 'you' | xargs -0 grep -L 'are'
+test_files/hidden_files/.fav_color.info
+```
+
+* another example
+
+```bash
+$ grep -rilZ 'red' | xargs -0 grep -il 'blue'
+poem.txt
+test_files/colors.txt
+test_files/vibgyor.txt
+
+$ # note the use of `-Z` for middle command
+$ grep -rilZ 'red' | xargs -0 grep -ilZ 'blue' | xargs -0 grep -il 'violet'
+poem.txt
+test_files/vibgyor.txt
+```
+
 <br>
 
 ## <a name="search-strings-from-file"></a>Search strings from file
