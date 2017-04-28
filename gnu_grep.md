@@ -558,7 +558,30 @@ I
 What
 ```
 
-* Useful for matching more than one search string anywhere in file as well
+* simple example to show filenames with space causing issue if `-Z` is not used
+
+```bash
+$ # 'abc xyz.txt' is a file with space in its name
+$ grep -ri 'are'
+abc xyz.txt:hi how are you
+poem.txt:Roses are red,
+poem.txt:Violets are blue,
+poem.txt:And so are you.
+saved_output.txt:Violets are blue,
+
+$ # problem when -Z is not used
+$ grep -ril 'are' | xargs grep 'you'
+grep: abc: No such file or directory
+grep: xyz.txt: No such file or directory
+poem.txt:And so are you.
+
+$ # no issues if -Z is used
+$ grep -rilZ 'are' | xargs -0 grep 'you'
+abc xyz.txt:hi how are you
+poem.txt:And so are you.
+```
+
+* Example for matching more than one search string anywhere in file
 
 ```bash
 $ # files containing 'you'
