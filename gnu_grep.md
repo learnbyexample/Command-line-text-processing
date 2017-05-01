@@ -1380,6 +1380,18 @@ Some of the backslash constructs available in PCRE over already seen ones in ERE
 * `\D`, `\S`, `\H`, `\N` etc for their opposites
 
 ```bash
+$ # example for [0-9] in ERE and \d in PCRE
+$ echo 'foo=5, bar=3; x=83, y=120' | grep -oE '[0-9]+'
+5
+3
+83
+120
+$ echo 'foo=5, bar=3; x=83, y=120' | grep -oP '\d+'
+5
+3
+83
+120
+
 $ # (?s) allows newlines to be also matches when using . meta character
 $ grep -ozP '(?s)Roses.*blue,\n' poem.txt 
 Roses are red,
@@ -1427,7 +1439,34 @@ a canal,
 #### <a name="lookarounds"></a>Lookarounds
 
 * Ability to add conditions to match before/after required pattern
+* There are four types
+    * positive lookahead `(?=`
+    * negative lookahead `(?!`
+    * positive lookbehind `(?<=`
+    * negative lookbehind `(?<!`
+* One way to remember is that **behind** uses `<` and **negative** uses `!` instead of `=`
 * When used with `-o` option, lookarounds portion won't be part of output
+
+Fixed and variable length *lookbehind*
+
+```bash
+$ # extract digits preceded by single lowercase letter and =
+$ # this is fixed length lookbehind because length is known
+$ echo 'foo=5, bar=3; x=83, y=120' | grep -oP '(?<=\b[a-z]=)\d+'
+83
+120
+
+$ # error because {2,} induces variable length matching
+$ echo 'foo=5, bar=3; x=83, y=120' | grep -oP '(?<=\b[a-z]{2,}=)\d+'
+grep: lookbehind assertion is not fixed length
+
+$ # use \K for such cases
+$ echo 'foo=5, bar=3; x=83, y=120' | grep -oP '\b[a-z]{2,}=\K\d+'
+5
+3
+```
+
+* Examples for lookarounds
 
 ```bash
 $ # extract digits that follow =
