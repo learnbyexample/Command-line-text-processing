@@ -1,4 +1,170 @@
-## <a name="sed"></a>sed
+# <a name="sed"></a>sed
+
+**Table of Contents**
+
+* [Simple search and replace](#simple-search-and-replace)
+    * [editing stdin](#editing-stdin)
+    * [editing file input](#editing-file-input)
+* [Inplace file editing](#inplace-file-editing)
+    * [With backup](#with-backup)
+    * [Without backup](#without-backup)
+    * [Multiple files](#multiple-files)
+
+<br>
+
+```bash
+$ sed --version | head -n1
+sed (GNU sed) 4.2.2
+
+$ man sed
+SED(1)                           User Commands                          SED(1)
+
+NAME
+       sed - stream editor for filtering and transforming text
+
+SYNOPSIS
+       sed [OPTION]... {script-only-if-no-other-script} [input-file]...
+
+DESCRIPTION
+       Sed  is a stream editor.  A stream editor is used to perform basic text
+       transformations on an input stream (a file or input from  a  pipeline).
+       While  in  some  ways similar to an editor which permits scripted edits
+       (such as ed), sed works by making only one pass over the input(s),  and
+       is consequently more efficient.  But it is sed's ability to filter text
+       in a pipeline which particularly distinguishes it from other  types  of
+       editors.
+...
+```
+
+<br>
+
+## <a name="simple-search-and-replace"></a>Simple search and replace
+
+Detailed examples for **substitute** command will be convered in later section, syntax is
+
+```
+s/REGEXP/REPLACEMENT/FLAGS
+```
+
+<br>
+
+#### <a name="editing-stdin"></a>editing stdin
+
+```bash
+$ seq 10 | paste -sd,
+1,2,3,4,5,6,7,8,9,10
+
+$ # change only first ',' to ' : '
+$ seq 10 | paste -sd, | sed 's/,/ : /'
+1 : 2,3,4,5,6,7,8,9,10
+
+$ # change all ',' to ' : ' by using 'g' FLAG
+$ seq 10 | paste -sd, | sed 's/,/ : /g'
+1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
+```
+
+<br>
+
+#### <a name="editing-file-input"></a>editing file input
+
+```bash
+$ cat greeting.txt 
+Hi, how are you?
+What are you upto these days?
+Hope you are atleast keeping in touch with Prof.
+As usual, am upto no good :P
+
+$ # change all 'atleast' to 'at least'
+$ sed 's/atleast/at least/g' greeting.txt 
+Hi, how are you?
+What are you upto these days?
+Hope you are at least keeping in touch with Prof.
+As usual, am upto no good :P
+```
+
+<br>
+
+## <a name="inplace-file-editing"></a>Inplace file editing
+
+* In previous section, the output from `sed` was displayed on stdout
+* To save stdout to another file, shell redirection can be used
+    * For ex: `sed 's/atleast/at least/g' greeting.txt > out.txt`
+* However, to write the changes back to original file, use `-i` option
+
+**Note**
+
+Refer to `man sed` for details of how to use the `-i` option. It varies with different `sed` implementations. As mentioned at start of this chapter, `sed (GNU sed) 4.2.2` is being used here
+
+<br>
+
+#### <a name="with-backup"></a>With backup
+
+* When extension is given, the original input file is preserved with name changed according to extension provided
+
+```bash
+$ # '.bkp' is extension provided
+$ sed -i.bkp 's/atleast/at least/g' greeting.txt
+
+$ # original file gets preserved in 'greeting.txt.bkp'
+$ cat greeting.txt.bkp 
+Hi, how are you?
+What are you upto these days?
+Hope you are atleast keeping in touch with Prof.
+As usual, am upto no good :P
+
+$ # output from sed gets written to 'greeting.txt'
+$ cat greeting.txt
+Hi, how are you?
+What are you upto these days?
+Hope you are at least keeping in touch with Prof.
+As usual, am upto no good :P
+```
+
+<br>
+
+#### <a name="without-backup"></a>Without backup
+
+* Use this option with caution, changes made cannot be undone
+
+```bash
+$ sed -i 's/upto/up to/g' greeting.txt
+
+$ # note, 'atleast' was already changed to 'at least' in previous example
+$ cat greeting.txt
+Hi, how are you?
+What are you up to these days?
+Hope you are at least keeping in touch with Prof.
+As usual, am up to no good :P
+```
+
+<br>
+
+#### <a name="multiple-files"></a>Multiple files
+
+* Multiple input files are treated individually and changes are written back to respective files
+
+```bash
+$ cat f1
+I ate 3 apples
+$ cat f2
+I bought two bananas and 3 mangoes
+
+$ # -i can be used with or without backup
+$ sed -i 's/3/three/' f1 f2
+$ cat f1
+I ate three apples
+$ cat f2
+I bought two bananas and three mangoes
+```
+
+
+<br>
+<br>
+<br>
+
+rough draft contents below
+
+<br>
 
 >stream editor for filtering and transforming text
 
