@@ -968,22 +968,24 @@ food
 * First up, skipping fields
     * No option to specify different delimiter
     * From `info uniq`: Fields are sequences of non-space non-tab characters that are separated from each other by at least one space or tab
+    * Number of spaces/tabs between fields should be same
 
 ```bash
 $ cat shopping.txt 
-lemon   5
-mango   5
-banana  8
-bread   1
-orange  5
+lemon 5
+mango 5
+banana 8
+bread 1
+orange 5
 
 $ # skips first field
-$ # use -f3 to skip first three fields
 $ uniq -f1 shopping.txt 
-lemon   5
-banana  8
-bread   1
-orange  5
+lemon 5
+banana 8
+bread 1
+orange 5
+
+$ # use -f3 to skip first three fields and so on
 ```
 
 * Skipping characters
