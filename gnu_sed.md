@@ -9,6 +9,9 @@
     * [With backup](#with-backup)
     * [Without backup](#without-backup)
     * [Multiple files](#multiple-files)
+* [Line filtering options](#line-filtering-options)
+    * [Print command](#print-command)
+    * [Delete command](#delete-command)
 
 <br>
 
@@ -127,6 +130,8 @@ As usual, am upto no good :P
 * Use this option with caution, changes made cannot be undone
 
 ```bash
+$ # note that 'uptown' would also get changed to 'up town'
+$ # Use regular expressions (covered later) to specify exact string to be replaced
 $ sed -i 's/upto/up to/g' greeting.txt
 
 $ # note, 'atleast' was already changed to 'at least' in previous example
@@ -157,6 +162,61 @@ $ cat f2
 I bought two bananas and three mangoes
 ```
 
+<br>
+
+## <a name="line-filtering-options"></a>Line filtering options
+
+* By default, `sed` acts on entire file. Often, one needs to print or change only specific lines based on text search, line numbers, lines between two patterns, etc
+* This filtering is much like using `grep` command in many ways and some features beyond what `grep` offers
+
+<br>
+
+#### <a name="print-command"></a>Print command
+
+* It is usually used in conjunction with `-n` option
+* By default, `sed` prints every input line, including any changes like substitution
+* Using `-n` option and `p` command together, only specific lines needed can be filtered
+* Examples below use the `/REGEXP/` addressing, other forms will be seen later
+
+```bash
+$ cat poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # all lines containing the string 'are'
+$ # same as: grep 'are' poem.txt 
+$ sed -n '/are/p' poem.txt 
+Roses are red,
+Violets are blue,
+And so are you.
+
+$ # all lines containing the string 'so are'
+$ # same as: grep 'so are' poem.txt 
+$ sed -n '/so are/p' poem.txt 
+And so are you.
+```
+
+<br>
+
+#### <a name="delete-command"></a>Delete command
+
+* By default, `sed` prints every input line, including any changes like substitution
+* Using the `d` command, those specific lines will NOT be printed
+
+```bash
+$ # same as: grep -v 'are' poem.txt 
+$ sed '/are/d' poem.txt 
+Sugar is sweet,
+
+$ # same as: seq 5 | grep -v '3'
+$ seq 5 | sed '/3/d'
+1
+2
+4
+5
+```
 
 <br>
 <br>
