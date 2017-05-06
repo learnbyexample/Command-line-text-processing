@@ -26,6 +26,12 @@ Rough drafts
 
 <br>
 
+## <a name="webinar-recordings"></a>Webinar recordings
+
+* [Using the sort command](https://www.youtube.com/watch?v=qLfAwwb5vGs)
+
+<br>
+
 ## <a name="exercises"></a>exercises
 
 Check out [exercises](./exercises) directory to test yourself, right from the command line itself
