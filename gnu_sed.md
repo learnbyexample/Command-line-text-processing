@@ -12,6 +12,8 @@
 * [Line filtering options](#line-filtering-options)
     * [Print command](#print-command)
     * [Delete command](#delete-command)
+    * [Negating REGEXP address](#negating-regexp-address)
+    * [Combining multiple REGEXP](#combining-multiple-regexp)
 
 <br>
 
@@ -167,7 +169,8 @@ I bought two bananas and three mangoes
 ## <a name="line-filtering-options"></a>Line filtering options
 
 * By default, `sed` acts on entire file. Often, one needs to print or change only specific lines based on text search, line numbers, lines between two patterns, etc
-* This filtering is much like using `grep` command in many ways and some features beyond what `grep` offers
+* This filtering is much like using `grep`, `head` and `tail` commands in many ways and there are even more features
+    * Use `sed` for inplace editing, the filtered lines to be transformed etc. Not as substitute for `grep`, `head` and `tail`
 
 <br>
 
@@ -216,6 +219,57 @@ $ seq 5 | sed '/3/d'
 2
 4
 5
+```
+
+<br>
+
+#### <a name="negating-regexp-address"></a>Negating REGEXP address
+
+* Use `!` to invert the specified address
+
+```bash
+$ # same as: sed -n '/so are/p' poem.txt
+$ sed '/so are/!d' poem.txt
+And so are you.
+
+$ # same as: sed '/are/d' poem.txt
+$ sed -n '/are/!p' poem.txt 
+Sugar is sweet,
+```
+
+<br>
+
+#### <a name="combining-multiple-regexp"></a>Combining multiple REGEXP
+
+* Use `-e` option to logically OR different REGEXPs
+
+```bash
+$ # same as: grep -e 'blue' -e 'you' poem.txt
+$ sed -n -e '/blue/p' -e '/you/p' poem.txt 
+Violets are blue,
+And so are you.
+```
+
+* Use `{}` command grouping for logical AND
+
+```bash
+$ # same as: grep 'are' poem.txt | grep 'And'
+$ sed -n '/are/ {/And/p}' poem.txt 
+And so are you.
+
+$ # same as: grep 'are' poem.txt | grep -v 'so'
+$ sed -n '/are/ {/so/!p}' poem.txt 
+Roses are red,
+Violets are blue,
+
+$ # space between /REGEXP/ and {} is optional
+$ # same as: grep -v 'red' poem.txt | grep -v 'blue'
+$ sed -n '/red/!{/blue/!p}' poem.txt 
+Sugar is sweet,
+And so are you.
+$ # many ways to do it, use whatever feels easier to construct
+$ # sed -e '/red/d' -e '/blue/d' poem.txt 
+$ # grep -v -e 'red' -e 'blue' poem.txt
 ```
 
 <br>
