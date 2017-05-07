@@ -14,6 +14,8 @@
     * [Delete command](#delete-command)
     * [Negating REGEXP address](#negating-regexp-address)
     * [Combining multiple REGEXP](#combining-multiple-regexp)
+    * [Filtering by line number](#filtering-by-line-number)
+    * [Print only line number](#print-only-line-number)
 
 <br>
 
@@ -179,7 +181,7 @@ I bought two bananas and three mangoes
 * It is usually used in conjunction with `-n` option
 * By default, `sed` prints every input line, including any changes like substitution
 * Using `-n` option and `p` command together, only specific lines needed can be filtered
-* Examples below use the `/REGEXP/` addressing, other forms will be seen later
+* Examples below use the `/REGEXP/` addressing, other forms will be seen in sections to follow
 
 ```bash
 $ cat poem.txt 
@@ -199,6 +201,33 @@ $ # all lines containing the string 'so are'
 $ # same as: grep 'so are' poem.txt 
 $ sed -n '/so are/p' poem.txt 
 And so are you.
+```
+
+* Using print and substitution together
+
+```bash
+$ # print only lines on which substitution happens
+$ sed -n 's/are/ARE/p' poem.txt 
+Roses ARE red,
+Violets ARE blue,
+And so ARE you.
+
+$ # only lines containing 'are' as well as 'so'
+$ sed -n '/are/ s/so/SO/p' poem.txt 
+And SO are you.
+```
+
+* Duplicating every input line
+
+```bash
+$ # note, -n is not used and no filtering applied
+$ seq 3 | sed 'p'
+1
+1
+2
+2
+3
+3
 ```
 
 <br>
@@ -271,6 +300,106 @@ $ # many ways to do it, use whatever feels easier to construct
 $ # sed -e '/red/d' -e '/blue/d' poem.txt 
 $ # grep -v -e 'red' -e 'blue' poem.txt
 ```
+
+<br>
+
+#### <a name="filtering-by-line-number"></a>Filtering by line number
+
+* Exact line number can be specified to be acted upon
+* As a special case, `$` indicates last line of file
+
+```bash
+$ # here, 2 represents the address for print command, similar to /REGEXP/p
+$ # same as: head -n2 poem.txt | tail -n1
+$ sed -n '2p' poem.txt 
+Violets are blue,
+
+$ # print 2nd and 4th line
+$ # for `p`, `d`, `s` etc multiple commands can be specified separated by ;
+$ sed -n '2p; 4p' poem.txt 
+Violets are blue,
+And so are you.
+
+$ # same as: tail -n1 poem.txt
+$ sed -n '$p' poem.txt 
+And so are you.
+
+$ # delete only 3rd line
+$ sed '3d' poem.txt 
+Roses are red,
+Violets are blue,
+And so are you.
+```
+
+* For large input files, combine `p` with `q` for speedy exit
+* `sed` would immediately quit without processing further input lines when `q` is used
+
+```bash
+$ seq 3542 4623452 | sed -n '2452{p;q}'
+5993
+
+$ seq 3542 4623452 | sed -n '250p; 2452{p;q}'
+3791
+5993
+
+$ # here is a sample time comparison
+$ time seq 3542 4623452 | sed -n '2452{p;q}' > /dev/null 
+
+real    0m0.003s
+user    0m0.000s
+sys     0m0.000s
+$ time seq 3542 4623452 | sed -n '2452p' > /dev/null 
+
+real    0m0.334s
+user    0m0.396s
+sys     0m0.024s
+```
+
+* mimicking `head` command using `q`
+
+```bash
+$ # same as: seq 23 45 | head -n5
+$ # remember that printing is default action if -n is not used
+$ seq 23 45 | sed '5q'
+23
+24
+25
+26
+27
+```
+
+<br>
+
+#### <a name="print-only-line-number"></a>Print only line number
+
+```bash
+$ # gives both line number and matching line
+$ grep -n 'blue' poem.txt 
+2:Violets are blue,
+
+$ # gives only line number of matching line
+$ sed -n '/blue/=' poem.txt 
+2
+
+$ sed -n '/are/=' poem.txt 
+1
+2
+4
+```
+
+* If needed, matching line can also be printed. But there will be newline separation
+
+```bash
+$ sed -n '/blue/{=;p}' poem.txt 
+2
+Violets are blue,
+
+$ # or
+$ sed -n '/blue/{p;=}' poem.txt 
+Violets are blue,
+2
+```
+
 
 <br>
 <br>
