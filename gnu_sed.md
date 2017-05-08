@@ -16,6 +16,8 @@
     * [Combining multiple REGEXP](#combining-multiple-regexp)
     * [Filtering by line number](#filtering-by-line-number)
     * [Print only line number](#print-only-line-number)
+    * [Address range](#address-range)
+    * [Relative addressing](#relative-addressing)
 
 <br>
 
@@ -250,6 +252,16 @@ $ seq 5 | sed '/3/d'
 5
 ```
 
+* Regular expressions will be covered later, but modifier `I` allows to filter lines in case-insensitive way
+
+```bash
+$ # /rose/I means match the string 'rose' irrespective of case
+$ sed '/rose/Id' poem.txt 
+Violets are blue,
+Sugar is sweet,
+And so are you.
+```
+
 <br>
 
 #### <a name="negating-regexp-address"></a>Negating REGEXP address
@@ -400,6 +412,176 @@ Violets are blue,
 2
 ```
 
+<br>
+
+#### <a name="address-range"></a>Address range
+
+* So far, we've seen how to filter specific line based on REGEXP and line numbers
+* `sed` also allows to combine them to enable selecting a range of lines
+* Consider the sample input file for this section
+
+```bash
+$ cat sample.txt 
+Hello World!
+
+Good day
+How do you do?
+
+Just do it
+Believe it!
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+Much ado about nothing
+He he he
+```
+
+* Range defined by start and end REGEXP
+* Other cases like getting lines without the line matching start and/or end, unbalanced start/end, when end REGEXP doesn't match, etc will be covered separately later
+
+```bash
+$ sed -n '/is/,/like/p' sample.txt 
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+$ sed -n '/just/I,/believe/Ip' sample.txt 
+Just do it
+Believe it!
+
+$ # the second REGEXP will always be checked after the line matching first address
+$ sed -n '/No/,/No/p' sample.txt 
+Not a bit funny
+No doubt you like it too
+
+$ # all the matching ranges will be printed
+$ sed -n '/you/,/do/p' sample.txt 
+How do you do?
+
+Just do it
+No doubt you like it too
+
+Much ado about nothing
+```
+
+* Range defined by start and end line numbers
+
+```bash
+$ sed -n '3,7p' sample.txt 
+Good day
+How do you do?
+
+Just do it
+Believe it!
+
+$ sed -n '13,$p' sample.txt 
+Much ado about nothing
+He he he
+
+$ sed '2,13d' sample.txt 
+Hello World!
+He he he
+```
+
+* Range defined by mix of line number and REGEXP
+
+```bash
+$ sed -n '3,/do/p' sample.txt 
+Good day
+How do you do?
+
+$ sed -n '/Today/,$p' sample.txt 
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+Much ado about nothing
+He he he
+```
+
+<br>
+
+#### <a name="relative-addressing"></a>Relative addressing
+
+* Prefixing `+` to a number for second address gives relative filtering
+
+```bash
+$ # line matching 'is' and 2 lines after
+$ sed -n '/is/,+2p' sample.txt 
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+$ # note that all matching ranges will be filtered
+$ sed -n '/do/,+2p' sample.txt 
+How do you do?
+
+Just do it
+No doubt you like it too
+
+Much ado about nothing
+```
+
+* The first address could be number too
+* Useful when using shell variables (covered later) instead of constant
+
+```bash
+$ sed -n '3,+4p' sample.txt 
+Good day
+How do you do?
+
+Just do it
+Believe it!
+```
+
+* Another relative format is `i~j` which acts on ith line and i+j, i+2j, i+3j, etc
+    * `1~2` means 1st, 3rd, 5th, 7th, etc (i.e odd numbered lines)
+    * `5~3` means 5th, 8th, 11th, etc 
+
+```bash
+$ # match odd numbered lines
+$ # for even, use 2~2
+$ seq 10 | sed -n '1~2p'
+1
+3
+5
+7
+9
+
+$ # match line numbers: 2, 2+2*2, 2+3*2, etc
+$ seq 10 | sed -n '2~4p'
+2
+6
+10
+```
+
+* If `~j` is specified after `,` then meaning changes completely
+* After the matching line based on number or REGEXP of start address, the closest line number multiple of `j` will mark end address
+
+```bash
+$ # 2nd line is start address
+$ # closest multiple of 4 is 4th line
+$ seq 10 | sed -n '2,~4p'
+2
+3
+4
+$ # closest multiple of 4 is 8th line
+$ seq 10 | sed -n '5,~4p'
+5
+6
+7
+8
+
+$ # line matching on `Just` is 6th line, so ending is 10th line
+$ sed -n '/Just/,~5p' sample.txt 
+Just do it
+Believe it!
+
+Today is sunny
+Not a bit funny
+```
 
 <br>
 <br>
