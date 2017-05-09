@@ -19,6 +19,10 @@
     * [Address range](#address-range)
     * [Relative addressing](#relative-addressing)
 * [Using different delimiter for REGEXP](#using-different-delimiter-for-regexp)
+* [Regular Expressions](#regular-expressions)
+    * [Line Anchors](#line-anchors)
+    * [Word Anchors](#word-anchors)
+    * [Matching the meta characters](#matching-the-meta-characters)
 
 <br>
 
@@ -635,6 +639,187 @@ $ printf '/foo/bar\n/food/good\n'
 $ printf '/foo/bar\n/food/good\n' | sed -n '\;/foo/;p'
 /foo/bar
 ```
+
+<br>
+
+## <a name="regular-expressions"></a>Regular Expressions
+
+* By default, `sed` treats REGEXP as BRE (Basic Regular Expression)
+* The `-E` option enables ERE (Extended Regular Expression) which in GNU sed's case only differs in how meta characters are used, no difference in functionalities
+    * Initially GNU sed only had `-r` option to enable ERE and `man sed` doesn't even mention `-E`
+    * Other `sed` versions use `-E` and `grep` uses `-E` as well. So `-r` won't be used in examples in this tutorial
+
+<br>
+
+#### <a name="line-anchors"></a>Line Anchors
+
+* Often, search must match from beginning of line or towards end of line
+* For example, an integer variable declaration in `C` will start with optional white-space, the keyword `int`, white-space and then variable(s)
+    * This way one can avoid matching declarations inside single line comments as well
+* Similarly, one might want to match a variable at end of statement
+
+Consider the input file and sample substitution without using any anchoring
+
+```bash
+$ cat anchors.txt 
+cat and dog
+too many cats around here
+to concatenate, use the cmd cat
+catapults laid waste to the village
+just scat and quit bothering me
+that is quite a fabricated tale
+try the grape variety muscat
+
+$ # without anchors, substitution will replace whereever the string is found
+$ sed 's/cat/XXX/g' anchors.txt 
+XXX and dog
+too many XXXs around here
+to conXXXenate, use the cmd XXX
+XXXapults laid waste to the village
+just sXXX and quit bothering me
+that is quite a fabriXXXed tale
+try the grape variety musXXX
+```
+
+* The meta character `^` forces REGEXP to match only at start of line
+
+```bash
+$ # filtering lines starting with 'cat'
+$ sed -n '/^cat/p' anchors.txt 
+cat and dog
+catapults laid waste to the village
+
+$ # replace only at start of line
+$ # g modifier not needed as there can only be single match at start of line
+$ sed 's/^cat/XXX/' anchors.txt
+XXX and dog
+too many cats around here
+to concatenate, use the cmd cat
+XXXapults laid waste to the village
+just scat and quit bothering me
+that is quite a fabricated tale
+try the grape variety muscat
+
+$ # add something to start of line
+$ echo 'Have a good day' | sed 's/^/Hi! /'
+Hi! Have a good day
+```
+
+* The meta character `$` forces REGEXP to match only at end of line
+
+```bash
+$ # filtering lines ending with 'cat'
+$ sed -n '/cat$/p' anchors.txt 
+to concatenate, use the cmd cat
+try the grape variety muscat
+
+$ # replace only at end of line
+$ sed 's/cat$/YYY/' anchors.txt 
+cat and dog
+too many cats around here
+to concatenate, use the cmd YYY
+catapults laid waste to the village
+just scat and quit bothering me
+that is quite a fabricated tale
+try the grape variety musYYY
+
+$ # add something to end of line
+$ echo 'Have a good day' | sed 's/$/. Cya later/'
+Have a good day. Cya later
+```
+
+<br>
+
+#### <a name="word-anchors"></a>Word Anchors
+
+* A **word** character is any alphabet (irrespective of case) or any digit or the underscore character
+* The word anchors help in matching or not matching boundaries of a word
+    * For example, to distinguish between `par`, `spar` and `apparent`
+* `\b` matches word boundary
+    * `\` is meta character and certain combinations like `\b` and `\B` have special meaning
+* One can also use these alternatives for `\b`
+    * `\<` for start of word
+    * `\>` for end of word
+
+```bash
+$ # words ending with 'cat'
+$ sed -n 's/cat\b/XXX/p' anchors.txt 
+XXX and dog
+to concatenate, use the cmd XXX
+just sXXX and quit bothering me
+try the grape variety musXXX
+
+$ # words starting with 'cat'
+$ sed -n 's/\bcat/YYY/p' anchors.txt 
+YYY and dog
+too many YYYs around here
+to concatenate, use the cmd YYY
+YYYapults laid waste to the village
+
+$ # only whole words
+$ sed -n 's/\bcat\b/ZZZ/p' anchors.txt 
+ZZZ and dog
+to concatenate, use the cmd ZZZ
+
+$ # word is made up of alphabets, numbers and _
+$ echo 'foo, foo_bar and foo1' | sed 's/\bfoo\b/baz/g'
+baz, foo_bar and foo1
+```
+
+* `\B` is opposite of `\b`, i.e it doesn't match word boundaries
+
+```bash
+$ # substitute only if 'cat' is surrounded by word characters
+$ sed -n 's/\Bcat\B/QQQ/p' anchors.txt 
+to conQQQenate, use the cmd cat
+that is quite a fabriQQQed tale
+
+$ # substitute only if 'cat' is not start of word
+$ sed -n 's/\Bcat/RRR/p' anchors.txt 
+to conRRRenate, use the cmd cat
+just sRRR and quit bothering me
+that is quite a fabriRRRed tale
+try the grape variety musRRR
+
+$ # substitute only if 'cat' is not end of word
+$ sed -n 's/cat\B/SSS/p' anchors.txt 
+too many SSSs around here
+to conSSSenate, use the cmd cat
+SSSapults laid waste to the village
+that is quite a fabriSSSed tale
+```
+
+<br>
+
+#### <a name="matching-the-meta-characters"></a>Matching the meta characters
+
+* Since meta characters like `^`, `$`, `\` etc have special meaning in REGEXP, they have to be escaped using `\` to match them literally
+* Certain characters like `&` have special meaning in REPLACEMENT section of substitute as well. They too have to be escaped using `\`
+
+```bash
+$ # here, '^' will match only start of line
+$ echo '(a+b)^2 = a^2 + b^2 + 2ab' | sed 's/^/**/g'
+**(a+b)^2 = a^2 + b^2 + 2ab
+
+$ # '\` before '^' will match '^' literally
+$ echo '(a+b)^2 = a^2 + b^2 + 2ab' | sed 's/\^/**/g'
+(a+b)**2 = a**2 + b**2 + 2ab
+
+$ # to match '\' use '\\'
+$ echo 'foo\bar' | sed 's/\\/ /'
+foo bar
+
+$ echo 'pa$$' | sed 's/$/s/g'
+pa$$s
+$ echo 'pa$$' | sed 's/\$/s/g'
+pass
+
+$ # '^' has special meaning only at start of REGEXP
+$ # similarly, '$' has special meaning only at end of REGEXP
+$ echo '(a+b)^2 = a^2 + b^2 + 2ab' | sed 's/a^2/A^2/g'
+(a+b)^2 = A^2 + b^2 + 2ab
+```
+
 
 <br>
 <br>
