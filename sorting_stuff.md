@@ -872,21 +872,35 @@ $ sort colors.txt | uniq -c | sort -n | awk 'NR==1{c=$1} $1==c'
       1 Green
 ```
 
-* Get rough count of most used commands from `history`
+* Get rough count of most used commands from `history` file
 
 ```bash
-$ # awk '{print $2}' will get the 2nd column alone
-$ history | awk '{print $2}' | sort | uniq -c | sort -nr | head
-    673 echo
-    583 grep
-    297 cd
-    297 awk
-    269 vi
-    265 perl
-    185 cat
-    147 sed
-    141 printf
-    138 rm
+$ # awk '{print $1}' will get the 1st column alone
+$ awk '{print $1}' "$HISTFILE" | sort | uniq -c | sort -nr | head
+   1465 echo
+   1180 grep
+    552 cd
+    531 awk
+    451 sed
+    423 vi
+    418 cat
+    392 perl
+    325 printf
+    320 sort
+    
+$ # extract command name from start of line or preceded by 'spaces|spaces'
+$ # won't catch commands in other places like command substitution though
+$ grep -oP '(^| +\| +)\K[^ ]+' "$HISTFILE" | sort | uniq -c | sort -nr | head
+   2006 grep
+   1469 echo
+    933 sed
+    698 awk
+    552 cd
+    513 perl
+    510 cat
+    453 sort
+    423 vi
+    327 printf
 ```
 
 <br>
