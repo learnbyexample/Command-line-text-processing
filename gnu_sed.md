@@ -23,6 +23,9 @@
     * [Line Anchors](#line-anchors)
     * [Word Anchors](#word-anchors)
     * [Matching the meta characters](#matching-the-meta-characters)
+    * [Alternation](#alternation)
+    * [The dot meta character](#the-dot-meta-character)
+    * [Quantifiers](#quantifiers)
 
 <br>
 
@@ -72,7 +75,7 @@ $ # change only first ',' to ' : '
 $ seq 10 | paste -sd, | sed 's/,/ : /'
 1 : 2,3,4,5,6,7,8,9,10
 
-$ # change all ',' to ' : ' by using 'g' FLAG
+$ # change all ',' to ' : ' by using 'g' modifier
 $ seq 10 | paste -sd, | sed 's/,/ : /g'
 1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
 ```
@@ -421,7 +424,7 @@ Violets are blue,
 
 #### <a name="address-range"></a>Address range
 
-* So far, we've seen how to filter specific line based on REGEXP and line numbers
+* So far, we've seen how to filter specific line based on *REGEXP* and line numbers
 * `sed` also allows to combine them to enable selecting a range of lines
 * Consider the sample input file for this section
 
@@ -443,8 +446,8 @@ Much ado about nothing
 He he he
 ```
 
-* Range defined by start and end REGEXP
-* Other cases like getting lines without the line matching start and/or end, unbalanced start/end, when end REGEXP doesn't match, etc will be covered separately later
+* Range defined by start and end *REGEXP*
+* Other cases like getting lines without the line matching start and/or end, unbalanced start/end, when end *REGEXP* doesn't match, etc will be covered separately later
 
 ```bash
 $ sed -n '/is/,/like/p' sample.txt 
@@ -490,7 +493,7 @@ Hello World!
 He he he
 ```
 
-* Range defined by mix of line number and REGEXP
+* Range defined by mix of line number and *REGEXP*
 
 ```bash
 $ sed -n '3,/do/p' sample.txt 
@@ -586,7 +589,7 @@ $ seq 10 | sed -n '2~4p'
 ```
 
 * If `~j` is specified after `,` then meaning changes completely
-* After the matching line based on number or REGEXP of start address, the closest line number multiple of `j` will mark end address
+* After the matching line based on number or *REGEXP* of start address, the closest line number multiple of `j` will mark end address
 
 ```bash
 $ # 2nd line is start address
@@ -615,7 +618,7 @@ Not a bit funny
 
 ## <a name="using-different-delimiter-for-regexp"></a>Using different delimiter for REGEXP
 
-* `/` is idiomatically used as the REGEXP delimiter
+* `/` is idiomatically used as the *REGEXP* delimiter
 * But any character other than `\` and newline character can be used instead
 * This helps to avoid/reduce use of `\`
 
@@ -629,7 +632,7 @@ $ echo '/home/learnbyexample/reports' | sed 's#/home/learnbyexample/#~/#'
 ~/reports
 ```
 
-* For REGEXP used in address matching, syntax is a bit different `\<char>REGEXP<char>`
+* For *REGEXP* used in address matching, syntax is a bit different `\<char>REGEXP<char>`
 
 ```bash
 $ printf '/foo/bar\n/food/good\n'
@@ -644,7 +647,7 @@ $ printf '/foo/bar\n/food/good\n' | sed -n '\;/foo/;p'
 
 ## <a name="regular-expressions"></a>Regular Expressions
 
-* By default, `sed` treats REGEXP as BRE (Basic Regular Expression)
+* By default, `sed` treats *REGEXP* as BRE (Basic Regular Expression)
 * The `-E` option enables ERE (Extended Regular Expression) which in GNU sed's case only differs in how meta characters are used, no difference in functionalities
     * Initially GNU sed only had `-r` option to enable ERE and `man sed` doesn't even mention `-E`
     * Other `sed` versions use `-E` and `grep` uses `-E` as well. So `-r` won't be used in examples in this tutorial
@@ -681,7 +684,7 @@ that is quite a fabriXXXed tale
 try the grape variety musXXX
 ```
 
-* The meta character `^` forces REGEXP to match only at start of line
+* The meta character `^` forces *REGEXP* to match only at start of line
 
 ```bash
 $ # filtering lines starting with 'cat'
@@ -705,7 +708,7 @@ $ echo 'Have a good day' | sed 's/^/Hi! /'
 Hi! Have a good day
 ```
 
-* The meta character `$` forces REGEXP to match only at end of line
+* The meta character `$` forces *REGEXP* to match only at end of line
 
 ```bash
 $ # filtering lines ending with 'cat'
@@ -793,8 +796,8 @@ that is quite a fabriSSSed tale
 
 #### <a name="matching-the-meta-characters"></a>Matching the meta characters
 
-* Since meta characters like `^`, `$`, `\` etc have special meaning in REGEXP, they have to be escaped using `\` to match them literally
-* Certain characters like `&` have special meaning in REPLACEMENT section of substitute as well. They too have to be escaped using `\`
+* Since meta characters like `^`, `$`, `\` etc have special meaning in *REGEXP*, they have to be escaped using `\` to match them literally
+* Certain characters like `&` have special meaning in *REPLACEMENT* section of substitute as well. They too have to be escaped using `\`
 
 ```bash
 $ # here, '^' will match only start of line
@@ -819,6 +822,179 @@ $ # similarly, '$' has special meaning only at end of REGEXP
 $ echo '(a+b)^2 = a^2 + b^2 + 2ab' | sed 's/a^2/A^2/g'
 (a+b)^2 = A^2 + b^2 + 2ab
 ```
+
+<br>
+
+#### <a name="alternation"></a>Alternation
+
+* Two or more *REGEXP* can be combined as logical OR using the `|` meta character
+    * syntax is `\|` for BRE and `|` for ERE
+* Each side of `|` is complete regular expression with their own start/end anchors
+* How each part of alternation is handled and order of evaluation/output is beyond the scope of this tutorial
+    * See [this](http://www.regular-expressions.info/alternation.html) for more info on this topic.
+
+```bash
+$ # BRE
+$ sed -n '/red\|blue/p' poem.txt 
+Roses are red,
+Violets are blue,
+
+$ # ERE
+$ sed -nE '/red|blue/p' poem.txt 
+Roses are red,
+Violets are blue,
+
+$ # filter lines starting or ending with 'cat'
+$ sed -nE '/^cat|cat$/p' anchors.txt 
+cat and dog
+to concatenate, use the cmd cat
+catapults laid waste to the village
+try the grape variety muscat
+
+$ # g modifier is needed for more than one replacement
+$ echo 'foo and temp and baz' | sed -E 's/foo|temp|baz/XYZ/'
+XYZ and temp and baz
+$ echo 'foo and temp and baz' | sed -E 's/foo|temp|baz/XYZ/g'
+XYZ and XYZ and XYZ
+```
+
+<br>
+
+#### <a name="the-dot-meta-character"></a>The dot meta character
+
+* The `.` meta character matches any character once, including newline
+
+```bash
+$ # replace all sequence of 3 characters starting with 'c' and ending with 't'
+$ echo 'coat cut fit c#t' | sed 's/c.t/XYZ/g'
+coat XYZ fit XYZ
+
+$ # replace all sequence of 4 characters starting with 'c' and ending with 't'
+$ echo 'coat cut fit c#t' | sed 's/c..t/ABCD/g'
+ABCD cut fit c#t
+
+$ # space, tab etc are also characters which will be matched by '.' 
+$ echo 'coat cut fit c#t' | sed 's/t.f/IJK/g'
+coat cuIJKit c#t
+
+$ printf 'foo\tbar\tbaz\n'
+foo     bar     baz
+$ printf 'foo\tbar\tbaz\n' | sed 's/\t/ /g'
+foo bar baz
+```
+
+<br>
+
+#### <a name="quantifiers"></a>Quantifiers
+
+All quantifiers in `sed` are greedy, i.e longest match wins as long as overall *REGEXP* is satisfied and precedence is left to right. In this section, we'll cover usage of quantifiers on characters
+
+* `?` will try to match 0 or 1 time
+* For BRE, use `\?`
+
+```bash
+$ printf 'late\npale\nfactor\nrare\nact\n'
+late
+pale
+factor
+rare
+act
+
+$ # same as using: sed -nE '/at|act/p'
+$ printf 'late\npale\nfactor\nrare\nact\n' | sed -nE '/ac?t/p'
+late
+factor
+act
+
+$ # greediness comes in handy in some cases
+$ # problem: '<' has to be replaced with '\<' only if not preceded by '\'
+$ echo 'blah \< foo bar < blah baz <'
+blah \< foo bar < blah baz <
+$ # this won't work as '\<' gets replaced with '\\<'
+$ echo 'blah \< foo bar < blah baz <' | sed -E 's/</\\</g'
+blah \\< foo bar \< blah baz \<
+$ # by using '\\?<' both '\<' and '<' gets replaced by '\<'
+$ echo 'blah \< foo bar < blah baz <' | sed -E 's/\\?</\\</g'
+blah \< foo bar \< blah baz \<
+```
+
+* `*` will try to match 0 or more times
+
+```bash
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n'
+abc
+ac
+adc
+abbc
+bbb
+bc
+abbbbbc
+
+$ # match 'a' and 'c' with any number of 'b' in between
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -n '/ab*c/p'
+abc
+ac
+abbc
+abbbbbc
+
+$ # delete from start of line to 'te'
+$ echo 'that is quite a fabricated tale' | sed 's/.*te//'
+d tale
+$ # delete from start of line to 'te '
+$ echo 'that is quite a fabricated tale' | sed 's/.*te //'
+a fabricated tale
+$ # delete from first 'f' in the line to end of line
+$ echo 'that is quite a fabricated tale' | sed 's/f.*//'
+that is quite a 
+```
+
+* `+` will try to match 1 or more times
+* For BRE, use `\+`
+
+```bash
+$ # match 'a' and 'c' with at least one 'b' in between
+$ # BRE
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -n '/ab\+c/p'
+abc
+abbc
+abbbbbc
+
+$ # ERE
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -nE '/ab+c/p'
+abc
+abbc
+abbbbbc
+```
+
+* For more precise control on number of times to match, use `{}`
+
+```bash
+$ # exactly 5 times
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -nE '/ab{5}c/p'
+abbbbbc
+
+$ # between 1 to 3 times, inclusive of 1 and 3
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -nE '/ab{1,3}c/p'
+abc
+abbc
+
+$ # maximum of 2 times, including 0 times
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -nE '/ab{,2}c/p'
+abc
+ac
+abbc
+
+$ # minimum of 2 times
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -nE '/ab{2,}c/p'
+abbc
+abbbbbc
+
+$ # BRE
+$ printf 'abc\nac\nadc\nabbc\nbbb\nbc\nabbbbbc\n' | sed -n '/ab\{2,\}c/p'
+abbc
+abbbbbc
+```
+
 
 
 <br>
