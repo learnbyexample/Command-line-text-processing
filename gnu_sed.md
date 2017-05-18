@@ -1179,10 +1179,11 @@ cmp_str
 Foo_bar
 
 $ # backslash character classes cannot be used inside [] unlike perl
-$ echo 'w=y-x+9*3' | sed 's/[\w0-9]//g'
-=y-x+*
-$ echo 'w=y-x+9*3' | perl -pe 's/[\w0-9]//g'
-=-+*
+$ # \w would simply match w
+$ echo 'w=y-x+9*3' | sed 's/[\w=]//g'
+y-x+9*3
+$ echo 'w=y-x+9*3' | perl -pe 's/[\w=]//g'
+-+*
 ```
 
 <br>
