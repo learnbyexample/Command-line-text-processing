@@ -26,6 +26,7 @@
     * [Alternation](#alternation)
     * [The dot meta character](#the-dot-meta-character)
     * [Quantifiers](#quantifiers)
+    * [Character classes](#character-classes)
 
 <br>
 
@@ -651,6 +652,7 @@ $ printf '/foo/bar\n/food/good\n' | sed -n '\;/foo/;p'
 * The `-E` option enables ERE (Extended Regular Expression) which in GNU sed's case only differs in how meta characters are used, no difference in functionalities
     * Initially GNU sed only had `-r` option to enable ERE and `man sed` doesn't even mention `-E`
     * Other `sed` versions use `-E` and `grep` uses `-E` as well. So `-r` won't be used in examples in this tutorial
+    * See also [BRE-vs-ERE](https://www.gnu.org/software/sed/manual/sed.html#BRE-vs-ERE)
 
 <br>
 
@@ -995,6 +997,91 @@ abbc
 abbbbbc
 ```
 
+<br>
+
+#### <a name="character-classes"></a>Character classes
+
+* The `.` meta character provides a way to match any character
+* Character class provides a way to match any character among a specified set of characters enclosed within `[]`
+
+```bash
+$ # same as: sed -nE '/lane|late/p'
+$ printf 'late\nlane\nfate\nfete\n' | sed -n '/la[nt]e/p'
+late
+lane
+
+$ printf 'late\nlane\nfate\nfete\n' | sed -n '/[fl]a[nt]e/p'
+late
+lane
+fate
+
+$ # quantifiers can be added similar to using for any other character
+$ # filter lines made up entirely of digits, containing at least one digit
+$ printf 'cat5\nfoo\n123\n42\n' | sed -nE '/^[0123456789]+$/p'
+123
+42
+$ # filter lines made up entirely of digits, containing at least three digits
+$ printf 'cat5\nfoo\n123\n42\n' | sed -nE '/^[0123456789]{3,}$/p'
+123
+```
+
+Character ranges
+
+* Matching any alphabet, number, hexadecimal number etc becomes cumbersome if every character has to be individually specified
+* So, there's a shortcut, using `-` to construct a range (has to be specified in ascending order)
+* See [ascii codes table](http://ascii.cl/) for reference
+    * Note that behavior of range will depend on locale settings
+    * [arch wiki - locale](https://wiki.archlinux.org/index.php/locale)
+    * [Linux: Define Locale and Language Settings](https://www.shellhacks.com/linux-define-locale-language-settings/)
+* [Matching Numeric Ranges with a Regular Expression](http://www.regular-expressions.info/numericranges.html)
+
+```bash
+$ # filter lines made up entirely of digits, at least one
+$ printf 'cat5\nfoo\n123\n42\n' | sed -nE '/^[0-9]+$/p'
+123
+42
+
+$ # filter lines made up entirely of lower case alphabets, at least one
+$ printf 'cat5\nfoo\n123\n42\n' | sed -nE '/^[a-z]+$/p'
+foo
+
+$ # filter lines made up entirely of lower case alphabets and digits, at least one
+$ printf 'cat5\nfoo\n123\n42\n' | sed -nE '/^[a-z0-9]+$/p'
+cat5
+foo
+123
+42
+
+$ # numbers between 10 to 29
+$ printf '23\n154\n12\n26\n98234\n' | sed -n '/^[12][0-9]$/p'
+23
+12
+26
+$ # numbers >= 100
+$ printf '23\n154\n12\n26\n98234\n' | sed -nE '/^[0-9]{3,}$/p'
+154
+98234
+```
+
+* Negating character class
+* By using `^` as first character inside `[]`, we can match characters other than those specified inside character class
+    * As pointed out earlier, meta characters behave differently inside and outside of `[]`
+
+```bash
+$ # delete all characters before first =
+$ echo 'foo=bar; baz=123' | sed -E 's/^[^=]+//'
+=bar; baz=123
+
+$ # delete all characters after last =
+$ echo 'foo=bar; baz=123' | sed -E 's/[^=]+$//'
+foo=bar; baz=
+
+$ # same as: sed -n '/[aeiou]/!p'
+$ printf 'tryst\nglyph\npity\nwhy\n' | sed -n '/^[^aeiou]*$/p'
+tryst
+glyph
+why
+```
 
 
 <br>
