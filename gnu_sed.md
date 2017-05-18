@@ -1063,7 +1063,8 @@ $ printf '23\n154\n12\n26\n98234\n' | sed -nE '/^[0-9]{3,}$/p'
 98234
 ```
 
-* Negating character class
+Negating character class
+
 * By using `^` as first character inside `[]`, we can match characters other than those specified inside character class
     * As pointed out earlier, meta characters behave differently inside and outside of `[]`
 
@@ -1083,6 +1084,106 @@ glyph
 why
 ```
 
+Matching meta characters inside `[]`
+
+* Characters like `^`, `]`, `-`, etc need special attention to be part of list
+* Also, sequences like `[.` or `=]` have special meaning within `[]`
+    * See [Character-Classes-and-Bracket-Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for complete list
+
+```bash
+$ # to match - it should be first or last character within []
+$ printf 'Foo-bar\n123-456\n42\nCo-operate\n' | sed -nE '/^[a-z-]+$/Ip'
+Foo-bar
+Co-operate
+
+$ # to match ] it should be first character within []
+$ printf 'int foo\nint a[5]\nfoo=bar\n' | sed -n '/[]=]/p'
+int a[5]
+foo=bar
+
+$ # to match [ use [ anywhere in the character list
+$ # [][] will match both [ and ]
+$ printf 'int foo\nint a[5]\nfoo=bar\n' | sed -n '/[[]/p'
+int a[5]
+
+$ # to match ^ it should be other than first in the list
+$ printf 'c=a^b\nd=f*h+e\nz=x-y\n' | sed -n '/[*^]/p'
+c=a^b
+d=f*h+e
+```
+
+Named character classes
+
+* Equivalent class shown is for C locale and ASCII character encoding
+    * See [ascii codes table](http://ascii.cl/) for reference
+* See [Character Classes and Bracket Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for more details
+
+| Character classes | Description |
+| ------------- | ----------- |
+| [:digit:] | Same as [0-9] |
+| [:lower:] | Same as [a-z] |
+| [:upper:] | Same as [A-Z] |
+| [:alpha:] | Same as [a-zA-Z] |
+| [:alnum:] | Same as [0-9a-zA-Z] |
+| [:xdigit:] | Same as [0-9a-fA-F] |
+| [:cntrl:] | Control characters - first 32 ASCII characters and 127th (DEL) |
+| [:punct:] | All the punctuation characters |
+| [:graph:] | [:alnum:] and [:punct:] |
+| [:print:] | [:alnum:], [:punct:] and space |
+| [:blank:] | Space and tab characters |
+| [:space:] | white-space characters: tab, newline, vertical tab, form feed, carriage return and space |
+
+```bash
+$ # lines containing only hexadecimal characters
+$ printf '128\n34\nfe32\nfoo1\nbar\n' | sed -nE '/^[[:xdigit:]]+$/p'
+128
+34
+fe32
+
+$ # lines containing at least one non-hexadecimal character
+$ printf '128\n34\nfe32\nfoo1\nbar\n' | sed -n '/[^[:xdigit:]]/p'
+foo1
+bar
+
+$ # same as: sed -nE '/^[a-z-]+$/Ip'
+$ printf 'Foo-bar\n123-456\n42\nCo-operate\n' | sed -nE '/^[[:alpha:]-]+$/p'
+Foo-bar
+Co-operate
+
+$ # remove all punctuation characters
+$ sed 's/[[:punct:]]//g' poem.txt 
+Roses are red
+Violets are blue
+Sugar is sweet
+And so are you
+```
+
+Backslash character classes
+
+* Equivalent class shown is for C locale and ASCII character encoding
+    * See [ascii codes table](http://ascii.cl/) for reference
+* See [regular expression extensions](https://www.gnu.org/software/sed/manual/sed.html#regexp-extensions) for more details
+
+| Character classes | Description |
+| ------------- | ----------- |
+| \w | Same as [0-9a-zA-Z_] or [[:alnum:]_] |
+| \W | Same as [^0-9a-zA-Z_] or [^[:alnum:]_] |
+| \s | Same as [[:space:]] |
+| \S | Same as [^[:space:]] |
+
+```bash
+$ # lines containing only word characters
+$ printf '123\na=b+c\ncmp_str\nFoo_bar\n' | sed -nE '/^\w+$/p'
+123
+cmp_str
+Foo_bar
+
+$ # backslash character classes cannot be used inside [] unlike perl
+$ echo 'w=y-x+9*3' | sed 's/[\w0-9]//g'
+=y-x+*
+$ echo 'w=y-x+9*3' | perl -pe 's/[\w0-9]//g'
+=-+*
+```
 
 <br>
 <br>
