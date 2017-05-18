@@ -27,6 +27,7 @@
     * [The dot meta character](#the-dot-meta-character)
     * [Quantifiers](#quantifiers)
     * [Character classes](#character-classes)
+    * [Grouping](#grouping)
 
 <br>
 
@@ -1185,6 +1186,46 @@ y-x+9*3
 $ echo 'w=y-x+9*3' | perl -pe 's/[\w=]//g'
 -+*
 ```
+
+#### <a name="grouping"></a>Grouping
+
+* Character classes allow matching against a choice of multiple character list and then quantifier added if needed
+* One of the uses of grouping is analogous to character classes for whole regular expressions, instead of just list of characters
+* The meta characters `()` are used for grouping
+    * requires `\(\)` for BRE
+* Similar to maths `ab + ac = a(b+c)`, think of regular expression `a(b|c) = ab|ac`
+
+```bash
+$ # four letter words with 'on' or 'no' in middle
+$ printf 'known\nmood\nknow\npony\ninns\n' | sed -nE '/\b[a-z](on|no)[a-z]\b/p'
+know
+pony
+$ # common mistake to use character class, will match 'oo' and 'nn' as well
+$ printf 'known\nmood\nknow\npony\ninns\n' | sed -nE '/\b[a-z][on]{2}[a-z]\b/p'
+mood
+know
+pony
+inns
+
+$ # quantifier example
+$ printf 'handed\nhand\nhandy\nhands\nhandle\n' | sed -nE '/^hand([sy]|le)?$/p'
+hand
+handy
+hands
+handle
+
+$ # remove first two columns where : is delimiter
+$ echo 'foo:123:bar:baz' | sed -E 's/^([^:]+:){2}//'
+bar:baz
+
+$ # can be nested as required
+$ printf 'spade\nscore\nscare\nspare\nsphere\n' | sed -nE '/^s([cp](he|a)[rd])e$/p'
+spade
+scare
+spare
+sphere
+```
+
 
 <br>
 <br>
