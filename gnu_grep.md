@@ -1131,12 +1131,12 @@ $ echo 'I like "mango" and "guava"' | grep -oE '"[^"]+"'
     * See **Character Classes and Bracket Expressions** section in `info grep` for more detail
 
 ```bash
-$ # to match - it should be first or last character within `[]`
+$ # to match - it should be first or last character within []
 $ echo 'Foo-bar 123-456 42 Co-operate' | grep -oiwE '[a-z-]+'
 Foo-bar
 Co-operate
 
-$ # to match ] it should be first character within `[]`
+$ # to match ] it should be first character within []
 $ printf 'int a[5]\nfoo=bar\n' | grep '[]=]'
 int a[5]
 foo=bar
@@ -1146,7 +1146,7 @@ $ # [][] will match both [ and ]
 $ printf 'int a[5]\nfoo=bar\n' | grep '[[]'
 int a[5]
 
-$ # to match ^ it should other than first in the list or use \^
+$ # to match ^ it should be other than first in the list
 $ echo '(a+b)^2 = a^2 + b^2 + 2ab' | grep -owE '[a-z^0-9]{3,}'
 a^2
 b^2
