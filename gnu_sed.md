@@ -28,6 +28,7 @@
     * [Quantifiers](#quantifiers)
     * [Character classes](#character-classes)
     * [Grouping](#grouping)
+    * [Back reference](#back-reference)
 
 <br>
 
@@ -1187,6 +1188,8 @@ $ echo 'w=y-x+9*3' | perl -pe 's/[\w=]//g'
 -+*
 ```
 
+<br>
+
 #### <a name="grouping"></a>Grouping
 
 * Character classes allow matching against a choice of multiple character list and then quantifier added if needed
@@ -1226,6 +1229,47 @@ spare
 sphere
 ```
 
+<br>
+
+#### <a name="back-reference"></a>Back reference
+
+* The matched string within `()` can also be used to be matched again by back referencing the captured groups
+* `\1` denotes the first matched group, `\2` the second one and so on
+    * Order is leftmost `(` is `\1`, next one is `\2` and so on
+    * Can be used both in *REGEXP* as well as in *REPLACEMENT* sections
+* `&` or `\0` represents entire matched string in *REPLACEMENT* section
+* Note that the matched string, not the regular expression itself is referenced
+    * for ex: if `([0-9][a-f])` matches `3b`, then back referencing will be `3b` not any other valid match of the regular expression like `8f`, `0a` etc
+
+```bash
+$ # filter lines with consecutive repeated alphabets
+$ printf 'eel\nflee\nall\npat\nilk\nseen\n' | sed -nE '/([a-z])\1/p'
+eel
+flee
+all
+seen
+
+$ # remove duplicate words separated by space
+$ # the word boundaries prevent false matches like 'the theatre'
+$ echo 'a a walking for for a cause' | sed -E 's/\b(\w+)\b \1\b/\1/g'
+a walking for a cause
+
+$ # surround only third column with double quotes
+$ # note the nested capture groups and numbers used in REPLACEMENT section
+$ echo 'foo:123:bar:baz' | sed -E 's/^(([^:]+:){2})([^:]+)/\1"\3"/'
+foo:123:"bar":baz
+
+$ # add first column data to end of line as well
+$ echo 'foo:123:bar:baz' | sed -E 's/^([^:]+).*/& \1/'
+foo:123:bar:baz foo
+
+$ # surround entire line with double quotes
+$ echo 'hello world' | sed 's/.*/"&"/'
+"hello world"
+$ # add something at start as well as end of line
+$ echo 'hello world' | sed 's/.*/Hi. &. Have a nice day/'
+Hi. hello world. Have a nice day
+```
 
 <br>
 <br>
