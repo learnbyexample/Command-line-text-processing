@@ -29,6 +29,7 @@
     * [Character classes](#character-classes)
     * [Grouping](#grouping)
     * [Back reference](#back-reference)
+    * [Changing case](#changing-case)
 
 <br>
 
@@ -1240,6 +1241,7 @@ sphere
 * `&` or `\0` represents entire matched string in *REPLACEMENT* section
 * Note that the matched string, not the regular expression itself is referenced
     * for ex: if `([0-9][a-f])` matches `3b`, then back referencing will be `3b` not any other valid match of the regular expression like `8f`, `0a` etc
+* As `\` and `&` are special characters in *REPLACEMENT* section, use `\\` and `\&` respectively for literal representation
 
 ```bash
 $ # filter lines with consecutive repeated alphabets
@@ -1269,6 +1271,45 @@ $ echo 'hello world' | sed 's/.*/"&"/'
 $ # add something at start as well as end of line
 $ echo 'hello world' | sed 's/.*/Hi. &. Have a nice day/'
 Hi. hello world. Have a nice day
+```
+
+<br>
+
+#### <a name="changing-case"></a>Changing case
+
+* Applies only to *REPLACEMENT* section, unlike `perl` where these can be used in *REGEXP* portion as well
+* See **The s Command** section in `info sed` for more info and corner cases
+
+```bash
+$ # UPPERCASE all alphabets, will be stopped on \L or \E
+$ echo 'HeLlO WoRLD' | sed 's/.*/\U&/'
+HELLO WORLD
+
+$ # lowercase all alphabets, will be stopped on \U or \E
+$ echo 'HeLlO WoRLD' | sed 's/.*/\L&/'
+hello world
+
+$ # Uppercase only next character
+$ echo 'foo bar' | sed 's/\w*/\u&/g'
+Foo Bar
+$ echo 'foo_bar next_line' | sed -E 's/_([a-z])/\u\1/g'
+fooBar nextLine
+
+$ # lowercase only next character
+$ echo 'FOO BAR' | sed 's/\w*/\l&/g'
+fOO bAR
+$ echo 'fooBar nextLine Baz' | sed -E 's/([a-z])([A-Z])/\1_\l\2/g'
+foo_bar next_line Baz
+
+$ # titlecase if input has mixed case
+$ echo 'HeLlO WoRLD' | sed 's/.*/\L&/; s/\w*/\u&/g'
+Hello World
+$ echo 'HeLlO WoRLD' | sed 's/.*/\L&/; s/./\u&/'
+Hello world
+
+$ # \E will stop conversion started by \U or \L
+$ echo 'foo_bar next_line baz' | sed -E 's/([a-z]+)(_[a-z]+)/\U\1\E\2/g'
+FOO_bar NEXT_line baz
 ```
 
 <br>
