@@ -1251,6 +1251,10 @@ flee
 all
 seen
 
+$ # reduce \\ to single \ and delete if only single \
+$ echo '\[\] and \\w and \[a-zA-Z0-9\_\]' | sed -E 's/(\\?)\\/\1/g'
+[] and \w and [a-zA-Z0-9_]
+
 $ # remove duplicate words separated by space
 $ # the word boundaries prevent false matches like 'the theatre'
 $ echo 'a a walking for for a cause' | sed -E 's/\b(\w+)\b \1\b/\1/g'
@@ -1304,6 +1308,7 @@ foo_bar next_line Baz
 $ # titlecase if input has mixed case
 $ echo 'HeLlO WoRLD' | sed 's/.*/\L&/; s/\w*/\u&/g'
 Hello World
+$ # sed 's/.*/\L\u&/' also works, but not sure if it is defined behavior
 $ echo 'HeLlO WoRLD' | sed 's/.*/\L&/; s/./\u&/'
 Hello world
 
