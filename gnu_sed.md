@@ -32,7 +32,9 @@
     * [Changing case](#changing-case)
 * [Substitute command modifiers](#substitute-command-modifiers)
     * [g modifier](#g-modifier)
-    * [replace specific occurrence](#replace-specific-occurrence)
+    * [Replace specific occurrence](#replace-specific-occurrence)
+    * [Ignoring case](#ignoring-case)
+    * [p modifier](#p-modifier)
 
 <br>
 
@@ -1328,7 +1330,7 @@ FOO_bar NEXT_line baz
 s/REGEXP/REPLACEMENT/FLAGS
 ```
 
-Modifiers (or FLAGS) like `g`, 'p' and `I` have been already seen. For completeness, they will be discussed again along with rest of the modifiers
+Modifiers (or FLAGS) like `g`, `p` and `I` have been already seen. For completeness, they will be discussed again along with rest of the modifiers
 
 <br>
 
@@ -1348,7 +1350,7 @@ foo-123-bar-baz
 
 <br>
 
-#### <a name="replace-specific-occurrence"></a>replace specific occurrence
+#### <a name="replace-specific-occurrence"></a>Replace specific occurrence
 
 * A number can be used to specify *N*th match to be replaced
 
@@ -1418,6 +1420,65 @@ $ echo '456:foo:123:bar:789:baz' | sed -E 's/:/-/3g'
 $ # replace all : with - except first three
 $ echo '456:foo:123:bar:789:baz' | sed -E 's/:/-/4g'
 456:foo:123:bar-789-baz
+```
+
+* Replacing multiple *N*th occurrences
+
+```bash
+$ # replace first two occurrences of : with -
+$ echo '456:foo:123:bar:789:baz' | sed 's/:/-/; s/:/-/'
+456-foo-123:bar:789:baz
+
+$ # replace second and third occurrences of : with -
+$ # note the changes in number to be used for subsequent replacement
+$ echo '456:foo:123:bar:789:baz' | sed 's/:/-/2; s/:/-/2'
+456:foo-123-bar:789:baz
+
+$ # better way is to use descending order
+$ echo '456:foo:123:bar:789:baz' | sed 's/:/-/3; s/:/-/2'
+456:foo-123-bar:789:baz
+$ # replace second, third and fifth occurrences of : with -
+$ echo '456:foo:123:bar:789:baz' | sed 's/:/-/5; s/:/-/3; s/:/-/2'
+456:foo-123-bar:789-baz
+```
+
+<br>
+
+#### <a name="ignoring-case"></a>Ignoring case
+
+* Either `i` or `I` can be used for replacing in case-insensitive manner
+* Since only `I` can be used for address filtering (for ex: `sed '/rose/Id' poem.txt`), use `I` for substitute command as well for consistency
+
+```bash
+$ echo 'hello Hello HELLO HeLlO' | sed 's/hello/hi/g'
+hi Hello HELLO HeLlO
+
+$ echo 'hello Hello HELLO HeLlO' | sed 's/hello/hi/Ig'
+hi hi hi hi
+```
+
+<br>
+
+#### <a name="p-modifier"></a>p modifier
+
+* Usually used in conjunction with `-n` option to output only modified lines
+
+```bash
+$ # no output if no substitution
+$ echo 'hi there. have a nice day' | sed -n 's/xyz/XYZ/p'
+$ # modified line if there is substitution
+$ echo 'hi there. have a nice day' | sed -n 's/\bh/H/pg'
+Hi there. Have a nice day
+
+$ # only lines containing 'are'
+$ sed -n 's/are/ARE/p' poem.txt 
+Roses ARE red,
+Violets ARE blue,
+And so ARE you.
+
+$ # only lines containing 'are' as well as 'so'
+$ sed -n '/are/ s/so/SO/p' poem.txt 
+And SO are you.
 ```
 
 <br>
