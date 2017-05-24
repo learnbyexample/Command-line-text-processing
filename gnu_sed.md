@@ -35,6 +35,7 @@
     * [Replace specific occurrence](#replace-specific-occurrence)
     * [Ignoring case](#ignoring-case)
     * [p modifier](#p-modifier)
+    * [w modifier](#w-modifier)
 
 <br>
 
@@ -1479,6 +1480,52 @@ And so ARE you.
 $ # only lines containing 'are' as well as 'so'
 $ sed -n '/are/ s/so/SO/p' poem.txt 
 And SO are you.
+```
+
+<br>
+
+#### <a name="w-modifier"></a>w modifier
+
+* Allows to write only the changes to specified file name instead of default **stdout**
+
+```bash
+$ # space between w and filename is optional
+$ # same as: sed -n 's/3/three/p' > 3.txt
+$ seq 20 | sed -n 's/3/three/w 3.txt'
+$ cat 3.txt 
+three
+1three
+
+$ # do not use -n if output should be displayed as well as written to file
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/(:[^:]*){2}$//w col.txt'
+456:foo:123:bar
+$ cat col.txt 
+456:foo:123:bar
+```
+
+* For multiple output files, use `-e` for each file
+
+```bash
+$ seq 20 | sed -n -e 's/5/five/w 5.txt' -e 's/7/seven/w 7.txt'
+$ cat 5.txt 
+five
+1five
+$ cat 7.txt 
+seven
+1seven
+```
+
+* There are two predefined filenames
+    * `/dev/stdout` to write to **stdout**
+    * `/dev/stderr` to write to **stderr**
+
+```bash
+$ sed -i 's/three/3/w /dev/stdout' 3.txt 
+3
+13
+$ cat 3.txt 
+3
+13
 ```
 
 <br>
