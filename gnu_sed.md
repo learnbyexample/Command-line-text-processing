@@ -30,6 +30,9 @@
     * [Grouping](#grouping)
     * [Back reference](#back-reference)
     * [Changing case](#changing-case)
+* [Substitute command modifiers](#substitute-command-modifiers)
+    * [g modifier](#g-modifier)
+    * [replace specific occurrence](#replace-specific-occurrence)
 
 <br>
 
@@ -1315,6 +1318,106 @@ Hello world
 $ # \E will stop conversion started by \U or \L
 $ echo 'foo_bar next_line baz' | sed -E 's/([a-z]+)(_[a-z]+)/\U\1\E\2/g'
 FOO_bar NEXT_line baz
+```
+
+<br>
+
+## <a name="substitute-command-modifiers"></a>Substitute command modifiers
+
+```
+s/REGEXP/REPLACEMENT/FLAGS
+```
+
+Modifiers (or FLAGS) like `g`, 'p' and `I` have been already seen. For completeness, they will be discussed again along with rest of the modifiers
+
+<br>
+
+#### <a name="g-modifier"></a>g modifier
+
+By default, substitute command will replace only first occurrence of match. `g` modifier is needed to replace all occurrences
+
+```bash
+$ # replace only first : with -
+$ echo 'foo:123:bar:baz' | sed 's/:/-/'
+foo-123:bar:baz
+
+$ # replace all : with -
+$ echo 'foo:123:bar:baz' | sed 's/:/-/g'
+foo-123-bar-baz
+```
+
+<br>
+
+#### <a name="replace-specific-occurrence"></a>replace specific occurrence
+
+* A number can be used to specify *N*th match to be replaced
+
+```bash
+$ # replace first occurrence
+$ echo 'foo:123:bar:baz' | sed 's/:/-/'
+foo-123:bar:baz
+$ echo 'foo:123:bar:baz' | sed -E 's/[^:]+/XYZ/'
+XYZ:123:bar:baz
+
+$ # replace second occurrence
+$ echo 'foo:123:bar:baz' | sed 's/:/-/2'
+foo:123-bar:baz
+$ echo 'foo:123:bar:baz' | sed -E 's/[^:]+/XYZ/2'
+foo:XYZ:bar:baz
+
+$ # replace third occurrence
+$ echo 'foo:123:bar:baz' | sed 's/:/-/3'
+foo:123:bar-baz
+$ echo 'foo:123:bar:baz' | sed -E 's/[^:]+/XYZ/3'
+foo:123:XYZ:baz
+
+$ # choice of quantifier depends on knowing input
+$ echo ':123:bar:baz' | sed 's/[^:]*/XYZ/2'
+:XYZ:bar:baz
+$ echo ':123:bar:baz' | sed -E 's/[^:]+/XYZ/2'
+:123:XYZ:baz
+```
+
+* Replacing *N*th match from end of line when number of matches is unknown
+* Makes use of greediness of quantifiers
+
+```bash
+$ # replacing last occurrence
+$ # can also use sed -E 's/:([^:]*)$/-\1/'
+$ echo 'foo:123:bar:baz' | sed -E 's/(.*):/\1-/'
+foo:123:bar-baz
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/(.*):/\1-/'
+456:foo:123:bar:789-baz
+$ echo 'foo and bar and baz and good' | sed -E 's/(.*)and/\1XYZ/'
+foo and bar and baz XYZ good
+$ # use word boundaries as necessary
+$ echo 'foo and bar and baz land good' | sed -E 's/(.*)\band\b/\1XYZ/'
+foo and bar XYZ baz land good
+
+$ # replacing last but one
+$ echo 'foo:123:bar:baz' | sed -E 's/(.*):(.*:)/\1-\2/'
+foo:123-bar:baz
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/(.*):(.*:)/\1-\2/'
+456:foo:123:bar-789:baz
+
+$ # replacing last but two
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/(.*):((.*:){2})/\1-\2/'
+456:foo:123-bar:789:baz
+$ # replacing last but three
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/(.*):((.*:){3})/\1-\2/'
+456:foo-123:bar:789:baz
+```
+
+* Replacing all but first *N* occurrences by combining with `g` modifier
+
+```bash
+$ # replace all : with - except first two
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/:/-/3g'
+456:foo:123-bar-789-baz
+
+$ # replace all : with - except first three
+$ echo '456:foo:123:bar:789:baz' | sed -E 's/:/-/4g'
+456:foo:123:bar-789-baz
 ```
 
 <br>
