@@ -38,6 +38,7 @@
     * [p modifier](#p-modifier)
     * [w modifier](#w-modifier)
     * [e modifier](#e-modifier)
+    * [m modifier](#m-modifier)
 
 <br>
 
@@ -1592,6 +1593,56 @@ $ echo 'xyz 5' | sed 's/xyz/seq/e'
 4
 5
 ```
+
+<br>
+
+#### <a name="m-modifier"></a>m modifier
+
+* Either `m` or `M` can be used
+* So far, we've seen only line based operations (newline character being used to distinguish lines)
+* There are various ways (see [How sed Works](https://www.gnu.org/software/sed/manual/sed.html#Execution-Cycle)) by which more than one line is there in pattern space and in such cases `m` modifier can be used
+
+Before seeing example with `m` modifier, let's see a simple example to get two lines in pattern space
+
+```bash
+$ # line matching 'blue' and next line in pattern space
+$ sed -n '/blue/{N;p}' poem.txt 
+Violets are blue,
+Sugar is sweet,
+
+$ # applying substitution, remember that . matches newline as well
+$ sed -n '/blue/{N;s/are.*is//p}' poem.txt 
+Violets  sweet,
+```
+
+* When `m` modifier is used, it affects the behavior of `^`, `$` and `.` meta characters
+
+```bash
+$ # without m modifier, ^ will anchor only beginning of entire pattern space
+$ sed -n '/blue/{N;s/^/:: /pg}' poem.txt 
+:: Violets are blue,
+Sugar is sweet,
+$ # with m modifier, ^ will anchor each individual line within pattern space
+$ sed -n '/blue/{N;s/^/:: /pgm}' poem.txt 
+:: Violets are blue,
+:: Sugar is sweet,
+
+$ # same applies to $ as well
+$ sed -n '/blue/{N;s/$/ ::/pg}' poem.txt 
+Violets are blue,
+Sugar is sweet, ::
+$ sed -n '/blue/{N;s/$/ ::/pgm}' poem.txt 
+Violets are blue, ::
+Sugar is sweet, ::
+
+$ # with m modifier, . will not match newline character
+$ sed -n '/blue/{N;s/are.*//p}' poem.txt 
+Violets 
+$ sed -n '/blue/{N;s/are.*//pm}' poem.txt 
+Violets 
+Sugar is sweet,
+```
+
 
 <br>
 <br>
