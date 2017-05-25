@@ -12,6 +12,7 @@
 * [Line filtering options](#line-filtering-options)
     * [Print command](#print-command)
     * [Delete command](#delete-command)
+    * [Quit commands](#quit-commands)
     * [Negating REGEXP address](#negating-regexp-address)
     * [Combining multiple REGEXP](#combining-multiple-regexp)
     * [Filtering by line number](#filtering-by-line-number)
@@ -36,6 +37,7 @@
     * [Ignoring case](#ignoring-case)
     * [p modifier](#p-modifier)
     * [w modifier](#w-modifier)
+    * [e modifier](#e-modifier)
 
 <br>
 
@@ -278,6 +280,38 @@ $ sed '/rose/Id' poem.txt
 Violets are blue,
 Sugar is sweet,
 And so are you.
+```
+
+<br>
+
+#### <a name="quit-commands"></a>Quit commands
+
+* Exit `sed` without processing further input
+
+```bash
+$ # same as: seq 23 45 | head -n5
+$ # remember that printing is default action if -n is not used
+$ seq 23 45 | sed '5q'
+23
+24
+25
+26
+27
+```
+
+* `Q` is similar to `q` but won't print the current line
+
+```bash
+$ seq 23 45 | sed '5Q'
+23
+24
+25
+26
+
+$ # useful to print from beginning of file up to but not including line matching REGEXP
+$ sed '/is/Q' poem.txt 
+Roses are red,
+Violets are blue,
 ```
 
 <br>
@@ -1526,6 +1560,37 @@ $ sed -i 's/three/3/w /dev/stdout' 3.txt
 $ cat 3.txt 
 3
 13
+```
+
+<br>
+
+#### <a name="e-modifier"></a>e modifier
+
+* Allows to use shell command output in *REPLACEMENT* section
+* Trailing newline from command output is suppressed
+
+```bash
+$ # replacing a line with output of shell command
+$ printf 'Date:\nreplace this line\n'
+Date:
+replace this line
+$ printf 'Date:\nreplace this line\n' | sed 's/^replace.*/date/e'
+Date:
+Thu May 25 10:19:46 IST 2017
+
+$ # when using p modifier with e, order is important
+$ printf 'Date:\nreplace this line\n' | sed -n 's/^replace.*/date/ep'
+Thu May 25 10:19:46 IST 2017
+$ printf 'Date:\nreplace this line\n' | sed -n 's/^replace.*/date/pe'
+date
+
+$ # entire modified line is executed as shell command
+$ echo 'xyz 5' | sed 's/xyz/seq/e'
+1
+2
+3
+4
+5
 ```
 
 <br>
