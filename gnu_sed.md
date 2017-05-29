@@ -40,6 +40,7 @@
     * [w modifier](#w-modifier)
     * [e modifier](#e-modifier)
     * [m modifier](#m-modifier)
+* [z and s command line options](#z-and-s-command-line-options)
 
 <br>
 
@@ -1677,6 +1678,51 @@ Violets
 Sugar is sweet,
 ```
 
+<br>
+
+## <a name="z-and-s-command-line-options"></a>z and s command line options
+
+* We have already seen a few options like `-n`, `-e`, `-i` and `-E`
+* This section will cover `-z` and `-s` options
+* See [sed manual - Command line options](https://www.gnu.org/software/sed/manual/sed.html#Command_002dLine-Options) for other options and more details
+
+The `-z` option will cause `sed` to separate input based on ASCII NUL character instead of newlines
+
+```bash
+$ # useful to process null separated data
+$ # for ex: output of grep -Z, find -print0, etc
+$ printf 'teal\0red\nblue\n\0green\n' | sed -nz '/red/p' | cat -A
+red$
+blue$
+^@
+
+$ # also useful to process whole file(not having NUL characters) as a single string
+$ # adds ; to previous line if current line starts with c
+$ printf 'cat\ndog\ncoat\ncut\nmat\n' | sed -z 's/\nc/;&/g'
+cat
+dog;
+coat;
+cut
+mat
+```
+
+The `-s` option will cause `sed` to treat multiple input files separately instead of treating them as single concatenated input. If `-i` is being used, `-s` is implied
+
+```bash
+$ # without -s, there is only one first line
+$ # F command prints file name of current file
+$ sed '1F' f1 f2
+f1
+I ate three apples
+I bought two bananas and three mangoes
+
+$ # with -s, each file has its own address
+$ sed -s '1F' f1 f2
+f1
+I ate three apples
+f2
+I bought two bananas and three mangoes
+```
 
 <br>
 <br>
