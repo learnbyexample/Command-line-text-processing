@@ -28,6 +28,7 @@
     * [The dot meta character](#the-dot-meta-character)
     * [Quantifiers](#quantifiers)
     * [Character classes](#character-classes)
+    * [Escape sequences](#escape-sequences)
     * [Grouping](#grouping)
     * [Back reference](#back-reference)
     * [Changing case](#changing-case)
@@ -696,7 +697,7 @@ $ printf '/foo/bar\n/food/good\n' | sed -n '\;/foo/;p'
 * The `-E` option enables ERE (Extended Regular Expression) which in GNU sed's case only differs in how meta characters are used, no difference in functionalities
     * Initially GNU sed only had `-r` option to enable ERE and `man sed` doesn't even mention `-E`
     * Other `sed` versions use `-E` and `grep` uses `-E` as well. So `-r` won't be used in examples in this tutorial
-    * See also [BRE-vs-ERE](https://www.gnu.org/software/sed/manual/sed.html#BRE-vs-ERE)
+    * See also [sed manual - BRE-vs-ERE](https://www.gnu.org/software/sed/manual/sed.html#BRE-vs-ERE)
 
 <br>
 
@@ -922,11 +923,6 @@ ABCD cut fit c#t
 $ # space, tab etc are also characters which will be matched by '.' 
 $ echo 'coat cut fit c#t' | sed 's/t.f/IJK/g'
 coat cuIJKit c#t
-
-$ printf 'foo\tbar\tbaz\n'
-foo     bar     baz
-$ printf 'foo\tbar\tbaz\n' | sed 's/\t/ /g'
-foo bar baz
 ```
 
 <br>
@@ -1132,7 +1128,7 @@ Matching meta characters inside `[]`
 
 * Characters like `^`, `]`, `-`, etc need special attention to be part of list
 * Also, sequences like `[.` or `=]` have special meaning within `[]`
-    * See [Character-Classes-and-Bracket-Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for complete list
+    * See [sed manual - Character-Classes-and-Bracket-Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for complete list
 
 ```bash
 $ # to match - it should be first or last character within []
@@ -1160,7 +1156,7 @@ Named character classes
 
 * Equivalent class shown is for C locale and ASCII character encoding
     * See [ascii codes table](http://ascii.cl/) for reference
-* See [Character Classes and Bracket Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for more details
+* See [sed manual - Character Classes and Bracket Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for more details
 
 | Character classes | Description |
 | ------------- | ----------- |
@@ -1206,7 +1202,7 @@ Backslash character classes
 
 * Equivalent class shown is for C locale and ASCII character encoding
     * See [ascii codes table](http://ascii.cl/) for reference
-* See [regular expression extensions](https://www.gnu.org/software/sed/manual/sed.html#regexp-extensions) for more details
+* See [sed manual - regular expression extensions](https://www.gnu.org/software/sed/manual/sed.html#regexp-extensions) for more details
 
 | Character classes | Description |
 | ------------- | ----------- |
@@ -1228,6 +1224,44 @@ $ echo 'w=y-x+9*3' | sed 's/[\w=]//g'
 y-x+9*3
 $ echo 'w=y-x+9*3' | perl -pe 's/[\w=]//g'
 -+*
+```
+
+<br>
+
+#### <a name="escape-sequences"></a>Escape sequences
+
+* Certain ASCII characters like tab, carriage return, newline, etc have escape sequence to represent them
+    * Unlike backslash character classes, these can be used within `[]` as well
+* Any ASCII character can be also represented using their decimal or octal or hexadecimal value
+    * See [ascii codes table](http://ascii.cl/) for reference
+* See [sed manual - Escapes](https://www.gnu.org/software/sed/manual/sed.html#Escapes) for more details
+
+```bash
+$ # example for representing tab character
+$ printf 'foo\tbar\tbaz\n'
+foo     bar     baz
+$ printf 'foo\tbar\tbaz\n' | sed 's/\t/ /g'
+foo bar baz
+$ echo 'a b c' | sed 's/ /\t/g'
+a       b       c
+
+$ # using escape sequence inside character class
+$ printf 'a\tb\vc\n'
+a	b
+         c
+$ printf 'a\tb\vc\n' | cat -vT
+a^Ib^Kc
+$ printf 'a\tb\vc\n' | sed 's/[\t\v]/ /g'
+a b c
+
+$ # most common use case for hex escape sequence is to represent single quotes
+$ # equivalent is '\d039' and '\o047' for decimal and octal respectively
+$ echo "foo: '34'"
+foo: '34'
+$ echo "foo: '34'" | sed 's/\x27/"/g'
+foo: "34"
+$ echo 'foo: "34"' | sed 's/"/\x27/g'
+foo: '34'
 ```
 
 <br>
@@ -1600,7 +1634,7 @@ $ echo 'xyz 5' | sed 's/xyz/seq/e'
 
 * Either `m` or `M` can be used
 * So far, we've seen only line based operations (newline character being used to distinguish lines)
-* There are various ways (see [How sed Works](https://www.gnu.org/software/sed/manual/sed.html#Execution-Cycle)) by which more than one line is there in pattern space and in such cases `m` modifier can be used
+* There are various ways (see [sed manual - How sed Works](https://www.gnu.org/software/sed/manual/sed.html#Execution-Cycle)) by which more than one line is there in pattern space and in such cases `m` modifier can be used
 
 Before seeing example with `m` modifier, let's see a simple example to get two lines in pattern space
 
