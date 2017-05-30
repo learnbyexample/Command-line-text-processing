@@ -40,6 +40,9 @@
     * [w modifier](#w-modifier)
     * [e modifier](#e-modifier)
     * [m modifier](#m-modifier)
+* [Shell substitutions](#shell-substitutions)
+    * [Variable substitution](#variable-substitution)
+    * [Command substitution](#command-substitution)
 * [z and s command line options](#z-and-s-command-line-options)
 
 <br>
@@ -1248,7 +1251,7 @@ a       b       c
 
 $ # using escape sequence inside character class
 $ printf 'a\tb\vc\n'
-a	b
+a       b
          c
 $ printf 'a\tb\vc\n' | cat -vT
 a^Ib^Kc
@@ -1676,6 +1679,79 @@ Violets
 $ sed -n '/blue/{N;s/are.*//pm}' poem.txt 
 Violets 
 Sugar is sweet,
+```
+
+<br>
+
+## <a name="shell-substitutions"></a>Shell substitutions
+
+* Examples presented works with `bash` shell, might differ for other shells
+* See also [dealing with meta-characters in shell variables](https://unix.stackexchange.com/questions/129059/how-to-ensure-that-string-interpolated-into-sed-substitution-escapes-all-metac)
+* See also [Difference between single and double quotes in Bash](https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash)
+
+<br>
+
+#### <a name="variable-substitution"></a>Variable substitution
+
+* Entire command in double quotes can be used for simple use cases
+
+```bash
+$ word='are'
+$ sed -n "/$word/p" poem.txt 
+Roses are red,
+Violets are blue,
+And so are you.
+
+$ replace='ARE'
+$ sed "s/$word/$replace/g" poem.txt 
+Roses ARE red,
+Violets ARE blue,
+Sugar is sweet,
+And so ARE you.
+
+$ # need to use delimiter as suitable
+$ echo 'home path is:' | sed "s/$/ $HOME/"
+sed: -e expression #1, char 7: unknown option to `s'
+$ echo 'home path is:' | sed "s|$| $HOME|"
+home path is: /home/learnbyexample
+```
+
+* If command has characters like `\`, backtick, `!` etc, double quote only the variable
+
+```bash
+$ # if history expansion is enabled, ! is special
+$ word='are'
+$ sed "/$word/!d" poem.txt 
+sed "/$word/date +%A" poem.txt 
+sed: -e expression #1, char 7: extra characters after command
+
+$ # so double quote only the variable
+$ # the command is concatenation of '/' and "$word" and '/!d'
+$ sed '/'"$word"'/!d' poem.txt 
+Roses are red,
+Violets are blue,
+And so are you.
+```
+
+<br>
+
+#### <a name="command-substitution"></a>Command substitution
+
+* Much more flexible than using `e` modifier as part of line can be modified as well
+
+```bash
+$ echo 'today is date' | sed 's/date/'"$(date +%A)"'/'
+today is Tuesday
+
+$ # need to use delimiter as suitable
+$ echo 'current working dir is: ' | sed 's/$/'"$(pwd)"'/'
+sed: -e expression #1, char 6: unknown option to `s'
+$ echo 'current working dir is: ' | sed 's|$|'"$(pwd)"'|'
+current working dir is: /home/learnbyexample/command_line_text_processing
+
+$ # multiline output cannot be substituted in this manner
+$ echo 'foo' | sed 's/foo/'"$(seq 5)"'/'
+sed: -e expression #1, char 7: unterminated `s' command
 ```
 
 <br>
