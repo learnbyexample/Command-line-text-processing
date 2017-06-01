@@ -44,6 +44,9 @@
     * [Variable substitution](#variable-substitution)
     * [Command substitution](#command-substitution)
 * [z and s command line options](#z-and-s-command-line-options)
+* [clear command](#clear-command)
+* [insert command](#insert-command)
+* [append command](#append-command)
 
 <br>
 
@@ -1798,6 +1801,294 @@ f1
 I ate three apples
 f2
 I bought two bananas and three mangoes
+```
+
+<br>
+
+## <a name="clear-command"></a>clear command
+
+The clear command `c` will delete line(s) represented by address or address range and replace it with given string
+
+```bash
+$ # white-space between c and replacement string is ignored
+$ seq 3 | sed '2c foo bar'
+1
+foo bar
+3
+
+$ # note how all lines in address range are replaced
+$ seq 8 | sed '3,7cfoo bar'
+1
+2
+foo bar
+8
+
+$ # escape sequences are allowed in string to be replaced
+$ sed '/red/,/is/chello\nhi there' poem.txt 
+hello
+hi there
+And so are you.
+```
+
+* `\` is special immediately after `c`, see [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for details
+* If escape sequence is needed at beginning of replacement string, use an additional `\`
+
+```bash
+$ # \ helps to add leading spaces
+$ seq 3 | sed '2c  a'
+1
+a
+3
+$ seq 3 | sed '2c\ a'
+1
+ a
+3
+
+$ seq 3 | sed '2c\tgood day'
+1
+tgood day
+3
+
+$ seq 3 | sed '2c\\tgood day'
+1
+        good day
+3
+```
+
+* Since `;` cannot be used to distinguish between string and end of command, use `-e` for multiple commands
+
+```bash
+$ sed -e '/are/cHi;s/is/IS/' poem.txt 
+Hi;s/is/IS/
+Hi;s/is/IS/
+Sugar is sweet,
+Hi;s/is/IS/
+
+$ sed -e '/are/cHi' -e 's/is/IS/' poem.txt 
+Hi
+Hi
+Sugar IS sweet,
+Hi
+```
+
+* Using shell substitution
+
+```bash
+$ text='good day'
+$ seq 3 | sed '2c'"$text"
+1
+good day
+3
+
+$ text='good day\nfoo bar'
+$ seq 3 | sed '2c'"$text"
+1
+good day
+foo bar
+3
+
+$ seq 3 | sed '2c'"$(date +%A)"
+1
+Thursday
+3
+
+$ # multiline command output will lead to error
+$ seq 3 | sed '2c'"$(seq 2)"
+sed: -e expression #1, char 5: missing command
+```
+
+<br>
+
+## <a name="insert-command"></a>insert command
+
+The insert command allows to add string before a line matching given address
+
+```bash
+$ # same as: sed '2s/^/hello\n/'
+$ seq 3 | sed '2ihello'
+1
+hello
+2
+3
+
+# escape sequences can be used
+$ seq 3 | sed '2ihello\nhi'
+1
+hello
+hi
+2
+3
+```
+
+* `\` is special immediately after `i`, see [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for details
+* If escape sequence is needed at beginning of replacement string, use an additional `\`
+
+```bash
+$ seq 3 | sed '2i  foo'
+1
+foo
+2
+3
+$ seq 3 | sed '2i\ foo'
+1
+ foo
+2
+3
+
+$ seq 3 | sed '2i\tbar'
+1
+tbar
+2
+3
+$ seq 3 | sed '2i\\tbar'
+1
+        bar
+2
+3
+```
+
+* Since `;` cannot be used to distinguish between string and end of command, use `-e` for multiple commands
+
+```bash
+$ sed -e '/is/ifoobar;s/are/ARE/' poem.txt 
+Roses are red,
+Violets are blue,
+foobar;s/are/ARE/
+Sugar is sweet,
+And so are you.
+
+$ sed -e '/is/ifoobar' -e 's/are/ARE/' poem.txt 
+Roses ARE red,
+Violets ARE blue,
+foobar
+Sugar is sweet,
+And so ARE you.
+```
+
+* Using shell substitution
+
+```bash
+$ text='good day'
+$ seq 3 | sed '2i'"$text"
+1
+good day
+2
+3
+
+$ text='good day\nfoo bar'
+$ seq 3 | sed '2i'"$text"
+1
+good day
+foo bar
+2
+3
+
+$ seq 3 | sed '2iToday is '"$(date +%A)"
+1
+Today is Thursday
+2
+3
+
+$ # multiline command output will lead to error
+$ seq 3 | sed '2i'"$(seq 2)"
+sed: -e expression #1, char 5: missing command
+```
+
+<br>
+
+## <a name="append-command"></a>append command
+
+The append command allows to add string after a line matching given address
+
+```bash
+$ # same as: sed '2s/$/\nhello/'
+$ seq 3 | sed '2ahello'
+1
+2
+hello
+3
+
+# escape sequences can be used
+$ seq 3 | sed '2ahello\nhi'
+1
+2
+hello
+hi
+3
+```
+
+* `\` is special immediately after `a`, see [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for details
+* If escape sequence is needed at beginning of replacement string, use an additional `\`
+
+```bash
+$ seq 3 | sed '2a  foo'
+1
+2
+foo
+3
+$ seq 3 | sed '2a\ foo'
+1
+2
+ foo
+3
+
+$ seq 3 | sed '2a\tbar'
+1
+2
+tbar
+3
+$ seq 3 | sed '2a\\tbar'
+1
+2
+        bar
+3
+```
+
+* Since `;` cannot be used to distinguish between string and end of command, use `-e` for multiple commands
+
+```bash
+$ sed -e '/is/afoobar;s/are/ARE/' poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+foobar;s/are/ARE/
+And so are you.
+
+$ sed -e '/is/afoobar' -e 's/are/ARE/' poem.txt 
+Roses ARE red,
+Violets ARE blue,
+Sugar is sweet,
+foobar
+And so ARE you.
+```
+
+* Using shell substitution
+
+```bash
+$ text='good day'
+$ seq 3 | sed '2a'"$text"
+1
+2
+good day
+3
+
+$ text='good day\nfoo bar'
+$ seq 3 | sed '2a'"$text"
+1
+2
+good day
+foo bar
+3
+
+$ seq 3 | sed '2aToday is '"$(date +%A)"
+1
+2
+Today is Thursday
+3
+
+$ # multiline command output will lead to error
+$ seq 3 | sed '2a'"$(seq 2)"
+sed: -e expression #1, char 5: missing command
 ```
 
 <br>
