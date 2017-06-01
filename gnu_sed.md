@@ -1830,6 +1830,17 @@ hi there
 And so are you.
 ```
 
+* command will apply for all matching addresses
+
+```bash
+$ seq 5 | sed '/[24]/cfoo'
+1
+foo
+3
+foo
+5
+```
+
 * `\` is special immediately after `c`, see [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for details
 * If escape sequence is needed at beginning of replacement string, use an additional `\`
 
@@ -1911,13 +1922,26 @@ hello
 2
 3
 
-# escape sequences can be used
+$ # escape sequences can be used
 $ seq 3 | sed '2ihello\nhi'
 1
 hello
 hi
 2
 3
+```
+
+* command will apply for all matching addresses
+
+```bash
+$ seq 5 | sed '/[24]/ifoo'
+1
+foo
+2
+3
+foo
+4
+5
 ```
 
 * `\` is special immediately after `i`, see [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for details
@@ -2008,13 +2032,26 @@ $ seq 3 | sed '2ahello'
 hello
 3
 
-# escape sequences can be used
+$ # escape sequences can be used
 $ seq 3 | sed '2ahello\nhi'
 1
 2
 hello
 hi
 3
+```
+
+* command will apply for all matching addresses
+
+```bash
+$ seq 5 | sed '/[24]/afoo'
+1
+2
+foo
+3
+4
+foo
+5
 ```
 
 * `\` is special immediately after `a`, see [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for details
