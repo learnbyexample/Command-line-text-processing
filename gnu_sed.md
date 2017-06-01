@@ -47,6 +47,7 @@
 * [clear command](#clear-command)
 * [insert command](#insert-command)
 * [append command](#append-command)
+* [adding contents of file](#adding-contents-of-file)
 
 <br>
 
@@ -2126,6 +2127,110 @@ Today is Thursday
 $ # multiline command output will lead to error
 $ seq 3 | sed '2a'"$(seq 2)"
 sed: -e expression #1, char 5: missing command
+```
+
+<br>
+
+## <a name="adding-contents-of-file"></a>adding contents of file
+
+* The `r` command allows to add contents of file after a line matching given address
+* It is a robust way to add multiline content or if content can have characters that may be interpreted
+* Special name `/dev/stdin` allows to read from **stdin** instead of file input
+* First, a simple example to add contents of one file into another at specified address
+
+```bash
+$ cat 5.txt 
+five
+1five
+
+$ cat poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # space between r and filename is optional
+$ sed '2r 5.txt' poem.txt 
+Roses are red,
+Violets are blue,
+five
+1five
+Sugar is sweet,
+And so are you.
+
+$ # content cannot be added before first line
+$ sed '0r 5.txt' poem.txt 
+sed: -e expression #1, char 2: invalid usage of line address 0
+$ # but that is trivial to solve: cat 5.txt poem.txt
+```
+
+* command will apply for all matching addresses
+
+```bash
+$ seq 5 | sed '/[24]/r 5.txt'
+1
+2
+five
+1five
+3
+4
+five
+1five
+5
+```
+
+* adding content of variable as it is without any interpretation
+* also shows example for using `/dev/stdin`
+
+```bash
+$ text='Good day\nfoo bar baz\n'
+$ # escape sequence like \n will be interpreted when 'a' command is used
+$ sed '/is/a'"$text" poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+Good day
+foo bar baz
+
+And so are you.
+
+$ # \ is just another character, won't be treated as special with 'r' command
+$ echo "$text" | sed '/is/r /dev/stdin' poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+Good day\nfoo bar baz\n
+And so are you.
+```
+
+* inserting multiline command output is simple as well
+
+```bash
+$ seq 3 | sed '/is/r /dev/stdin' poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+1
+2
+3
+And so are you.
+```
+
+* replacing range of lines with contents of file
+
+```bash
+$ # order is important, first 'r' and then 'd'
+$ sed -e '/is/r 5.txt' -e '1,/is/d' poem.txt 
+five
+1five
+And so are you.
+
+$ seq 3 | sed -e '3r /dev/stdin' -e '2,3d' poem.txt
+Roses are red,
+1
+2
+3
+And so are you.
 ```
 
 <br>
