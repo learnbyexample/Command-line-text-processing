@@ -9,6 +9,8 @@
     * [With backup](#with-backup)
     * [Without backup](#without-backup)
     * [Multiple files](#multiple-files)
+    * [Prefix backup name](#prefix-backup-name)
+    * [Place backups in directory](#place-backups-in-directory)
 * [Line filtering options](#line-filtering-options)
     * [Print command](#print-command)
     * [Delete command](#delete-command)
@@ -196,6 +198,56 @@ $ cat f1
 I ate three apples
 $ cat f2
 I bought two bananas and three mangoes
+```
+
+<br>
+
+#### <a name="prefix-backup-name"></a>Prefix backup name
+
+* A `*` in argument given to `-i` will get expanded to input filename
+* This way, one can add prefix instead of suffix for backup
+
+```bash
+$ cat var.txt 
+foo
+bar
+baz
+
+$ sed -i'bkp.*' 's/foo/hello/' var.txt 
+$ cat var.txt 
+hello
+bar
+baz
+
+$ cat bkp.var.txt 
+foo
+bar
+baz
+```
+
+<br>
+
+#### <a name="place-backups-in-directory"></a>Place backups in directory
+
+* `*` also allows to specify an existing directory to place the backups instead of current working directory
+
+```bash
+$ mkdir bkp_dir
+$ sed -i'bkp_dir/*' 's/bar/hi/' var.txt 
+$ cat var.txt 
+hello
+hi
+baz
+
+$ cat bkp_dir/var.txt
+hello
+bar
+baz
+
+$ # extensions can be added as well
+$ # bkp_dir/*.bkp for suffix
+$ # bkp_dir/bkp.* for prefix
+$ # bkp_dir/bkp.*.2017 for both and so on
 ```
 
 <br>
@@ -2203,7 +2255,7 @@ Good day\nfoo bar baz\n
 And so are you.
 ```
 
-* inserting multiline command output is simple as well
+* adding multiline command output is simple as well
 
 ```bash
 $ seq 3 | sed '/is/r /dev/stdin' poem.txt 
@@ -2216,17 +2268,20 @@ Sugar is sweet,
 And so are you.
 ```
 
-* replacing range of lines with contents of file
+* replacing a line or range of lines with contents of file
 
 ```bash
+$ # replacing range of lines
 $ # order is important, first 'r' and then 'd'
 $ sed -e '/is/r 5.txt' -e '1,/is/d' poem.txt 
 five
 1five
 And so are you.
 
-$ seq 3 | sed -e '3r /dev/stdin' -e '2,3d' poem.txt
+$ # replacing a line
+$ seq 3 | sed -e '3r /dev/stdin' -e '3d' poem.txt
 Roses are red,
+Violets are blue,
 1
 2
 3
