@@ -46,10 +46,12 @@
     * [Variable substitution](#variable-substitution)
     * [Command substitution](#command-substitution)
 * [z and s command line options](#z-and-s-command-line-options)
-* [clear command](#clear-command)
+* [change command](#change-command)
 * [insert command](#insert-command)
 * [append command](#append-command)
 * [adding contents of file](#adding-contents-of-file)
+    * [r for entire file](#r-for-entire-file)
+    * [R for line by line](#r-for-line-by-line)
 
 <br>
 
@@ -1858,9 +1860,11 @@ I bought two bananas and three mangoes
 
 <br>
 
-## <a name="clear-command"></a>clear command
+<br>
 
-The clear command `c` will delete line(s) represented by address or address range and replace it with given string
+## <a name="change-command"></a>change command
+
+The change command `c` will delete line(s) represented by address or address range and replace it with given string
 
 ```bash
 $ # white-space between c and replacement string is ignored
@@ -2185,6 +2189,10 @@ sed: -e expression #1, char 5: missing command
 
 ## <a name="adding-contents-of-file"></a>adding contents of file
 
+<br>
+
+#### <a name="r-for-entire-file"></a>r for entire file
+
 * The `r` command allows to add contents of file after a line matching given address
 * It is a robust way to add multiline content or if content can have characters that may be interpreted
 * Special name `/dev/stdin` allows to read from **stdin** instead of file input
@@ -2285,6 +2293,53 @@ Violets are blue,
 1
 2
 3
+And so are you.
+```
+
+<br>
+
+#### <a name="r-for-line-by-line"></a>R for line by line
+
+* add a line for every address match
+* Special name `/dev/stdin` allows to read from **stdin** instead of file input
+
+```bash
+$ # space between R and filename is optional
+$ seq 3 | sed '/are/R /dev/stdin' poem.txt 
+Roses are red,
+1
+Violets are blue,
+2
+Sugar is sweet,
+And so are you.
+3
+
+$ sed '2,3R 5.txt' poem.txt 
+Roses are red,
+Violets are blue,
+five
+Sugar is sweet,
+1five
+And so are you.
+```
+
+* number of lines from file to be read different from number of matching address lines
+
+```bash
+$ # file has more lines than matching address
+$ sed '/is/R 5.txt' poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+five
+And so are you.
+
+$ # lines matching address is more than file to be read
+$ seq 1 | sed '/are/R /dev/stdin' poem.txt 
+Roses are red,
+1
+Violets are blue,
+Sugar is sweet,
 And so are you.
 ```
 
