@@ -52,6 +52,7 @@
 * [adding contents of file](#adding-contents-of-file)
     * [r for entire file](#r-for-entire-file)
     * [R for line by line](#r-for-line-by-line)
+* [n and N commands](#n-and-n-commands)
 
 <br>
 
@@ -2341,6 +2342,78 @@ Roses are red,
 Violets are blue,
 Sugar is sweet,
 And so are you.
+```
+
+<br>
+
+## <a name="n-and-n-commands"></a>n and N commands
+
+* These two commands will fetch next line (newline or NUL character separated, depending on options)
+* `n` will fetch the next line and replace whatever is already there in pattern space
+
+```bash
+$ # if line contains 'blue', replace 'e' with 'E' only for following line
+$ sed '/blue/{n;s/e/E/g}' poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is swEEt,
+And so are you.
+
+$ # better illustrated with -n option
+$ sed -n '/blue/{n;s/e/E/pg}' poem.txt 
+Sugar is swEEt,
+
+$ # if line contains 'blue', replace 'e' with 'E' only for next to next line
+$ sed -n '/blue/{n;n;s/e/E/pg}' poem.txt 
+And so arE you.
+```
+
+* `N` will fetch the next line and append to pattern space
+
+```bash
+$ # if line contains 'blue', replace 'e' with 'E' both in current line and next
+$ sed '/blue/{N;s/e/E/g}' poem.txt 
+Roses are red,
+ViolEts arE bluE,
+Sugar is swEEt,
+And so are you.
+
+$ # better illustrated with -n option
+$ sed -n '/blue/{N;s/e/E/pg}' poem.txt 
+ViolEts arE bluE,
+Sugar is swEEt,
+
+$ sed -n '/blue/{N;N;s/e/E/pg}' poem.txt 
+ViolEts arE bluE,
+Sugar is swEEt,
+And so arE you.
+```
+
+* Combination
+
+```bash
+$ # n will fetch next line, current line is out of pattern space
+$ # N will then add another line
+$ sed -n '/blue/{n;N;s/e/E/pg}' poem.txt 
+Sugar is swEEt,
+And so arE you.
+```
+
+* not necessary to qualify with an address
+
+```bash
+$ seq 6 | sed 'n;cXYZ'
+1
+XYZ
+3
+XYZ
+5
+XYZ
+
+$ seq 6 | sed 'N;s/\n/ /'
+1 2
+3 4
+5 6
 ```
 
 <br>
