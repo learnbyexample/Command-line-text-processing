@@ -53,6 +53,9 @@
     * [r for entire file](#r-for-entire-file)
     * [R for line by line](#r-for-line-by-line)
 * [n and N commands](#n-and-n-commands)
+* [Control structures](#control-structures)
+    * [if then else](#if-then-else)
+    * [replacing in specific column](#replacing-in-specific-column)
 
 <br>
 
@@ -2414,6 +2417,87 @@ $ seq 6 | sed 'N;s/\n/ /'
 1 2
 3 4
 5 6
+```
+
+<br>
+
+## <a name="control-structures"></a>Control structures
+
+* Using `:label` one can mark a command location to branch to conditionally or unconditionally
+* See [sed manual - Commands for sed gurus](https://www.gnu.org/software/sed/manual/sed.html#Programming-Commands) for more details
+
+<br>
+
+#### <a name="if-then-else"></a>if then else
+
+* Simple if-then-else can be simulated using `b` command
+* `b` command will unconditionally branch to specified label
+* Without label, `b` will skip rest of commands and start next cycle
+
+```bash
+$ # changing -ve to +ve and vice versa
+$ cat nums.txt 
+42
+-2
+10101
+-3.14
+-75
+$ # same as: perl -pe '/^-/ ? s/// : s/^/-/'
+$ # empty REGEXP section will reuse previous REGEXP, in this case /^-/
+$ sed '/^-/{s///;b}; s/^/-/' nums.txt 
+-42
+2
+-10101
+3.14
+75
+
+$ # same as: perl -pe '/are/ ? s/e/*/g : s/e/#/g'
+$ # if line contains 'are' replace 'e' with '*' else replace 'e' with '#'
+$ sed '/are/{s/e/*/g;b}; s/e/#/g' poem.txt 
+Ros*s ar* r*d,
+Viol*ts ar* blu*,
+Sugar is sw##t,
+And so ar* you.
+```
+
+<br>
+
+#### <a name="replacing-in-specific-column"></a>replacing in specific column
+
+* `t` command will branch to specified label on successful substitution
+* Without label, `t` will skip rest of commands and start next cycle
+* More examples
+    * [replace data after last delimiter](https://stackoverflow.com/questions/39907133/replace-data-after-last-delimiter-of-every-line-using-sed-or-awk/39908523#39908523)
+    * [replace multiple occurrences in specific column](https://stackoverflow.com/questions/42886531/replace-mutliple-occurances-in-delimited-columns/42886919#42886919)
+
+```bash
+$ # replace space with underscore only in 3rd column
+$ # ^(([^|]+\|){2} captures first two columns
+$ # [^|]* zero or more non-column separator characters
+$ # as long as match is found, command will be repeated on same input line
+$ echo 'foo bar|a b c|1 2 3|xyz abc' | sed -E ':a s/^(([^|]+\|){2}[^|]*) /\1_/; ta'
+foo bar|a b c|1_2_3|xyz abc
+
+$ # using perl or awk might be simpler
+$ # for ex: awk 'BEGIN{FS=OFS="|"} {gsub(/ /,"_",$3); print}'
+```
+
+* example to show difference between `b` and `t`
+
+```bash
+$ # whether or not 'R' is found on lines containing 'are', branch will happen
+$ sed '/are/{s/R/*/g;b}; s/e/#/g' poem.txt 
+*oses are red,
+Violets are blue,
+Sugar is sw##t,
+And so are you.
+
+$ # branch only if line contains 'are' and substitution of 'R' succeeds
+$ sed '/are/{s/R/*/g;t}; s/e/#/g' poem.txt 
+*oses are red,
+Viol#ts ar# blu#,
+Sugar is sw##t,
+And so ar# you.
 ```
 
 <br>
