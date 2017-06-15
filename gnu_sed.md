@@ -910,7 +910,6 @@ that is quite a fabriSSSed tale
 #### <a name="matching-the-meta-characters"></a>Matching the meta characters
 
 * Since meta characters like `^`, `$`, `\` etc have special meaning in *REGEXP*, they have to be escaped using `\` to match them literally
-* Certain characters like `&` have special meaning in *REPLACEMENT* section of substitute as well. They too have to be escaped using `\`
 
 ```bash
 $ # here, '^' will match only start of line
@@ -934,6 +933,28 @@ $ # '^' has special meaning only at start of REGEXP
 $ # similarly, '$' has special meaning only at end of REGEXP
 $ echo '(a+b)^2 = a^2 + b^2 + 2ab' | sed 's/a^2/A^2/g'
 (a+b)^2 = A^2 + b^2 + 2ab
+```
+
+* Certain characters like `&` and `\` have special meaning in *REPLACEMENT* section of substitute as well. They too have to be escaped using `\`
+* And the delimiter character has to be escaped of course
+* See [back reference](#back-reference) section for use of `&` in *REPLACEMENT* section
+
+```bash
+$ # & will refer to entire matched string of REGEXP section
+$ echo 'foo and bar' | sed 's/and/"&"/'
+foo "and" bar
+$ echo 'foo and bar' | sed 's/and/"\&"/'
+foo "&" bar
+
+$ # use different delimiter where required
+$ echo 'a b' | sed 's/ /\//'
+a/b
+$ echo 'a b' | sed 's# #/#'
+a/b
+
+$ # use \\ to represent literal \
+$ echo '/foo/bar/baz' | sed 's#/#\\#g'
+\foo\bar\baz
 ```
 
 <br>
