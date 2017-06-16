@@ -56,6 +56,10 @@
 * [Control structures](#control-structures)
     * [if then else](#if-then-else)
     * [replacing in specific column](#replacing-in-specific-column)
+* [Lines between two REGEXPs](#lines-between-two-regexps)
+    * [Include or Exclude matching REGEXPs](#include-or-exclude-matching-regexps)
+    * [First or Last block](#first-or-last-block)
+    * [Broken blocks](#broken-blocks)
 
 <br>
 
@@ -559,7 +563,7 @@ He he he
 ```
 
 * Range defined by start and end *REGEXP*
-* Other cases like getting lines without the line matching start and/or end, unbalanced start/end, when end *REGEXP* doesn't match, etc will be covered separately later
+* For other cases like getting lines without the line matching start and/or end, unbalanced start/end, when end *REGEXP* doesn't match, etc see [Lines between two REGEXPs](#lines-between-two-regexps) section
 
 ```bash
 $ sed -n '/is/,/like/p' sample.txt 
@@ -2519,6 +2523,255 @@ $ sed '/are/{s/R/*/g;t}; s/e/#/g' poem.txt
 Viol#ts ar# blu#,
 Sugar is sw##t,
 And so ar# you.
+```
+
+<br>
+
+## <a name="lines-between-two-regexps"></a>Lines between two REGEXPs
+
+* Simple cases were seen in [address range](#address-range) section
+* This section will deal with more cases and some corner cases
+
+<br>
+
+#### <a name="include-or-exclude-matching-regexps"></a>Include or Exclude matching REGEXPs
+
+Consider the sample input file, for simplicity the two REGEXPs are **BEGIN** and **END** strings instead of regular expressions
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+First, lines between the two *REGEXP*s are to be printed
+
+* Case 1: both starting and ending *REGEXP* part of output
+
+```bash
+$ sed -n '/BEGIN/,/END/p' range.txt 
+BEGIN
+1234
+6789
+END
+BEGIN
+a
+b
+c
+END
+```
+
+* Case 2: both starting and ending *REGEXP* not part of ouput
+
+```bash
+$ # remember that empty REGEXP section will reuse previously matched REGEXP
+$ sed -n '/BEGIN/,/END/{//!p}' range.txt 
+1234
+6789
+a
+b
+c
+```
+
+* Case 3: only starting *REGEXP* part of output
+
+```bash
+$ sed -n '/BEGIN/,/END/{/END/!p}' range.txt 
+BEGIN
+1234
+6789
+BEGIN
+a
+b
+c
+```
+
+* Case 4: only ending *REGEXP* part of output
+
+```bash
+$ sed -n '/BEGIN/,/END/{/BEGIN/!p}' range.txt 
+1234
+6789
+END
+a
+b
+c
+END
+```
+
+Second, lines between the two *REGEXP*s are to be deleted
+
+* Case 5: both starting and ending *REGEXP* not part of output
+
+```bash
+$ sed '/BEGIN/,/END/d' range.txt 
+foo
+bar
+baz
+```
+
+* Case 6: both starting and ending *REGEXP* part of output
+
+```bash
+$ # remember that empty REGEXP section will reuse previously matched REGEXP
+$ sed '/BEGIN/,/END/{//!d}' range.txt 
+foo
+BEGIN
+END
+bar
+BEGIN
+END
+baz
+```
+
+* Case 7: only starting *REGEXP* part of output
+
+```bash
+$ sed '/BEGIN/,/END/{/BEGIN/!d}' range.txt 
+foo
+BEGIN
+bar
+BEGIN
+baz
+```
+
+* Case 8: only ending *REGEXP* part of output
+
+```bash
+$ sed '/BEGIN/,/END/{/END/!d}' range.txt 
+foo
+END
+bar
+END
+baz
+```
+
+<br>
+
+#### <a name="first-or-last-block"></a>First or Last block
+
+* Getting first block is very simple by using `q` command
+
+```bash
+$ sed -n '/BEGIN/,/END/{p;/END/q}' range.txt 
+BEGIN
+1234
+6789
+END
+
+$ # use other tricks discussed in previous section as needed
+$ sed -n '/BEGIN/,/END/{//!p;/END/q}' range.txt 
+1234
+6789
+```
+
+* To get last block, reverse the input linewise, the order of *REGEXP*s and finally reverse again
+
+```bash
+$ tac range.txt | sed -n '/END/,/BEGIN/{p;/BEGIN/q}' | tac
+BEGIN
+a
+b
+c
+END
+
+$ # use other tricks discussed in previous section as needed
+$ tac range.txt | sed -n '/END/,/BEGIN/{//!p;/BEGIN/q}' | tac
+a
+b
+c
+```
+
+* To get a specific block, say 3rd one, `awk` or `perl` would be a better choice
+
+<br>
+
+#### <a name="broken-blocks"></a>Broken blocks
+
+* If there are blocks with ending *REGEXP* but without corresponding starting *REGEXP*, `sed -n '/BEGIN/,/END/p'` will suffice
+* Consider the modified input file where final starting *REGEXP* doesn't have corresponding ending
+
+```bash
+$ cat broken_range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+baz
+```
+
+* All lines till end of file gets printed with simple use of `sed -n '/BEGIN/,/END/p'`
+* The file reversing trick comes in handy here as well
+* But if both kinds of broken blocks are present, further processing will be required. Better to use `awk` or `perl` in such cases
+
+```bash
+$ sed -n '/BEGIN/,/END/p' broken_range.txt 
+BEGIN
+1234
+6789
+END
+BEGIN
+a
+b
+c
+baz
+
+$ tac broken_range.txt | sed -n '/END/,/BEGIN/p' | tac
+BEGIN
+1234
+6789
+END
+```
+
+* If there are multiple starting *REGEXP* but single ending *REGEXP*, the reversing trick comes handy again
+
+```bash
+$ cat uneven_range.txt 
+foo
+BEGIN
+1234
+BEGIN
+42
+6789
+END
+bar
+BEGIN
+a
+BEGIN
+b
+BEGIN
+c
+BEGIN
+d
+BEGIN
+e
+END
+baz
+
+$ tac uneven_range.txt | sed -n '/END/,/BEGIN/p' | tac
+BEGIN
+42
+6789
+END
+BEGIN
+e
+END
 ```
 
 <br>
