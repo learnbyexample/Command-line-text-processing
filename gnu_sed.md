@@ -60,6 +60,7 @@
     * [Include or Exclude matching REGEXPs](#include-or-exclude-matching-regexps)
     * [First or Last block](#first-or-last-block)
     * [Broken blocks](#broken-blocks)
+* [sed scripts](#sed-scripts)
 
 <br>
 
@@ -2772,6 +2773,65 @@ END
 BEGIN
 e
 END
+```
+
+<br>
+
+## <a name="sed-scripts"></a>sed scripts
+
+* `sed` commands can be placed in a file and called using `-f` option or directly executed using [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix))
+* See [sed manual - Some Sample Scripts](https://www.gnu.org/software/sed/manual/sed.html#Examples) for more examples
+* See [sed manual - Often-Used Commands](https://www.gnu.org/software/sed/manual/sed.html#Common-Commands) for more details on using comments
+
+```bash
+$ cat script.sed 
+# each line is a command
+/is/cfoo bar
+/you/r 3.txt
+/you/d
+# single quotes can be used freely
+s/are/'are'/g
+
+$ sed -f script.sed poem.txt 
+Roses 'are' red,
+Violets 'are' blue,
+foo bar
+3
+13
+
+$ # command line options are specified as usual
+$ sed -nf script.sed poem.txt 
+foo bar
+3
+13
+```
+
+* command line options can be specified along with shebang as well as added at time of invocation
+
+```bash
+$ type sed
+sed is /bin/sed
+
+$ cat executable.sed 
+#!/bin/sed -f
+/is/cfoo bar
+/you/r 3.txt
+/you/d
+s/are/'are'/g
+
+$ chmod +x executable.sed 
+
+$ ./executable.sed poem.txt 
+Roses 'are' red,
+Violets 'are' blue,
+foo bar
+3
+13
+
+$ ./executable.sed -n poem.txt 
+foo bar
+3
+13
 ```
 
 <br>
