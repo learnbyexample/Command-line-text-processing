@@ -61,6 +61,7 @@
     * [First or Last block](#first-or-last-block)
     * [Broken blocks](#broken-blocks)
 * [sed scripts](#sed-scripts)
+* [Further Reading](#further-reading)
 
 <br>
 
@@ -2835,7 +2836,21 @@ foo bar
 ```
 
 <br>
-<br>
-<br>
 
-*More to follow*
+## <a name="further-reading"></a>Further Reading
+
+* Manual
+    * `man sed` and `info sed` for more details as well as options/commands not covered in this tutorial
+    * [GNU sed manual](https://www.gnu.org/software/sed/manual/sed.html) has even more detailed information and examples
+* Tutorials and Q&A
+    * [sed basics](http://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
+    * [sed detailed tutorial](http://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
+    * [sed one-liners explained](http://www.catonmat.net/series/sed-one-liners-explained)
+    * [cheat sheet](http://www.catonmat.net/download/sed.stream.editor.cheat.sheet.txt)
+    * [common search and replace examples](https://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files)
+    * [sed Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sed?sort=votes&pageSize=15)
+    * [sed Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/sed?sort=votes&pageSize=15)
+* Learn Regular Expressions
+    * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
+    * [regexcrossword](https://regexcrossword.com/)
+    * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
