@@ -370,7 +370,7 @@ $ seq 23 45 | sed '5q'
 27
 ```
 
-* `Q` is similar to `q` but won't print the current line
+* `Q` is similar to `q` but won't print the matching line
 
 ```bash
 $ seq 23 45 | sed '5Q'
@@ -383,6 +383,23 @@ $ # useful to print from beginning of file up to but not including line matching
 $ sed '/is/Q' poem.txt 
 Roses are red,
 Violets are blue,
+```
+
+* Use `tac` to get all lines starting from last occurrence of search string
+
+```bash
+$ # all lines from last occurrence of '7'
+$ seq 50 | tac | sed '/7/q' | tac
+47
+48
+49
+50
+
+$ # all lines from last occurrence of '7' excluding line with '7'
+$ seq 50 | tac | sed '/7/Q' | tac
+48
+49
+50
 ```
 
 <br>
