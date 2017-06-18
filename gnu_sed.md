@@ -93,7 +93,7 @@ DESCRIPTION
 
 ## <a name="simple-search-and-replace"></a>Simple search and replace
 
-Detailed examples for **substitute** command will be convered in later section, syntax is
+Detailed examples for **substitute** command will be convered in later sections, syntax is
 
 ```
 s/REGEXP/REPLACEMENT/FLAGS
@@ -120,33 +120,39 @@ $ seq 10 | paste -sd, | sed 's/,/ : /g'
 
 #### <a name="editing-file-input"></a>editing file input
 
+* By default newline character is the line separator
+* See [Regular Expressions](#regular-expressions) section for qualifying search terms
+    * for example to distinguish between 'hi', 'this', 'his', 'history', etc
+
 ```bash
 $ cat greeting.txt 
-Hi, how are you?
-What are you upto these days?
-Hope you are atleast keeping in touch with Prof.
-As usual, am upto no good :P
+Hi there
+Have a nice day
 
-$ # change all 'atleast' to 'at least'
-$ sed 's/atleast/at least/g' greeting.txt 
-Hi, how are you?
-What are you upto these days?
-Hope you are at least keeping in touch with Prof.
-As usual, am upto no good :P
+$ # change first 'Hi' in each line to 'Hello'
+$ sed 's/Hi/Hello/' greeting.txt
+Hello there
+Have a nice day
+
+$ # change first 'nice day' in each line to 'safe journey'
+$ sed 's/nice day/safe journey/' greeting.txt
+Hi there
+Have a safe journey
+
+$ # change all 'e' to 'E' and save changed text to another file
+$ sed 's/e/E/g' greeting.txt > out.txt
+$ cat out.txt 
+Hi thErE
+HavE a nicE day
 ```
 
 <br>
 
 ## <a name="inplace-file-editing"></a>Inplace file editing
 
-* In previous section, the output from `sed` was displayed on stdout
-* To save stdout to another file, shell redirection can be used
-    * For ex: `sed 's/atleast/at least/g' greeting.txt > out.txt`
-* However, to write the changes back to original file, use `-i` option
-
-**Note**
-
-Refer to `man sed` for details of how to use the `-i` option. It varies with different `sed` implementations. As mentioned at start of this chapter, `sed (GNU sed) 4.2.2` is being used here
+* In previous section, the output from `sed` was displayed on stdout or saved to another file
+* To write the changes back to original file, use `-i` option
+* **Note**: Refer to `man sed` for details of how to use the `-i` option. It varies with different `sed` implementations. As mentioned at start of this chapter, `sed (GNU sed) 4.2.2` is being used here
 
 <br>
 
@@ -156,21 +162,16 @@ Refer to `man sed` for details of how to use the `-i` option. It varies with dif
 
 ```bash
 $ # '.bkp' is extension provided
-$ sed -i.bkp 's/atleast/at least/g' greeting.txt
+$ sed -i.bkp 's/Hi/Hello/' greeting.txt
 
 $ # original file gets preserved in 'greeting.txt.bkp'
-$ cat greeting.txt.bkp 
-Hi, how are you?
-What are you upto these days?
-Hope you are atleast keeping in touch with Prof.
-As usual, am upto no good :P
+Hi there
+Have a nice day
 
 $ # output from sed gets written to 'greeting.txt'
 $ cat greeting.txt
-Hi, how are you?
-What are you upto these days?
-Hope you are at least keeping in touch with Prof.
-As usual, am upto no good :P
+Hello there
+Have a nice day
 ```
 
 <br>
@@ -180,16 +181,12 @@ As usual, am upto no good :P
 * Use this option with caution, changes made cannot be undone
 
 ```bash
-$ # note that 'uptown' would also get changed to 'up town'
-$ # Use regular expressions (covered later) to specify exact string to be replaced
-$ sed -i 's/upto/up to/g' greeting.txt
+$ sed -i 's/nice day/safe journey/' greeting.txt
 
-$ # note, 'atleast' was already changed to 'at least' in previous example
+$ # note, 'Hi' was already changed to 'Hello' in previous example
 $ cat greeting.txt
-Hi, how are you?
-What are you up to these days?
-Hope you are at least keeping in touch with Prof.
-As usual, am up to no good :P
+Hello there
+Have a safe journey
 ```
 
 <br>
