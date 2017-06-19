@@ -453,12 +453,15 @@ $ # sed -e '/red/d' -e '/blue/d' poem.txt
 $ # grep -v -e 'red' -e 'blue' poem.txt
 ```
 
+* See also [sed manual - Multiple commands syntax](https://www.gnu.org/software/sed/manual/sed.html#Multiple-commands-syntax) for more details
+
 <br>
 
 #### <a name="filtering-by-line-number"></a>Filtering by line number
 
 * Exact line number can be specified to be acted upon
 * As a special case, `$` indicates last line of file
+* See also [sed manual - Multiple commands syntax](https://www.gnu.org/software/sed/manual/sed.html#Multiple-commands-syntax)
 
 ```bash
 $ # here, 2 represents the address for print command, similar to /REGEXP/p
@@ -674,6 +677,7 @@ Believe it
 #### <a name="relative-addressing"></a>Relative addressing
 
 * Prefixing `+` to a number for second address gives relative filtering
+* Similar to using `grep -A<num> --no-group-separator 'REGEXP'` but `grep` merges adjacent groups while `sed` does not
 
 ```bash
 $ # line matching 'is' and 2 lines after
@@ -772,12 +776,12 @@ $ echo '/home/learnbyexample/reports' | sed 's#/home/learnbyexample/#~/#'
 * For *REGEXP* used in address matching, syntax is a bit different `\<char>REGEXP<char>`
 
 ```bash
-$ printf '/foo/bar\n/food/good\n'
-/foo/bar
-/food/good
+$ printf '/foo/bar/1\n/foo/baz/1\n'
+/foo/bar/1
+/foo/baz/1
 
-$ printf '/foo/bar\n/food/good\n' | sed -n '\;/foo/;p'
-/foo/bar
+$ printf '/foo/bar/1\n/foo/baz/1\n' | sed -n '\;/foo/bar/;p'
+/foo/bar/1
 ```
 
 <br>
