@@ -561,14 +561,14 @@ Violets are blue,
 * Consider the sample input file for this section
 
 ```bash
-$ cat sample.txt 
-Hello World!
+$ cat addr_range.txt 
+Hello World
 
 Good day
-How do you do?
+How are you
 
-Just do it
-Believe it!
+Just do-it
+Believe it
 
 Today is sunny
 Not a bit funny
@@ -582,25 +582,25 @@ He he he
 * For other cases like getting lines without the line matching start and/or end, unbalanced start/end, when end *REGEXP* doesn't match, etc see [Lines between two REGEXPs](#lines-between-two-regexps) section
 
 ```bash
-$ sed -n '/is/,/like/p' sample.txt 
+$ sed -n '/is/,/like/p' addr_range.txt 
 Today is sunny
 Not a bit funny
 No doubt you like it too
 
-$ sed -n '/just/I,/believe/Ip' sample.txt 
-Just do it
-Believe it!
+$ sed -n '/just/I,/believe/Ip' addr_range.txt 
+Just do-it
+Believe it
 
 $ # the second REGEXP will always be checked after the line matching first address
-$ sed -n '/No/,/No/p' sample.txt 
+$ sed -n '/No/,/No/p' addr_range.txt 
 Not a bit funny
 No doubt you like it too
 
 $ # all the matching ranges will be printed
-$ sed -n '/you/,/do/p' sample.txt 
-How do you do?
+$ sed -n '/you/,/do/p' addr_range.txt 
+How are you
 
-Just do it
+Just do-it
 No doubt you like it too
 
 Much ado about nothing
@@ -609,30 +609,35 @@ Much ado about nothing
 * Range defined by start and end line numbers
 
 ```bash
-$ sed -n '3,7p' sample.txt 
+$ # print lines numbered 3 to 7
+$ sed -n '3,7p' addr_range.txt 
 Good day
-How do you do?
+How are you
 
-Just do it
-Believe it!
+Just do-it
+Believe it
 
-$ sed -n '13,$p' sample.txt 
+$ # print lines from line number 13 to last line
+$ sed -n '13,$p' addr_range.txt 
 Much ado about nothing
 He he he
 
-$ sed '2,13d' sample.txt 
-Hello World!
+$ # delete lines numbered 2 to 13
+$ sed '2,13d' addr_range.txt 
+Hello World
 He he he
 ```
 
 * Range defined by mix of line number and *REGEXP*
 
 ```bash
-$ sed -n '3,/do/p' sample.txt 
+$ sed -n '3,/do/p' addr_range.txt 
 Good day
-How do you do?
+How are you
 
-$ sed -n '/Today/,$p' sample.txt 
+Just do-it
+
+$ sed -n '/Today/,$p' addr_range.txt 
 Today is sunny
 Not a bit funny
 No doubt you like it too
@@ -652,15 +657,15 @@ $ seq 10 | sed -n '3,7!p'
 9
 10
 
-$ # same as: sed '/Today/,$d' sample.txt
-$ sed -n '/Today/,$!p' sample.txt
-Hello World!
+$ # same as: sed '/Today/,$d' addr_range.txt
+$ sed -n '/Today/,$!p' addr_range.txt
+Hello World
 
 Good day
-How do you do?
+How are you
 
-Just do it
-Believe it!
+Just do-it
+Believe it
 
 ```
 
@@ -672,31 +677,31 @@ Believe it!
 
 ```bash
 $ # line matching 'is' and 2 lines after
-$ sed -n '/is/,+2p' sample.txt 
+$ sed -n '/is/,+2p' addr_range.txt 
 Today is sunny
 Not a bit funny
 No doubt you like it too
 
 $ # note that all matching ranges will be filtered
-$ sed -n '/do/,+2p' sample.txt 
-How do you do?
+$ sed -n '/do/,+2p' addr_range.txt 
+Just do-it
+Believe it
 
-Just do it
 No doubt you like it too
 
 Much ado about nothing
 ```
 
 * The first address could be number too
-* Useful when using shell variables (covered later) instead of constant
+* Useful when using [Shell substitutions](#shell-substitutions)
 
 ```bash
-$ sed -n '3,+4p' sample.txt 
+$ sed -n '3,+4p' addr_range.txt 
 Good day
-How do you do?
+How are you
 
-Just do it
-Believe it!
+Just do-it
+Believe it
 ```
 
 * Another relative format is `i~j` which acts on ith line and i+j, i+2j, i+3j, etc
@@ -738,9 +743,9 @@ $ seq 10 | sed -n '5,~4p'
 8
 
 $ # line matching on `Just` is 6th line, so ending is 10th line
-$ sed -n '/Just/,~5p' sample.txt 
-Just do it
-Believe it!
+$ sed -n '/Just/,~5p' addr_range.txt 
+Just do-it
+Believe it
 
 Today is sunny
 Not a bit funny
