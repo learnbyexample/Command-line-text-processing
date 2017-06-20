@@ -343,7 +343,8 @@ $ seq 5 | sed '/3/d'
 5
 ```
 
-* Regular expressions will be covered later, but modifier `I` allows to filter lines in case-insensitive way
+* Modifier `I` allows to filter lines in case-insensitive way
+* See [Regular Expressions](#regular-expressions) section for more details
 
 ```bash
 $ # /rose/I means match the string 'rose' irrespective of case
@@ -793,6 +794,7 @@ $ printf '/foo/bar/1\n/foo/baz/1\n' | sed -n '\;/foo/bar/;p'
     * Initially GNU sed only had `-r` option to enable ERE and `man sed` doesn't even mention `-E`
     * Other `sed` versions use `-E` and `grep` uses `-E` as well. So `-r` won't be used in examples in this tutorial
     * See also [sed manual - BRE-vs-ERE](https://www.gnu.org/software/sed/manual/sed.html#BRE-vs-ERE)
+* See [sed manual - Regular Expressions](https://www.gnu.org/software/sed/manual/sed.html#sed-regular-expressions) for more details
 
 <br>
 
@@ -1221,8 +1223,8 @@ $ printf '23\n154\n12\n26\n98234\n' | sed -nE '/^[0-9]{3,}$/p'
 
 Negating character class
 
-* By using `^` as first character inside `[]`, we can match characters other than those specified inside character class
-    * As pointed out earlier, meta characters behave differently inside and outside of `[]`
+* Meta characters inside and outside of `[]` are completely different
+* For example, `^` as first character inside `[]` matches characters other than those specified inside character class
 
 ```bash
 $ # delete all characters before first =
@@ -1473,7 +1475,7 @@ Hi. hello world. Have a nice day
 #### <a name="changing-case"></a>Changing case
 
 * Applies only to *REPLACEMENT* section, unlike `perl` where these can be used in *REGEXP* portion as well
-* See **The s Command** section in `info sed` for more info and corner cases
+* See [sed manual - The s Command](https://www.gnu.org/software/sed/manual/sed.html#The-_0022s_0022-Command) for more details and corner cases
 
 ```bash
 $ # UPPERCASE all alphabets, will be stopped on \L or \E
@@ -1512,11 +1514,14 @@ FOO_bar NEXT_line baz
 
 ## <a name="substitute-command-modifiers"></a>Substitute command modifiers
 
+The `s` command syntax:
+
 ```
 s/REGEXP/REPLACEMENT/FLAGS
 ```
 
-Modifiers (or FLAGS) like `g`, `p` and `I` have been already seen. For completeness, they will be discussed again along with rest of the modifiers
+* Modifiers (or FLAGS) like `g`, `p` and `I` have been already seen. For completeness, they will be discussed again along with rest of the modifiers
+* See [sed manual - The s Command](https://www.gnu.org/software/sed/manual/sed.html#The-_0022s_0022-Command) for more details and corner cases
 
 <br>
 
@@ -1705,6 +1710,7 @@ seven
     * `/dev/stderr` to write to **stderr**
 
 ```bash
+$ # inplace editing as well display changes on terminal
 $ sed -i 's/three/3/w /dev/stdout' 3.txt 
 3
 13
@@ -1920,6 +1926,8 @@ I bought two bananas and three mangoes
 
 The change command `c` will delete line(s) represented by address or address range and replace it with given string
 
+**Note** the string used cannot have literal newline character, use escape sequence instead
+
 ```bash
 $ # white-space between c and replacement string is ignored
 $ seq 3 | sed '2c foo bar'
@@ -1970,7 +1978,6 @@ $ seq 3 | sed '2c\tgood day'
 1
 tgood day
 3
-
 $ seq 3 | sed '2c\\tgood day'
 1
         good day
@@ -2025,9 +2032,12 @@ sed: -e expression #1, char 5: missing command
 
 The insert command allows to add string before a line matching given address
 
+**Note** the string used cannot have literal newline character, use escape sequence instead
+
 ```bash
+$ # white-space between i and string is ignored
 $ # same as: sed '2s/^/hello\n/'
-$ seq 3 | sed '2ihello'
+$ seq 3 | sed '2i hello'
 1
 hello
 2
@@ -2135,9 +2145,12 @@ sed: -e expression #1, char 5: missing command
 
 The append command allows to add string after a line matching given address
 
+**Note** the string used cannot have literal newline character, use escape sequence instead
+
 ```bash
+$ # white-space between a and string is ignored
 $ # same as: sed '2s/$/\nhello/'
-$ seq 3 | sed '2ahello'
+$ seq 3 | sed '2a hello'
 1
 2
 hello
