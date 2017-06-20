@@ -56,6 +56,7 @@
 * [Control structures](#control-structures)
     * [if then else](#if-then-else)
     * [replacing in specific column](#replacing-in-specific-column)
+    * [overlapping substitutions](#overlapping-substitutions)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [Include or Exclude matching REGEXPs](#include-or-exclude-matching-regexps)
     * [First or Last block](#first-or-last-block)
@@ -761,6 +762,7 @@ Not a bit funny
 ## <a name="using-different-delimiter-for-regexp"></a>Using different delimiter for REGEXP
 
 * `/` is idiomatically used as the *REGEXP* delimiter
+    * See also [a bit of history on why / is commonly used as delimiter](https://www.reddit.com/r/commandline/comments/3lhgwh/why_did_people_standardize_on_using_forward/cvgie7j/)
 * But any character other than `\` and newline character can be used instead
 * This helps to avoid/reduce use of `\`
 
@@ -1710,7 +1712,7 @@ seven
     * `/dev/stderr` to write to **stderr**
 
 ```bash
-$ # inplace editing as well display changes on terminal
+$ # inplace editing as well as display changes on terminal
 $ sed -i 's/three/3/w /dev/stdout' 3.txt 
 3
 13
@@ -1757,6 +1759,7 @@ $ echo 'xyz 5' | sed 's/xyz/seq/e'
 * Either `m` or `M` can be used
 * So far, we've seen only line based operations (newline character being used to distinguish lines)
 * There are various ways (see [sed manual - How sed Works](https://www.gnu.org/software/sed/manual/sed.html#Execution-Cycle)) by which more than one line is there in pattern space and in such cases `m` modifier can be used
+* See also [usage of multi-line modifier](https://unix.stackexchange.com/questions/298670/simple-significant-usage-of-m-multi-line-address-suffix) for more examples
 
 Before seeing example with `m` modifier, let's see a simple example to get two lines in pattern space
 
@@ -1804,8 +1807,10 @@ Sugar is sweet,
 ## <a name="shell-substitutions"></a>Shell substitutions
 
 * Examples presented works with `bash` shell, might differ for other shells
-* See also [dealing with meta-characters in shell variables](https://unix.stackexchange.com/questions/129059/how-to-ensure-that-string-interpolated-into-sed-substitution-escapes-all-metac)
 * See also [Difference between single and double quotes in Bash](https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash)
+* For robust substitutions taking care of meta characters in *REGEXP* and *REPLACEMENT* sections, see
+    * [How to ensure that string interpolated into sed substitution escapes all metachars](https://unix.stackexchange.com/questions/129059/how-to-ensure-that-string-interpolated-into-sed-substitution-escapes-all-metac)
+    * [Is it possible to escape regex metacharacters reliably with sed](https://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed)
 
 <br>
 
@@ -2361,6 +2366,15 @@ Violets are blue,
 2
 3
 And so are you.
+
+$ # can also use {} grouping
+$ seq 3 | sed -e '/blue/{r /dev/stdin' -e 'd}' poem.txt
+Roses are red,
+1
+2
+3
+Sugar is sweet,
+And so are you.
 ```
 
 <br>
@@ -2496,6 +2510,7 @@ $ seq 6 | sed 'N;s/\n/ /'
 * Simple if-then-else can be simulated using `b` command
 * `b` command will unconditionally branch to specified label
 * Without label, `b` will skip rest of commands and start next cycle
+* See [processing only lines between REGEXPs](https://unix.stackexchange.com/questions/292819/remove-commented-lines-except-one-comment-using-sed) for interesting use case
 
 ```bash
 $ # changing -ve to +ve and vice versa
@@ -2561,6 +2576,28 @@ $ sed '/are/{s/R/*/g;t}; s/e/#/g' poem.txt
 Viol#ts ar# blu#,
 Sugar is sw##t,
 And so ar# you.
+```
+
+<br>
+
+#### <a name="overlapping-substitutions"></a>overlapping substitutions
+
+* `t` command looping with label comes in handy for overlapping substitutions as well
+
+```bash
+$ # consider the problem of replacing empty columns with something
+$ # case1: no consecutive empty columns - no problem
+$ echo 'foo::bar::baz' | sed 's/::/:0:/g'
+foo:0:bar:0:baz
+$ # case2: consecutive empty columns are present - problematic
+$ echo 'foo:::bar::baz' | sed 's/::/:0:/g'
+foo:0::bar:0:baz
+
+$ # t command looping will handle both cases
+$ echo 'foo::bar::baz' | sed ':a s/::/:0:/; ta'
+foo:0:bar:0:baz
+$ echo 'foo:::bar::baz' | sed ':a s/::/:0:/; ta'
+foo:0:0:bar:0:baz
 ```
 
 <br>
@@ -2886,7 +2923,16 @@ foo bar
     * [common search and replace examples](https://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files)
     * [sed Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sed?sort=votes&pageSize=15)
     * [sed Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/sed?sort=votes&pageSize=15)
+* Selected examples - portable solutions, commands not covered in this tutorial, same problem solved using different tools, etc
+    * [replace multiline string](http://unix.stackexchange.com/questions/26284/how-can-i-use-sed-to-replace-a-multi-line-string)
+    * [deleting empty lines with optional white spaces](https://stackoverflow.com/questions/16414410/delete-empty-lines-using-sed)
+    * [print only line above the matching line](https://unix.stackexchange.com/questions/264489/find-each-line-matching-a-pattern-but-print-only-the-line-above-it)
+    * [How to select lines between two patterns?](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
 * Learn Regular Expressions
     * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
     * [regexcrossword](https://regexcrossword.com/)
     * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
+* Related tools
+    * [sedsed - Debugger, indenter and HTMLizer for sed scripts](https://github.com/aureliojargas/sedsed)
+    * [xo - composes regular expression match groups](https://github.com/ezekg/xo)
+
