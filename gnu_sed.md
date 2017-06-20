@@ -153,7 +153,11 @@ HavE a nicE day
 
 * In previous section, the output from `sed` was displayed on stdout or saved to another file
 * To write the changes back to original file, use `-i` option
-* **Note**: Refer to `man sed` for details of how to use the `-i` option. It varies with different `sed` implementations. As mentioned at start of this chapter, `sed (GNU sed) 4.2.2` is being used here
+
+**Note**:
+
+* Refer to `man sed` for details of how to use the `-i` option. It varies with different `sed` implementations. As mentioned at start of this chapter, `sed (GNU sed) 4.2.2` is being used here
+* See [this Q&A](https://unix.stackexchange.com/questions/348693/sed-update-etc-grub-conf-in-spite-this-link-file) when working with symlinks
 
 <br>
 
@@ -403,6 +407,11 @@ $ seq 50 | tac | sed '/7/Q' | tac
 49
 50
 ```
+
+**Note**
+
+* This way of using quit commands won't work for inplace editing with multiple file input
+* See [this Q&A](https://unix.stackexchange.com/questions/309514/sed-apply-changes-in-multiple-files) for alternate solution as well using `gawk` and `perl` instead
 
 <br>
 
@@ -2257,6 +2266,8 @@ $ seq 3 | sed '2a'"$(seq 2)"
 sed: -e expression #1, char 5: missing command
 ```
 
+* See [this Q&A](https://stackoverflow.com/questions/41343062/what-does-this-mean-in-linux-sed-a-a-txt) for using `a` command to make sure last line of input has a newline character
+
 <br>
 
 ## <a name="adding-contents-of-file"></a>adding contents of file
@@ -2449,6 +2460,7 @@ And so arE you.
 ```
 
 * `N` will fetch the next line and append to pattern space
+* See [this Q&A](https://stackoverflow.com/questions/40229578/how-to-insert-a-line-feed-into-a-sed-line-concatenation) for an interesting case of applying substitution every 4 lines but excluding the 4th line
 
 ```bash
 $ # if line contains 'blue', replace 'e' with 'E' both in current line and next
@@ -2583,6 +2595,7 @@ And so ar# you.
 #### <a name="overlapping-substitutions"></a>overlapping substitutions
 
 * `t` command looping with label comes in handy for overlapping substitutions as well
+* Note that in general this method will work recursively, see [substitute recursively](https://stackoverflow.com/questions/9983646/sed-substitute-recursively) for example
 
 ```bash
 $ # consider the problem of replacing empty columns with something
@@ -2912,9 +2925,11 @@ foo bar
 
 ## <a name="further-reading"></a>Further Reading
 
-* Manual
-    * `man sed` and `info sed` for more details as well as options/commands not covered in this tutorial
+* Manual and related
+    * `man sed` and `info sed` for more details, known issues/limitations as well as options/commands not covered in this tutorial
     * [GNU sed manual](https://www.gnu.org/software/sed/manual/sed.html) has even more detailed information and examples
+    * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), but last modified '10 March 2003'
+    * [BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/documentation/sed/9436/bsd-macos-sed-vs-gnu-sed-vs-the-posix-sed-specification#t=201706201518543829325)
 * Tutorials and Q&A
     * [sed basics](http://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
     * [sed detailed tutorial](http://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
@@ -2928,6 +2943,8 @@ foo bar
     * [deleting empty lines with optional white spaces](https://stackoverflow.com/questions/16414410/delete-empty-lines-using-sed)
     * [print only line above the matching line](https://unix.stackexchange.com/questions/264489/find-each-line-matching-a-pattern-but-print-only-the-line-above-it)
     * [How to select lines between two patterns?](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
+    * [get lines between two patterns only if there is third pattern between them](https://stackoverflow.com/questions/39960075/bash-how-to-get-lines-between-patterns-only-if-there-is-pattern2-between-them)
+        * [similar example](https://unix.stackexchange.com/questions/228699/sed-print-lines-matched-by-a-pattern-range-if-one-line-matches-a-condition)
 * Learn Regular Expressions
     * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
     * [regexcrossword](https://regexcrossword.com/)
