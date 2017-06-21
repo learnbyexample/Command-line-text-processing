@@ -1,4 +1,4 @@
-# <a name="sed"></a>sed
+# <a name="gnu-sed"></a>GNU sed
 
 **Table of Contents**
 
@@ -89,6 +89,8 @@ DESCRIPTION
        editors.
 ...
 ```
+
+**Note:** [Multiline and manipulating pattern space](https://www.gnu.org/software/sed/manual/sed.html#Multiline-techniques) with h,x,D,G,H,P etc is not covered in this chapter and examples/information is based on ASCII encoded text input only
 
 <br>
 
