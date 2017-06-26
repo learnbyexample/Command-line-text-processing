@@ -102,6 +102,8 @@ Detailed examples for **substitute** command will be convered in later sections,
 s/REGEXP/REPLACEMENT/FLAGS
 ```
 
+The `/` character is idiomatically used as delimiter character. See also [Using different delimiter for REGEXP](#using-different-delimiter-for-regexp)
+
 <br>
 
 #### <a name="editing-stdin"></a>editing stdin
@@ -118,6 +120,8 @@ $ # change all ',' to ' : ' by using 'g' modifier
 $ seq 10 | paste -sd, | sed 's/,/ : /g'
 1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
 ```
+
+**Note:** As a good practice, all examples use single quotes around arguments to prevent shell interpretation. See [Shell substitutions](#shell-substitutions) section on use of double quotes
 
 <br>
 
@@ -312,7 +316,8 @@ Roses ARE red,
 Violets ARE blue,
 And so ARE you.
 
-$ # only lines containing 'are' as well as 'so'
+$ # if line contains 'are', perform given command
+$ # print only if substitution succeeds
 $ sed -n '/are/ s/so/SO/p' poem.txt 
 And SO are you.
 ```
@@ -435,11 +440,17 @@ Sugar is sweet,
 
 #### <a name="combining-multiple-regexp"></a>Combining multiple REGEXP
 
-* Use `-e` option to logically OR different REGEXPs
+* See also [sed manual - Multiple commands syntax](https://www.gnu.org/software/sed/manual/sed.html#Multiple-commands-syntax) for more details
 
 ```bash
-$ # same as: grep -e 'blue' -e 'you' poem.txt
+$ # each command as argument to -e option
 $ sed -n -e '/blue/p' -e '/you/p' poem.txt 
+Violets are blue,
+And so are you.
+
+$ # each command separated by ;
+$ # not all commands can be specified so
+$ sed -n '/blue/p; /you/p' poem.txt 
 Violets are blue,
 And so are you.
 ```
@@ -448,6 +459,7 @@ And so are you.
 
 ```bash
 $ # same as: grep 'are' poem.txt | grep 'And'
+$ # space between /REGEXP/ and {} is optional
 $ sed -n '/are/ {/And/p}' poem.txt 
 And so are you.
 
@@ -456,7 +468,6 @@ $ sed -n '/are/ {/so/!p}' poem.txt
 Roses are red,
 Violets are blue,
 
-$ # space between /REGEXP/ and {} is optional
 $ # same as: grep -v 'red' poem.txt | grep -v 'blue'
 $ sed -n '/red/!{/blue/!p}' poem.txt 
 Sugar is sweet,
@@ -466,7 +477,27 @@ $ # sed -e '/red/d' -e '/blue/d' poem.txt
 $ # grep -v -e 'red' -e 'blue' poem.txt
 ```
 
-* See also [sed manual - Multiple commands syntax](https://www.gnu.org/software/sed/manual/sed.html#Multiple-commands-syntax) for more details
+* Different ways to do same things. See also [Alternation](#alternation) and [Control structures](#control-structures)
+
+```bash
+$ # multiple commands can lead to duplicatation
+$ sed -n '/blue/p; /t/p' poem.txt 
+Violets are blue,
+Violets are blue,
+Sugar is sweet,
+$ # in such cases, use regular expressions instead
+$ sed -nE '/blue|t/p;' poem.txt 
+Violets are blue,
+Sugar is sweet,
+
+$ sed -nE '/red|blue/!p' poem.txt 
+Sugar is sweet,
+And so are you.
+
+$ sed -n '/so/b; /are/p' poem.txt
+Roses are red,
+Violets are blue,
+```
 
 <br>
 
