@@ -274,7 +274,7 @@ $ # bkp_dir/bkp.*.2017 for both and so on
 
 ## <a name="line-filtering-options"></a>Line filtering options
 
-* By default, `sed` acts on entire file. Often, one needs to print or change only specific lines based on text search, line numbers, lines between two patterns, etc
+* By default, `sed` acts on entire file. Often, one needs to extract or change only specific lines based on text search, line numbers, lines between two patterns, etc
 * This filtering is much like using `grep`, `head` and `tail` commands in many ways and there are even more features
     * Use `sed` for inplace editing, the filtered lines to be transformed etc. Not as substitute for `grep`, `head` and `tail`
 
@@ -283,7 +283,8 @@ $ # bkp_dir/bkp.*.2017 for both and so on
 #### <a name="print-command"></a>Print command
 
 * It is usually used in conjunction with `-n` option
-* By default, `sed` prints every input line, including any changes like substitution
+* By default, `sed` prints every input line, including any changes made by commands like substitution
+    * printing here refers to line being part of `sed` output which may be shown on terminal, redirected to file, etc
 * Using `-n` option and `p` command together, only specific lines needed can be filtered
 * Examples below use the `/REGEXP/` addressing, other forms will be seen in sections to follow
 
@@ -441,6 +442,7 @@ Sugar is sweet,
 #### <a name="combining-multiple-regexp"></a>Combining multiple REGEXP
 
 * See also [sed manual - Multiple commands syntax](https://www.gnu.org/software/sed/manual/sed.html#Multiple-commands-syntax) for more details
+* See also [sed scripts](#sed-scripts) section to use a file for multiple commands
 
 ```bash
 $ # each command as argument to -e option
@@ -451,6 +453,15 @@ And so are you.
 $ # each command separated by ;
 $ # not all commands can be specified so
 $ sed -n '/blue/p; /you/p' poem.txt 
+Violets are blue,
+And so are you.
+
+$ # each command separated by literal newline character
+$ # might depend on whether the shell allows such multiline command
+$ sed -n '
+/blue/p
+/you/p
+' poem.txt
 Violets are blue,
 And so are you.
 ```
@@ -1263,6 +1274,11 @@ $ # numbers >= 100
 $ printf '23\n154\n12\n26\n98234\n' | sed -nE '/^[0-9]{3,}$/p'
 154
 98234
+$ # numbers >= 100 if there are leading zeros
+$ printf '0501\n035\n154\n12\n26\n98234\n' | sed -nE '/^0*[1-9][0-9]{2,}$/p'
+0501
+154
+98234
 ```
 
 Negating character class
@@ -1492,9 +1508,9 @@ $ # reduce \\ to single \ and delete if only single \
 $ echo '\[\] and \\w and \[a-zA-Z0-9\_\]' | sed -E 's/(\\?)\\/\1/g'
 [] and \w and [a-zA-Z0-9_]
 
-$ # remove duplicate words separated by space
-$ # the word boundaries prevent false matches like 'the theatre'
-$ echo 'a a walking for for a cause' | sed -E 's/\b(\w+)\b \1\b/\1/g'
+$ # remove two or more duplicate words separated by space
+$ # word boundaries prevent false matches like 'the theatre' 'sand and stone' etc
+$ echo 'a a a walking for for a cause' | sed -E 's/\b(\w+)( \1)+\b/\1/g'
 a walking for a cause
 
 $ # surround only third column with double quotes
@@ -2927,6 +2943,7 @@ foo bar
 ```
 
 * command line options can be specified along with shebang as well as added at time of invocation
+* **Note** [usage of options along with shebang depends on lot of factors](https://stackoverflow.com/questions/4303128/how-to-use-multiple-arguments-with-a-shebang-i-e)
 
 ```bash
 $ type sed
