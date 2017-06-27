@@ -55,6 +55,7 @@ Includes only completed chapters
 ## <a name="acknowledgements"></a>Acknowledgements
 
 * [unix.stackexchange](https://unix.stackexchange.com/) and [stackoverflow](https://stackoverflow.com/) - for getting answers to pertinent questions as well as sharpening skills by understanding and answering questions
+* Forums like [Linux users](https://www.linkedin.com/groups/65688), [/r/commandline/](https://www.reddit.com/r/commandline/), [/r/linux/](https://www.reddit.com/r/linux/), [devup](http://slack.devup.in/) and others for valuable feedback (especially spotting mistakes) and encouragement
 
 <br>
 
