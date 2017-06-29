@@ -10,6 +10,8 @@
     * [select specific characters](#select-specific-characters)
     * [Further reading for cut](#further-reading-for-cut)
 * [tr](#tr)
+    * [translation](#translation)
+    * [Further reading for tr](#further-reading-for-tr)
 * [basename](#basename)
 * [dirname](#dirname)
 
@@ -208,17 +210,86 @@ DESCRIPTION
 ...
 ```
 
-**Options**
+<br>
 
-* `-d` delete the specified characters
-* `-c` complement set of characters to be replaced
+#### <a name="translation"></a>translation
 
-**Examples**
+* one-to-one mapping of characters, all occurrences are translated
+* as good practice, enclose the arguments in single quotes to avoid issues due to shell interpretation
 
-* `tr a-z A-Z < test_list.txt` convert lowercase to uppercase
-* `tr -d ._ < test_list.txt` delete the dot and underscore characters
-* `tr a-z n-za-m < test_list.txt > encrypted_test_list.txt` Encrypt by replacing every lowercase alphabet with 13th alphabet after it
-    * Same command on encrypted text will decrypt it
+```bash
+$ echo 'foo bar cat baz' | tr 'abc' '123'
+foo 21r 31t 21z
+
+$ # use - to represent a range in ascending order
+$ echo 'foo bar cat baz' | tr 'a-f' '1-6'
+6oo 21r 31t 21z
+
+$ # changing case
+$ echo 'foo bar cat baz' | tr 'a-z' 'A-Z'
+FOO BAR CAT BAZ
+$ echo 'Hello World' | tr 'a-zA-Z' 'A-Za-z'
+hELLO wORLD
+
+$ echo 'foo;bar;baz' | tr ; :
+tr: missing operand
+Try 'tr --help' for more information.
+$ echo 'foo;bar;baz' | tr ';' ':'
+foo:bar:baz
+```
+
+* rot13 example
+
+```bash
+$ echo 'foo bar cat baz' | tr 'a-z' 'n-za-m'
+sbb one png onm
+$ echo 'sbb one png onm' | tr 'a-z' 'n-za-m'
+foo bar cat baz
+
+$ echo 'Hello World' | tr 'a-zA-Z' 'n-za-mN-ZA-M'
+Uryyb Jbeyq
+$ echo 'Uryyb Jbeyq' | tr 'a-zA-Z' 'n-za-mN-ZA-M'
+Hello World
+```
+
+* use shell input redirection for file input
+
+```bash
+$ cat marks.txt
+jan 2017
+foobar  12      45      23
+feb 2017
+foobar  18      38      19
+
+$ tr 'a-z' 'A-Z' < marks.txt
+JAN 2017
+FOOBAR  12      45      23
+FEB 2017
+FOOBAR  18      38      19
+```
+
+* if arguments are of different lengths
+
+```bash
+$ # when second argument is longer, the extra characters are ignored
+$ echo 'foo bar cat baz' | tr 'abc' '1-9'
+foo 21r 31t 21z
+
+$ # when first argument is longer
+$ # the last character of second argument gets re-used
+$ echo 'foo bar cat baz' | tr 'a-z' '123'
+333 213 313 213
+
+$ # use -t option to truncate first argument to same length as second
+$ echo 'foo bar cat baz' | tr -t 'a-z' '123'
+foo 21r 31t 21z
+```
+
+<br>
+
+#### <a name="further-reading-for-tr"></a>Further reading for tr
+
+* `man tr` and `info tr` for more options and detailed documentation
 * [tr Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/tr?sort=votes&pageSize=15)
 
 <br>
@@ -244,6 +315,8 @@ DESCRIPTION
        fied, also remove a trailing SUFFIX.
 ...
 ```
+
+**Examples**
 
 ```bash
 $ pwd
@@ -283,6 +356,8 @@ DESCRIPTION
        directory).
 ...
 ```
+
+**Examples**
 
 ```bash
 $ pwd
