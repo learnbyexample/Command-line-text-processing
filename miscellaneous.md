@@ -11,6 +11,9 @@
     * [Further reading for cut](#further-reading-for-cut)
 * [tr](#tr)
     * [translation](#translation)
+    * [escape sequences and character classes](#escape-sequences-and-character-classes)
+    * [deletion](#deletion)
+    * [squeeze](#squeeze)
     * [Further reading for tr](#further-reading-for-tr)
 * [basename](#basename)
 * [dirname](#dirname)
@@ -287,6 +290,113 @@ foo 21r 31t 21z
 
 <br>
 
+#### <a name="escape-sequences-and-character-classes"></a>escape sequences and character classes
+
+* Certain characters like newline, tab, etc can be represented using escape sequences or octal representation
+* Certain commonly useful groups of characters like alphabets, digits, punctuations etc have character class as shortcuts
+* See [gnu tr manual](http://www.gnu.org/software/coreutils/manual/html_node/Character-sets.html#Character-sets) for all escape sequences and character classes
+
+```bash
+$ printf 'foo\tbar\t123\tbaz\n' | tr '\t' ':'
+foo:bar:123:baz
+
+$ echo 'foo:bar:123:baz' | tr ':' '\n'
+foo
+bar
+123
+baz
+$ # makes it easier to transform
+$ echo 'foo:bar:123:baz' | tr ':' '\n' | pr -2ats'-'
+foo-bar
+123-baz
+
+$ echo 'foo bar cat baz' | tr '[:lower:]' '[:upper:]'
+FOO BAR CAT BAZ
+```
+
+* since `-` is used for character ranges, place it at the end to represent it literally
+    * cannot be used at start of argument as it would get treated as option
+    * or use `--` to indicate end of option processing
+* similarly, to represent `\` literally, use `\\`
+
+```bash
+$ echo '/foo-bar/baz/report' | tr '-a-z' '_A-Z'
+tr: invalid option -- 'a'
+Try 'tr --help' for more information.
+
+$ echo '/foo-bar/baz/report' | tr 'a-z-' 'A-Z_'
+/FOO_BAR/BAZ/REPORT
+
+$ echo '/foo-bar/baz/report' | tr -- '-a-z' '_A-Z'
+/FOO_BAR/BAZ/REPORT
+
+$ echo '/foo-bar/baz/report' | tr '/-' '\\_'
+\foo_bar\baz\report
+```
+
+<br>
+
+#### <a name="deletion"></a>deletion
+
+* use `-d` option to specify characters to be deleted
+* add complement option `-c` if it is easier to define which characters are to be retained
+
+```bash
+$ echo '2017-03-21' | tr -d '-'
+20170321
+
+$ echo 'Hi123 there. How a32re you' | tr -d '1-9'
+Hi there. How are you
+
+$ # delete all punctuation characters
+$ echo '"Foo1!", "Bar.", ":Baz:"' | tr -d '[:punct:]'
+Foo1 Bar Baz
+
+$ # deleting carriage return character
+$ cat -v greeting.txt 
+Hi there^M
+How are you^M
+$ tr -d '\r' < greeting.txt | cat -v
+Hi there
+How are you
+
+$ # retain only alphabets, comma and newline characters
+$ echo '"Foo1!", "Bar.", ":Baz:"' | tr -cd '[:alpha:],\n'
+Foo,Bar,Baz
+```
+
+<br>
+
+#### <a name="squeeze"></a>squeeze
+
+* to change consecutive repeated characters to single copy of that character
+
+```bash
+$ # only lower case alphabets
+$ echo 'FFoo seed 11233' | tr -s 'a-z'
+FFo sed 11233
+
+$ # alphabets and digits
+$ echo 'FFoo seed 11233' | tr -s '[:alnum:]'
+Fo sed 123
+
+$ # squeeze other than alphabets
+$ echo 'FFoo seed 11233' | tr -sc '[:alpha:]'
+FFoo seed 123
+
+$ # only characters present in second argument is used for squeeze
+$ echo 'FFoo seed 11233' | tr -s 'A-Z' 'a-z'
+fo sed 11233
+
+$ # multiple consecutive horizontal spaces to single space
+$ printf 'foo\t\tbar \t123     baz\n'
+foo             bar     123     baz
+$ printf 'foo\t\tbar \t123     baz\n' | tr -s '[:blank:]' ' '
+foo bar 123 baz
+```
+
+<br>
+
 #### <a name="further-reading-for-tr"></a>Further reading for tr
 
 * `man tr` and `info tr` for more options and detailed documentation
@@ -322,7 +432,7 @@ DESCRIPTION
 $ pwd
 /home/learnbyexample
 
-$ basename $PWD
+$ basename "$PWD"
 learnbyexample
 
 $ basename '/home/learnbyexample/proj_adder/power.log'
@@ -363,7 +473,7 @@ DESCRIPTION
 $ pwd
 /home/learnbyexample
 
-$ dirname $PWD
+$ dirname "$PWD"
 /home
 
 $ dirname '/home/learnbyexample/proj_adder/power.log'
