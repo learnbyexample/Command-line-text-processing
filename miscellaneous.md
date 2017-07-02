@@ -17,6 +17,7 @@
     * [Further reading for tr](#further-reading-for-tr)
 * [basename](#basename)
 * [dirname](#dirname)
+* [xargs](#xargs)
 
 <br>
 
@@ -547,4 +548,85 @@ $ # apply basename trick to get just directory name instead of full path
 $ t="${file%/*}"
 $ echo "${t##*/}"
 proj adder
+```
+
+<br>
+
+## <a name="xargs"></a>xargs
+
+```bash
+$ xargs --version | head -n1
+xargs (GNU findutils) 4.7.0-git
+
+$ whatis xargs
+xargs (1)            - build and execute command lines from standard input
+
+$ # from 'man xargs'
+       This manual page documents the GNU version of xargs.  xargs reads items
+       from  the  standard  input, delimited by blanks (which can be protected
+       with double or single quotes or a backslash) or newlines, and  executes
+       the  command (default is /bin/echo) one or more times with any initial-
+       arguments followed by items read from standard input.  Blank  lines  on
+       the standard input are ignored.
+```
+
+While `xargs` is [primarily used](https://unix.stackexchange.com/questions/24954/when-is-xargs-needed) for passing output of command or file contents to another command as input arguments and/or parallel processing, it can be quite handy for certain text processing stuff with default `echo` command
+
+```bash
+$ printf ' foo\t\tbar \t123     baz \n' | cat -e
+ foo		bar 	123     baz $
+$ # tr helps to change consecutive blanks to single space
+$ # but what if blanks at start and end have to be removed as well?
+$ printf ' foo\t\tbar \t123     baz \n' | tr -s '[:blank:]' ' ' | cat -e
+ foo bar 123 baz $
+$ # xargs does this by default
+$ printf ' foo\t\tbar \t123     baz \n' | xargs | cat -e
+foo bar 123 baz$
+
+$ # -n option limits number of arguments per line
+$ printf ' foo\t\tbar \t123     baz \n' | xargs -n2
+foo bar
+123 baz
+
+$ # same as using: paste -d' ' - - -
+$ # or: pr -3ats' '
+$ seq 6 | xargs -n3
+1 2 3
+4 5 6
+```
+
+* use `-a` option to specify file input instead of stdin
+
+```bash
+$ cat marks.txt
+jan 2017
+foobar  12      45      23
+feb 2017
+foobar  18      38      19
+
+$ xargs -a marks.txt
+jan 2017 foobar 12 45 23 feb 2017 foobar 18 38 19
+
+$ # use -L option to limit max number of lines per command line
+$ xargs -L2 -a marks.txt
+jan 2017 foobar 12 45 23
+feb 2017 foobar 18 38 19
+```
+
+* **Note** since `echo` is the command being executed, it will cause issue with option interpretation
+
+```bash
+$ printf ' -e foo\t\tbar \t123     baz \n' | xargs -n2
+foo
+bar 123
+baz
+
+$ # use -t option to see what is happening (verbose output)
+$ printf ' -e foo\t\tbar \t123     baz \n' | xargs -n2 -t
+echo -e foo 
+foo
+echo bar 123 
+bar 123
+echo baz 
+baz
 ```
