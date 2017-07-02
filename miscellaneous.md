@@ -426,20 +426,45 @@ DESCRIPTION
 ...
 ```
 
+<br>
+
 **Examples**
 
 ```bash
-$ pwd
+$ # same as using pwd command
+$ echo "$PWD"
 /home/learnbyexample
 
 $ basename "$PWD"
 learnbyexample
 
-$ basename '/home/learnbyexample/proj_adder/power.log'
+$ # use -a option if there are multiple arguments
+$ basename -a foo/a/report.log bar/y/power.log
+report.log
 power.log
 
-$ #use suffix option -s to strip file extension from filename
-$ basename -s '.log' '/home/learnbyexample/proj_adder/power.log'
+$ # use single quotes if arguments contain space and other special shell characters
+$ # use suffix option -s to strip file extension from filename
+$ basename -s '.log' '/home/learnbyexample/proj adder/power.log'
+power
+$ # -a is implied when using -s option
+$ basename -s'.log' foo/a/report.log bar/y/power.log
+report
+power
+```
+
+* Use [Parameter expansion](http://mywiki.wooledge.org/BashFAQ/073) if working on file paths saved in variables
+    * assumes `bash` shell and similar that support this feature
+
+```bash
+$ # remove from start of string up to last /
+$ file='/home/learnbyexample/proj adder/power.log'
+$ echo "${file##*/}"
+power.log
+
+$ t="${file##*/}"
+$ # remove .log from end of string
+$ echo "${t%.log}"
 power
 ```
 
@@ -467,16 +492,59 @@ DESCRIPTION
 ...
 ```
 
+<br>
+
 **Examples**
 
 ```bash
-$ pwd
+$ echo "$PWD"
 /home/learnbyexample
 
 $ dirname "$PWD"
 /home
 
-$ dirname '/home/learnbyexample/proj_adder/power.log'
-/home/learnbyexample/proj_adder
+$ # use single quotes if arguments contain space and other special shell characters
+$ dirname '/home/learnbyexample/proj adder/power.log'
+/home/learnbyexample/proj adder
+
+$ # unlike basename, by default dirname handles multiple arguments
+$ dirname foo/a/report.log bar/y/power.log
+foo/a
+bar/y
+
+$ # if no / in argument, output is . to indicate current directory
+$ dirname power.log
+.
 ```
 
+* Use `$()` command substitution to further process output as needed
+
+```bash
+$ dirname '/home/learnbyexample/proj adder/power.log'
+/home/learnbyexample/proj adder
+
+$ dirname "$(dirname '/home/learnbyexample/proj adder/power.log')"
+/home/learnbyexample
+
+$ basename "$(dirname '/home/learnbyexample/proj adder/power.log')"
+proj adder
+```
+
+* Use [Parameter expansion](http://mywiki.wooledge.org/BashFAQ/073) if working on file paths saved in variables
+    * assumes `bash` shell and similar that support this feature
+
+```bash
+$ # remove from last / in the string to end of string
+$ file='/home/learnbyexample/proj adder/power.log'
+$ echo "${file%/*}"
+/home/learnbyexample/proj adder
+
+$ # remove from second last / to end of string
+$ echo "${file%/*/*}"
+/home/learnbyexample
+
+$ # apply basename trick to get just directory name instead of full path
+$ t="${file%/*}"
+$ echo "${t##*/}"
+proj adder
+```
