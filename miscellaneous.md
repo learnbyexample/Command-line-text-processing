@@ -18,6 +18,10 @@
 * [basename](#basename)
 * [dirname](#dirname)
 * [xargs](#xargs)
+* [seq](#seq)
+    * [integer sequences](#integer-sequences)
+    * [specifying separator](#specifying-separator)
+    * [Further reading for seq](#further-reading-for-seq)
 
 <br>
 
@@ -454,12 +458,14 @@ report
 power
 ```
 
-* Use [Parameter expansion](http://mywiki.wooledge.org/BashFAQ/073) if working on file paths saved in variables
+* Can also use [Parameter expansion](http://mywiki.wooledge.org/BashFAQ/073) if working on file paths saved in variables
     * assumes `bash` shell and similar that support this feature
 
 ```bash
 $ # remove from start of string up to last /
 $ file='/home/learnbyexample/proj adder/power.log'
+$ basename "$file"
+power.log
 $ echo "${file##*/}"
 power.log
 
@@ -468,6 +474,8 @@ $ # remove .log from end of string
 $ echo "${t%.log}"
 power
 ```
+
+* See `man basename` and `info basename` for detailed documentation
 
 <br>
 
@@ -531,12 +539,14 @@ $ basename "$(dirname '/home/learnbyexample/proj adder/power.log')"
 proj adder
 ```
 
-* Use [Parameter expansion](http://mywiki.wooledge.org/BashFAQ/073) if working on file paths saved in variables
+* Can also use [Parameter expansion](http://mywiki.wooledge.org/BashFAQ/073) if working on file paths saved in variables
     * assumes `bash` shell and similar that support this feature
 
 ```bash
 $ # remove from last / in the string to end of string
 $ file='/home/learnbyexample/proj adder/power.log'
+$ dirname "$file"
+/home/learnbyexample/proj adder
 $ echo "${file%/*}"
 /home/learnbyexample/proj adder
 
@@ -549,6 +559,8 @@ $ t="${file%/*}"
 $ echo "${t##*/}"
 proj adder
 ```
+
+* See `man dirname` and `info dirname` for detailed documentation
 
 <br>
 
@@ -630,3 +642,115 @@ bar 123
 echo baz 
 baz
 ```
+
+* See `man xargs` and `info xargs` for detailed documentation
+
+<br>
+
+## <a name="seq"></a>seq
+
+```bash
+$ seq --version | head -n1
+seq (GNU coreutils) 8.25
+
+$ man seq
+SEQ(1)                           User Commands                          SEQ(1)
+
+NAME
+       seq - print a sequence of numbers
+
+SYNOPSIS
+       seq [OPTION]... LAST
+       seq [OPTION]... FIRST LAST
+       seq [OPTION]... FIRST INCREMENT LAST
+
+DESCRIPTION
+       Print numbers from FIRST to LAST, in steps of INCREMENT.
+...
+```
+
+<br>
+
+#### <a name="integer-sequences"></a>integer sequences
+
+* see `info seq` for details of how large numbers are handled
+    * for ex: `seq 50000000000000000000 2 50000000000000000004` may not work
+
+```bash
+$ # default start=1 and increment=1
+$ seq 3
+1
+2
+3
+
+$ # default increment=1
+$ seq 25434 25437
+25434
+25435
+25436
+25437
+$ seq -5 -3
+-5
+-4
+-3
+
+$ # different increment value
+$ seq 1000 5 1011
+1000
+1005
+1010
+
+$ # use negative increment for descending order
+$ seq 10 -5 -7
+10
+5
+0
+-5
+```
+
+* use `-w` option for leading zeros
+* largest length of start/end value is used to determine padding
+
+```bash
+$ seq 008 010
+8
+9
+10
+
+$ # or: seq -w 8 010
+$ seq -w 008 010
+008
+009
+010
+
+$ seq -w 0003
+0001
+0002
+0003
+```
+
+<br>
+
+#### <a name="specifying-separator"></a>specifying separator
+
+* As seen already, default is newline separator between numbers
+* `-s` option allows to use custom string between numbers
+* A newline is always added at end
+
+```bash
+$ seq -s: 4
+1:2:3:4
+
+$ seq -s' ' 4
+1 2 3 4
+
+$ seq -s' - ' 4
+1 - 2 - 3 - 4
+```
+
+<br>
+
+#### <a name="further-reading-for-seq"></a>Further reading for seq
+
+* `man seq` and `info seq` for more options, corner cases and detailed documentation
+* [seq Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/seq?sort=votes&pageSize=15)
