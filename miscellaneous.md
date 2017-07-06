@@ -21,6 +21,7 @@
 * [seq](#seq)
     * [integer sequences](#integer-sequences)
     * [specifying separator](#specifying-separator)
+    * [floating point sequences](#floating-point-sequences)
     * [Further reading for seq](#further-reading-for-seq)
 
 <br>
@@ -746,6 +747,39 @@ $ seq -s' ' 4
 
 $ seq -s' - ' 4
 1 - 2 - 3 - 4
+```
+
+<br>
+
+#### <a name="floating-point-sequences"></a>floating point sequences
+
+```bash
+$ # default increment=1
+$ seq 0.5 2.5
+0.5
+1.5
+2.5
+
+$ seq -s':' -2 0.75 3
+-2.00:-1.25:-0.50:0.25:1.00:1.75:2.50
+
+$ # Scientific notation is supported
+$ seq 1.2e2 1.22e2
+120
+121
+122
+```
+
+* formatting numbers, see `info seq` for details
+
+```bash
+$ seq -f'%.3f' -s':' -2 0.75 3
+-2.000:-1.250:-0.500:0.250:1.000:1.750:2.500
+
+$ seq -f'%.3e' 1.2e2 1.22e2
+1.200e+02
+1.210e+02
+1.220e+02
 ```
 
 <br>
