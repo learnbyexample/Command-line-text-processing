@@ -14,6 +14,8 @@
     * sort, uniq, comm
 * [Restructure text](./restructure_text.md)
     * paste, column, pr, fold
+* [Miscellaneous](./miscellaneous.md) 
+    * cut, tr, basename, dirname, xargs, seq
 
 Rough drafts
 
@@ -22,7 +24,6 @@ Rough drafts
 * [Whats the difference](./whats_the_difference.md)
 * [GNU awk](./gnu_awk.md)
 * [Perl the swiss knife](./perl_the_swiss_knife.md)
-* [Miscellaneous](./miscellaneous.md) 
 
 <br>
 
