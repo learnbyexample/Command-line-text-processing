@@ -1,6 +1,28 @@
-## <a name="awk"></a>awk
+## <a name="gnu-awk"></a>GNU awk
 
->pattern scanning and text processing language
+```bash
+$ awk --version | head -n1
+GNU Awk 4.1.3, API: 1.1 (GNU MPFR 3.1.4, GNU MP 6.1.0)
+
+$ man awk
+GAWK(1)                        Utility Commands                        GAWK(1)
+
+NAME
+       gawk - pattern scanning and processing language
+
+SYNOPSIS
+       gawk [ POSIX or GNU style options ] -f program-file [ -- ] file ...
+       gawk [ POSIX or GNU style options ] [ -- ] program-text file ...
+
+DESCRIPTION
+       Gawk  is  the  GNU Project's implementation of the AWK programming lan‐
+       guage.  It conforms to the definition of  the  language  in  the  POSIX
+       1003.1  Standard.   This version in turn is based on the description in
+       The AWK Programming Language, by Aho, Kernighan, and Weinberger.   Gawk
+       provides  the additional features found in the current version of Brian
+       Kernighan's awk and a number of GNU-specific extensions.
+...
+```
 
 `awk` derives its name from authors Alfred Aho, Peter Weinberger and Brian Kernighan.
 
