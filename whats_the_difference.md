@@ -9,7 +9,26 @@
 
 ## <a name="cmp"></a>cmp
 
->compare two files byte by byte
+```bash
+$ cmp --version | head -n1
+cmp (GNU diffutils) 3.3
+
+$ man cmp
+CMP(1)                           User Commands                          CMP(1)
+
+NAME
+       cmp - compare two files byte by byte
+
+SYNOPSIS
+       cmp [OPTION]... FILE1 [FILE2 [SKIP1 [SKIP2]]]
+
+DESCRIPTION
+       Compare two files byte by byte.
+
+       The optional SKIP1 and SKIP2 specify the number of bytes to skip at the
+       beginning of each file (zero by default).
+...
+```
 
 Useful to compare binary files. If the two files are same, no output is displayed (exit status 0)  
 If there is a difference, it prints the first difference - line number and byte location (exit status 1)  
@@ -26,7 +45,23 @@ $ cmp /bin/grep /bin/fgrep
 
 ## <a name="diff"></a>diff
 
->compare files line by line
+```bash
+$ diff --version | head -n1
+diff (GNU diffutils) 3.3
+
+$ man diff
+DIFF(1)                          User Commands                         DIFF(1)
+
+NAME
+       diff - compare files line by line
+
+SYNOPSIS
+       diff [OPTION]... FILES
+
+DESCRIPTION
+       Compare FILES line by line.
+...
+```
 
 Useful to compare old and new versions of text files  
 All the differences are printed, which might not be desirable if files are too long
