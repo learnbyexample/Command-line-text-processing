@@ -9,7 +9,30 @@
 
 ## <a name="find"></a>find
 
->search for files in a directory hierarchy
+```bash
+$ find --version | head -n1
+find (GNU findutils) 4.7.0-git
+
+$ man find
+FIND(1)                     General Commands Manual                    FIND(1)
+
+NAME
+       find - search for files in a directory hierarchy
+
+SYNOPSIS
+       find  [-H]  [-L]  [-P]  [-D  debugopts]  [-Olevel]  [starting-point...]
+       [expression]
+
+DESCRIPTION
+       This manual page documents the GNU version of find.  GNU find  searches
+       the  directory  tree  rooted at each given starting-point by evaluating
+       the given expression from left to right,  according  to  the  rules  of
+       precedence  (see  section  OPERATORS),  until the outcome is known (the
+       left hand side is false for and operations,  true  for  or),  at  which
+       point  find  moves  on  to the next file name.  If no starting-point is
+       specified, `.' is assumed.
+...
+```
 
 **Examples**
 
@@ -74,7 +97,29 @@ Passing filtered files as input to other commands
 
 ## <a name="locate"></a>locate
 
->find files by name
+```bash
+$ locate --version | head -n1
+mlocate 0.26
+
+$ man locate
+locate(1)                   General Commands Manual                  locate(1)
+
+NAME
+       locate - find files by name
+
+SYNOPSIS
+       locate [OPTION]... PATTERN...
+
+DESCRIPTION
+       locate  reads  one or more databases prepared by updatedb(8) and writes
+       file names matching at least one of the PATTERNs  to  standard  output,
+       one per line.
+
+       If  --regex is not specified, PATTERNs can contain globbing characters.
+       If any PATTERN contains no globbing characters, locate  behaves  as  if
+       the pattern were *PATTERN*.
+...
+```
 
 Faster alternative to `find` command when searching for a file by its name. It is based on a database, which gets updated by a `cron` job. So, newer files may be not present in results. Use this command if it is available in your distro and you remember some part of filename. Very useful if one has to search entire filesystem in which case `find` command might take a very long time compared to `locate`
 
