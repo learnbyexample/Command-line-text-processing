@@ -13,7 +13,28 @@
 
 ## <a name="wc"></a>wc
 
->print newline, word, and byte counts for each file
+```bash
+$ wc --version | head -n1
+wc (GNU coreutils) 8.25
+
+$ man wc
+WC(1)                            User Commands                           WC(1)
+
+NAME
+       wc - print newline, word, and byte counts for each file
+
+SYNOPSIS
+       wc [OPTION]... [FILE]...
+       wc [OPTION]... --files0-from=F
+
+DESCRIPTION
+       Print newline, word, and byte counts for each FILE, and a total line if
+       more than one FILE is specified.  A word is a non-zero-length  sequence
+       of characters delimited by white space.
+
+       With no FILE, or when FILE is -, read standard input.
+...
+```
 
 **Examples**
 
@@ -30,9 +51,24 @@
 
 ## <a name="du"></a>du
 
->estimate file space usage
+```bash
+$ du --version | head -n1
+du (GNU coreutils) 8.25
 
-* du command is useful to get size of files and folders, not for file systems
+$ man du
+DU(1)                            User Commands                           DU(1)
+
+NAME
+       du - estimate file space usage
+
+SYNOPSIS
+       du [OPTION]... [FILE]...
+       du [OPTION]... --files0-from=F
+
+DESCRIPTION
+       Summarize disk usage of the set of FILEs, recursively for directories.
+...
+```
 
 **Examples**
 
@@ -51,7 +87,26 @@
 
 ## <a name="df"></a>df
 
->report file system disk space usage
+```bash
+$ df --version | head -n1
+df (GNU coreutils) 8.25
+
+$ man df
+DF(1)                            User Commands                           DF(1)
+
+NAME
+       df - report file system disk space usage
+
+SYNOPSIS
+       df [OPTION]... [FILE]...
+
+DESCRIPTION
+       This  manual  page  documents  the  GNU version of df.  df displays the
+       amount of disk space available on the file system containing each  file
+       name  argument.   If  no file name is given, the space available on all
+       currently mounted file systems is shown.
+...
+```
 
 **Examples**
 
@@ -63,7 +118,27 @@
 
 ## <a name="touch"></a>touch
 
->change file timestamps
+```bash
+$ touch --version | head -n1
+touch (GNU coreutils) 8.25
+
+$ man touch 
+TOUCH(1)                         User Commands                        TOUCH(1)
+
+NAME
+       touch - change file timestamps
+
+SYNOPSIS
+       touch [OPTION]... FILE...
+
+DESCRIPTION
+       Update  the  access  and modification times of each FILE to the current
+       time.
+
+       A FILE argument that does not exist is created empty, unless -c  or  -h
+       is supplied.
+...
+```
 
 Used to change file time stamps. But if file doesn't exist, the command will create an empty file with the name provided. Both features are quite useful  
 
@@ -84,7 +159,32 @@ Used to change file time stamps. But if file doesn't exist, the command will cre
 
 ## <a name="file"></a>file
 
->determine file type
+```bash
+$ file --version | head -n1
+file-5.25
+
+$ man file
+FILE(1)                   BSD General Commands Manual                  FILE(1)
+
+NAME
+     file — determine file type
+
+SYNOPSIS
+     file [-bcEhiklLNnprsvzZ0] [--apple] [--extension] [--mime-encoding]
+          [--mime-type] [-e testname] [-F separator] [-f namefile]
+          [-m magicfiles] [-P name=value] file ...
+     file -C [-m magicfiles]
+     file [--help]
+
+DESCRIPTION
+     This manual page documents version 5.25 of the file command.
+
+     file tests each argument in an attempt to classify it.  There are three
+     sets of tests, performed in this order: filesystem tests, magic tests,
+     and language tests.  The first test that succeeds causes the file type to
+     be printed.
+...
+```
 
 **Examples**
 
@@ -107,7 +207,32 @@ perl.png: PNG image data, 32 x 32, 8-bit/color RGBA, non-interlaced
 
 ## <a name="identify"></a>identify
 
->describes the format and characteristics of one or more image files
+```bash
+$ identify --version | head -n1
+Version: ImageMagick 6.8.9-9 Q16 x86_64 2017-05-26 http://www.imagemagick.org
+
+$ man identify
+identify(1)                 General Commands Manual                identify(1)
+
+NAME
+       identify  -  describes  the  format  and characteristics of one or more
+       image files.
+
+SYNOPSIS
+       identify [options] input-file
+
+OVERVIEW
+       The identify program is a member of the ImageMagick(1) suite of  tools.
+       It describes the format and characteristics of one or more image files.
+       It also reports if an image is incomplete or corrupt.  The  information
+       returned includes the image number, the file name, the width and height
+       of the image, whether the image is colormapped or not,  the  number  of
+       colors  in  the  image (by default off use -define unique=true option),
+       the number of bytes in the image, the format of the image  (JPEG,  PNM,
+       etc.),  and  finally  the number of seconds it took to read and process
+       the image. Many more attributes are available with the verbose option.
+...
+```
 
 Although file command can also give information like pixel dimensions and image type, identify is more reliable command for images and gives complete format information
 
