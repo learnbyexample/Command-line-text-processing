@@ -3,6 +3,9 @@
 **Table of Contents**
 
 * [wc](#wc)
+    * [Examples](#examples)
+    * [subtle differences](#subtle-differences)
+    * [Further reading for wc](#further-reading-for-wc)
 * [du](#du)
 * [df](#df)
 * [touch](#touch)
@@ -36,14 +39,130 @@ DESCRIPTION
 ...
 ```
 
-**Examples**
+<br>
 
-* `wc power.log` outputs no. of lines, words and characters separated by white-space and followed by filename
-* `wc -l power.log` outputs no. of lines followed by filename
-* `wc -w power.log` outputs no. of words followed by filename
-* `wc -c power.log` outputs no. of characters followed by filename
-* `wc -l < power.log` output only the number of lines
-* `wc -L power.log` length of longest line followed by filename
+#### <a name="examples"></a>Examples
+
+```bash
+$ cat sample.txt 
+Hello World
+Good day
+No doubt you like it too
+Much ado about nothing
+He he he
+
+$ # by default, gives newline/word/byte count (in that order)
+$ wc sample.txt 
+ 5 17 78 sample.txt
+
+$ # options to get individual numbers
+$ wc -l sample.txt 
+5 sample.txt
+$ wc -w sample.txt 
+17 sample.txt
+$ wc -c sample.txt 
+78 sample.txt
+
+$ # use shell input redirection if filename is not needed
+$ wc -l < sample.txt 
+5
+```
+
+* multiple file input
+* automatically displays total at end
+
+```bash
+$ cat greeting.txt 
+Hello there
+Have a safe journey
+$ cat fruits.txt 
+Fruit   Price
+apple   42
+banana  31
+fig     90
+guava   6
+
+$ wc *.txt
+  5  10  57 fruits.txt
+  2   6  32 greeting.txt
+  5  17  78 sample.txt
+ 12  33 167 total
+```
+
+* use `-L` to get length of longest line
+
+```bash
+$ wc -L < sample.txt 
+24
+
+$ echo 'foo bar baz' | wc -L
+11
+$ echo 'hi there!' | wc -L
+9
+
+$ # last line will show max value, not sum of all input
+$ wc -L *.txt
+ 13 fruits.txt
+ 19 greeting.txt
+ 24 sample.txt
+ 24 total
+```
+
+<br>
+
+#### <a name="subtle-differences"></a>subtle differences
+
+* byte count vs character count
+
+```bash
+$ # when input is ASCII
+$ printf 'hi there' | wc -c
+8
+$ printf 'hi there' | wc -m
+8
+
+$ # when input has multi-byte characters
+$ printf 'hi👍' | od -x
+0000000 6968 9ff0 8d91
+0000006
+
+$ printf 'hi👍' | wc -m
+3
+
+$ printf 'hi👍' | wc -c
+6
+```
+
+* `-l` option gives only the count of number of newline characters
+
+```bash
+$ printf 'hi there\ngood day' | wc -l
+1
+$ printf 'hi there\ngood day\n' | wc -l
+2
+$ printf 'hi there\n\n\nfoo\n' | wc -l
+4
+```
+
+* From `man wc` "A word is a non-zero-length sequence of characters delimited by white space"
+
+```bash
+$ echo 'foo        bar ;-*' | wc -w
+3
+
+$ # use other text processing as needed
+$ echo 'foo        bar ;-*' | grep -iowE '[a-z]+'
+foo
+bar
+$ echo 'foo        bar ;-*' | grep -iowE '[a-z]+' | wc -l
+2
+```
+
+<br>
+
+#### <a name="further-reading-for-wc"></a>Further reading for wc
+
+* `man wc` and `info wc` for more options and detailed documentation
 * [wc Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/wc?sort=votes&pageSize=15)
 * [wc Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/wc?sort=votes&pageSize=15)
 
