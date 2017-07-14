@@ -182,6 +182,9 @@ foo:bar
 $ echo 'foo:bar:123:baz' | cut -c1,6,7 --output-delimiter=' '
 f a r
 
+$ echo 'abcdefghij' | cut --output-delimiter='-' -c1-3,4-7,8-
+abc-defg-hij
+
 $ cut -c1-3 marks.txt
 jan
 foo
