@@ -25,6 +25,10 @@
     * [Suppressing columns](#suppressing-columns)
     * [Files with duplicates](#files-with-duplicates)
     * [Further reading for comm](#further-reading-for-comm)
+* [shuf](#shuf)
+    * [Random lines](#random-lines)
+    * [Random integer numbers](#random-integer-numbers)
+    * [Further reading for shuf](#further-reading-for-shuf)
 
 <br>
 
@@ -1236,3 +1240,186 @@ b
 
 * `man comm` and `info comm` for more options and detailed documentation
 * [comm Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/comm?sort=votes&pageSize=15)
+
+<br>
+
+## <a name="shuf"></a>shuf
+
+```bash
+$ shuf --version | head -n1
+shuf (GNU coreutils) 8.25
+
+$ man shuf
+SHUF(1)                          User Commands                         SHUF(1)
+
+NAME
+       shuf - generate random permutations
+
+SYNOPSIS
+       shuf [OPTION]... [FILE]
+       shuf -e [OPTION]... [ARG]...
+       shuf -i LO-HI [OPTION]...
+
+DESCRIPTION
+       Write a random permutation of the input lines to standard output.
+
+       With no FILE, or when FILE is -, read standard input.
+...
+```
+
+<br>
+
+#### <a name="random-lines"></a>Random lines
+
+* Without repeating input lines
+
+```bash
+$ cat nums.txt 
+1
+10
+10
+12
+23
+563
+
+$ # duplicates can end up anywhere
+$ # all lines are part of output
+$ shuf nums.txt 
+10
+23
+1
+10
+563
+12
+
+$ # limit max number of output lines
+$ shuf -n2 nums.txt 
+563
+23
+```
+
+* Use `-o` option to specify output file name instead of displaying on stdout
+* Helpful for inplace editing
+
+```bash
+$ shuf nums.txt -o nums.txt 
+$ cat nums.txt 
+10
+12
+23
+10
+563
+1
+```
+
+* With repeated input lines
+
+```bash
+$ # -n3 for max 3 lines, -r allows input lines to be repeated
+$ shuf -n3 -r nums.txt 
+1
+1
+563
+
+$ seq 3 | shuf -n5 -r
+2
+1
+2
+1
+2
+
+$ # if a limit using -n is not specified, shuf will output lines indefinitely
+```
+
+* use `-e` option to specify multiple input lines from command line itself
+
+```bash
+$ shuf -e red blue green
+green
+blue
+red
+
+$ shuf -e 'hi there' 'hello world' foo bar
+bar
+hi there
+foo
+hello world
+
+$ shuf -n2 -e 'hi there' 'hello world' foo bar
+foo
+hi there
+
+$ shuf -r -n4 -e foo bar
+foo
+foo
+bar
+foo
+```
+
+<br>
+
+#### <a name="random-integer-numbers"></a>Random integer numbers
+
+* The `-i` option accepts integer range as input to be shuffled
+
+```bash
+$ shuf -i 3-8
+3
+7
+6
+4
+8
+5
+```
+
+* Combine with other options as needed
+
+```bash
+$ shuf -n3 -i 3-8
+5
+4
+7
+
+$ shuf -r -n4 -i 3-8
+5
+5
+7
+8
+
+$ shuf -r -n5 -i 0-1
+1
+0
+0
+1
+1
+```
+
+* Use [seq](./miscellaneous.md#seq) input if negative numbers, floating point, etc are needed
+
+```bash
+$ seq 2 -1 -2 | shuf
+2
+-1
+-2
+0
+1
+
+$ seq 0.3 0.1 0.7 | shuf -n3
+0.4
+0.5
+0.7
+```
+
+
+<br>
+
+#### <a name="further-reading-for-shuf"></a>Further reading for shuf
+
+* `man shuf` and `info shuf` for more options and detailed documentation
+* [Generate random numbers in specific range](https://unix.stackexchange.com/questions/140750/generate-random-numbers-in-specific-range)
+* [Variable - randomly choose among three numbers](https://unix.stackexchange.com/questions/330689/variable-randomly-chosen-among-three-numbers-10-100-and-1000)
+* Related to 'random' stuff:
+    * [How to generate a random string?](https://unix.stackexchange.com/questions/230673/how-to-generate-a-random-string)
+    * [How can I populate a file with random data?](https://unix.stackexchange.com/questions/33629/how-can-i-populate-a-file-with-random-data)
+    * [Run commands at random](https://unix.stackexchange.com/questions/81566/run-commands-at-random)
+
