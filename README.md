@@ -15,7 +15,7 @@ Use [![Join the chat at https://gitter.im/learnbyexample/scripting_course](https
 * [GNU grep](./gnu_grep.md)
 * [GNU sed](./gnu_sed.md)
 * [Sorting stuff](./sorting_stuff.md)
-    * sort, uniq, comm
+    * sort, uniq, comm, shuf
 * [Restructure text](./restructure_text.md)
     * paste, column, pr, fold
 * [Miscellaneous](./miscellaneous.md) 
