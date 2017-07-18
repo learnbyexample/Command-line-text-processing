@@ -7,6 +7,7 @@
     * [subtle differences](#subtle-differences)
     * [Further reading for wc](#further-reading-for-wc)
 * [du](#du)
+    * [Various size formats](#various-size-formats)
 * [df](#df)
 * [touch](#touch)
 * [file](#file)
@@ -158,6 +159,24 @@ $ echo 'foo        bar ;-*' | grep -iowE '[a-z]+' | wc -l
 2
 ```
 
+* `-L` won't count non-printable characters and tabs are converted to equivalent spaces
+
+```bash
+$ printf 'food\tgood' | wc -L
+12
+$ printf 'food\tgood' | wc -m
+9
+$ printf 'food\tgood' | awk '{print length()}'
+9
+
+$ printf 'foo\0bar\0baz' | wc -L
+9
+$ printf 'foo\0bar\0baz' | wc -m
+11
+$ printf 'foo\0bar\0baz' | awk '{print length()}'
+11
+```
+
 <br>
 
 #### <a name="further-reading-for-wc"></a>Further reading for wc
@@ -187,6 +206,113 @@ SYNOPSIS
 DESCRIPTION
        Summarize disk usage of the set of FILEs, recursively for directories.
 ...
+```
+
+<br>
+
+#### <a name="various-size-formats"></a>Various size formats
+
+* By default, size is given in size of 1024 bytes
+
+```bash
+$ ls -F
+projs/  py_learn@  words.txt
+
+$ # by default files are ignored
+$ # all directories and sub-directories are recursively reported
+$ du
+17920   ./projs/full_addr
+14316   ./projs/half_addr
+32952   ./projs
+33880   .
+
+$ # -a to get size for files too
+$ du -a
+712     ./projs/report.log
+17916   ./projs/full_addr/faddr.v
+17920   ./projs/full_addr
+14312   ./projs/half_addr/haddr.v
+14316   ./projs/half_addr
+32952   ./projs
+0       ./py_learn
+924     ./words.txt
+33880   .
+
+$ # -s to get only total without descending inside directories
+$ du -s projs words.txt
+32952   projs
+924     words.txt
+```
+
+* changing default size format
+
+```bash
+$ # number of bytes
+$ stat -c %s words.txt 
+938848
+$ du -b words.txt
+938848  words.txt
+
+$ # number of kilobytes
+$ du -sm projs
+33      projs
+
+$ # -B to specify custom byte scale size
+$ du -sB 5000 projs
+6749    projs
+$ du -sB 1048576 projs
+33      projs
+```
+
+* human readable and si units
+
+```bash
+$ # in terms of powers of 1024
+$ # M = 1048576 bytes and so on
+$ du -sh projs/* words.txt
+18M     projs/full_addr
+14M     projs/half_addr
+712K    projs/report.log
+924K    words.txt
+
+$ # in terms of powers of 1000
+$ # M = 1000000 bytes and so on
+$ du -s --si projs/* words.txt
+19M     projs/full_addr
+15M     projs/half_addr
+730k    projs/report.log
+947k    words.txt
+```
+
+* sorting
+
+```bash
+$ du -sh projs/* words.txt | sort -h
+712K    projs/report.log
+924K    words.txt
+14M     projs/half_addr
+18M     projs/full_addr
+
+$ du -sk projs/* | sort -nr
+17920   projs/full_addr
+14316   projs/half_addr
+712     projs/report.log
+```
+
+* dereferencing links, see `man` and `info` pages for other related options
+
+```bash
+$ # -D to dereference command line argument
+$ du py_learn
+0       py_learn
+$ du -shD py_learn
+503M    py_learn
+
+$ # -L to dereference links found by du
+$ du -sh
+34M     .
+$ du -shL
+536M    .
 ```
 
 **Examples**
