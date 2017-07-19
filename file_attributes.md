@@ -7,7 +7,11 @@
     * [subtle differences](#subtle-differences)
     * [Further reading for wc](#further-reading-for-wc)
 * [du](#du)
+    * [Default size](#default-size)
     * [Various size formats](#various-size-formats)
+    * [Dereferencing links](#dereferencing-links)
+    * [Filtering options](#filtering-options)
+    * [Further reading for du](#further-reading-for-du)
 * [df](#df)
 * [touch](#touch)
 * [file](#file)
@@ -210,23 +214,28 @@ DESCRIPTION
 
 <br>
 
-#### <a name="various-size-formats"></a>Various size formats
+<br>
 
-* By default, size is given in size of 1024 bytes
+#### <a name="default-size"></a>Default size
+
+* By default, size is given in size of **1024 bytes**
+* Files are ignored, all directories and sub-directories are recursively reported
 
 ```bash
 $ ls -F
 projs/  py_learn@  words.txt
 
-$ # by default files are ignored
-$ # all directories and sub-directories are recursively reported
 $ du
 17920   ./projs/full_addr
 14316   ./projs/half_addr
 32952   ./projs
 33880   .
+```
 
-$ # -a to get size for files too
+* use `-a` to recursively show both files and directories
+* use `-s` to show total directory size without descending into its sub-directories
+
+```bash
 $ du -a
 712     ./projs/report.log
 17916   ./projs/full_addr/faddr.v
@@ -238,13 +247,29 @@ $ du -a
 924     ./words.txt
 33880   .
 
-$ # -s to get only total without descending inside directories
+$ du -s
+33880   .
+
 $ du -s projs words.txt
 32952   projs
 924     words.txt
 ```
 
-* changing default size format
+* use `-S` to show directory size without taking into account size of its sub-directories
+
+```bash
+$ du -S
+17920   ./projs/full_addr
+14316   ./projs/half_addr
+716     ./projs
+928     .
+```
+
+<br>
+
+<br>
+
+#### <a name="various-size-formats"></a>Various size formats
 
 ```bash
 $ # number of bytes
@@ -253,7 +278,10 @@ $ stat -c %s words.txt
 $ du -b words.txt
 938848  words.txt
 
-$ # number of kilobytes
+$ # kilobytes = 1024 bytes
+$ du -sk projs
+32952   projs
+$ # megabytes = 1024 kilobytes
 $ du -sm projs
 33      projs
 
@@ -299,7 +327,25 @@ $ du -sk projs/* | sort -nr
 712     projs/report.log
 ```
 
-* dereferencing links, see `man` and `info` pages for other related options
+* to get size based on number of characters in file rather than disk space alloted
+
+```bash
+$ du -b words.txt
+938848  words.txt
+
+$ du -h words.txt
+924K    words.txt
+
+$ # 938848/1024 = 916.84
+$ du --apparent-size -h words.txt
+917K    words.txt
+```
+
+<br>
+
+#### <a name="dereferencing-links"></a>Dereferencing links
+
+* See `man` and `info` pages for other related options
 
 ```bash
 $ # -D to dereference command line argument
@@ -315,16 +361,72 @@ $ du -shL
 536M    .
 ```
 
-**Examples**
+<br>
 
-* `du project_report` display size (default unit is 1024 bytes) of folder project_report as well as it sub-directories
-* `du --si project_report` display size (unit is 1000 bytes) of folder project_report as well as it sub-directories
-* `du -h project_report` display size in human readable format for folder project_report as well as it sub-directories
-* `du -ah project_report` display size in human readable format for folder project_report and all of its files and sub-directories
-* `du -sh project_report` display size only for project_report folder in human readable format
-* `du -sm * | sort -n` sort files and folders of current directory, numbers displayed are in Megabytes
-    * use `sort -nr` to reverse sort order, i.e largest at top
-* `du -sh * | sort -h` sort files and folders of current directory, output displayed in human-readable format
+#### <a name="filtering-options"></a>Filtering options
+
+* `-d` to specify maximum depth
+
+```bash
+$ du -ah projs
+712K    projs/report.log
+18M     projs/full_addr/faddr.v
+18M     projs/full_addr
+14M     projs/half_addr/haddr.v
+14M     projs/half_addr
+33M     projs
+
+$ du -ah -d1 projs
+712K    projs/report.log
+18M     projs/full_addr
+14M     projs/half_addr
+33M     projs
+```
+
+* `-c` to also show total size at end
+
+```bash
+$ du -cshD projs py_learn
+33M     projs
+503M    py_learn
+535M    total
+```
+
+* `-t` to provide a threshold comparison
+
+```bash
+$ # >= 15M
+$ du -Sh -t 15M
+18M     ./projs/full_addr
+
+$ # <= 1M
+$ du -ah -t -1M
+712K    ./projs/report.log
+0       ./py_learn
+924K    ./words.txt
+```
+
+* excluding files/directories based on **glob** pattern
+* see also `--exclude-from=FILE` and `--files0-from=FILE` options
+
+```bash
+$ # note that excluded files affect directory size reported
+$ du -ah --exclude='*addr*' projs
+712K    projs/report.log
+716K    projs
+
+$ # depending on shell, brace expansion can be used
+$ du -ah --exclude='*.'{v,log} projs
+4.0K    projs/full_addr
+4.0K    projs/half_addr
+12K     projs
+```
+
+<br>
+
+#### <a name="further-reading-for-du"></a>Further reading for du
+
+* `man du` and `info du` for more options and detailed documentation
 * [du Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/disk-usage?sort=votes&pageSize=15)
 * [du Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/du?sort=votes&pageSize=15)
 
