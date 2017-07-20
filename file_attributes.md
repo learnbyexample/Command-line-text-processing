@@ -13,6 +13,8 @@
     * [Filtering options](#filtering-options)
     * [Further reading for du](#further-reading-for-du)
 * [df](#df)
+    * [Examples](#examples)
+    * [Further reading for df](#further-reading-for-df)
 * [touch](#touch)
 * [file](#file)
 * [identify](#identify)
@@ -455,11 +457,49 @@ DESCRIPTION
 ...
 ```
 
-**Examples**
+<br>
 
-* `df -h` display usage statistics of all available file systems
-* `df -h .` display usage of only the file system where the current working directory is located
+#### <a name="examples"></a>Examples
+
+```bash
+$ # use df without arguments to get information on all currently mounted file systems
+$ df .
+Filesystem     1K-blocks     Used Available Use% Mounted on
+/dev/sda1       98298500 58563816  34734748  63% /
+
+$ # use -B option for custom size
+$ # use --si for size in powers of 1000 instead of 1024
+$ df -h .
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        94G   56G   34G  63% /
+```
+
+* Use `--output` to report only specific fields of interest
+
+```bash
+$ df -h --output=size,used,file / /media/learnbyexample/projs
+ Size  Used File
+  94G   56G /
+  92G   35G /media/learnbyexample/projs
+
+$ df -h --output=pcent .
+Use%
+ 63%
+
+$ df -h --output=pcent,fstype | awk -F'%' 'NR>2 && $1>=40'
+ 63% ext3
+ 40% ext4
+ 51% ext4
+```
+
+<br>
+
+#### <a name="further-reading-for-df"></a>Further reading for df
+
+* `man df` and `info df` for more options and detailed documentation
 * [df Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/df?sort=votes&pageSize=15)
+* [Parsing df command output with awk](https://unix.stackexchange.com/questions/360865/parsing-df-command-output-with-awk)
+* [processing df output](https://www.reddit.com/r/bash/comments/68dbml/using_an_array_variable_in_an_awk_command/)
 
 <br>
 
