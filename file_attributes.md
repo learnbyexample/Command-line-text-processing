@@ -3,7 +3,7 @@
 **Table of Contents**
 
 * [wc](#wc)
-    * [Examples](#examples)
+    * [Various counts](#various-counts)
     * [subtle differences](#subtle-differences)
     * [Further reading for wc](#further-reading-for-wc)
 * [du](#du)
@@ -48,7 +48,7 @@ DESCRIPTION
 
 <br>
 
-#### <a name="examples"></a>Examples
+#### <a name="various-counts"></a>Various counts
 
 ```bash
 $ cat sample.txt 
