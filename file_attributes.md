@@ -16,6 +16,10 @@
     * [Examples](#examples)
     * [Further reading for df](#further-reading-for-df)
 * [touch](#touch)
+    * [Creating empty file](#creating-empty-file)
+    * [Updating timestamps](#updating-timestamps)
+    * [Preserving timestamp](#preserving-timestamp)
+    * [Further reading for touch](#further-reading-for-touch)
 * [file](#file)
 * [identify](#identify)
 
@@ -527,19 +531,133 @@ DESCRIPTION
 ...
 ```
 
-Used to change file time stamps. But if file doesn't exist, the command will create an empty file with the name provided. Both features are quite useful  
+<br>
 
-* Some program may require a particular file to be present to work, empty file might even be a valid argument. In such cases, a pre-processing script can scan the destination directories and create empty file if needed
-* Similarly, some programs may behave differently according to the time stamps of two or more files - while debugging in such an environment, user might want to just change the time stamp of files
+#### <a name="creating-empty-file"></a>Creating empty file
 
-**Examples**
+```bash
+$ ls foo.txt
+ls: cannot access 'foo.txt': No such file or directory
+$ touch foo.txt
+$ ls foo.txt
+foo.txt
 
-* `touch new_file.txt` create an empty file if it doesn't exist in current directory
-    * use `-c` if new file shouldn't be created
-    * use `-a` option to change only access time and `-m` to change only modification time
-* `touch report.log` change the time stamp of report.log to current time (assuming report.log already exists in current directory)
-* `touch -r power.log report.log` use time stamp of power.log instead of current time to change that of report.log
-    * use `-d` to provide time stamp from a string instead of file
+$ # use -c if new file shouldn't be created
+$ rm foo.txt 
+$ touch -c foo.txt
+$ ls foo.txt
+ls: cannot access 'foo.txt': No such file or directory
+```
+
+<br>
+
+#### <a name="updating-timestamps"></a>Updating timestamps
+
+* Updating both access and modification timestamp to current time
+
+```bash
+$ # last access time
+$ stat -c %x fruits.txt
+2017-07-19 17:06:01.523308599 +0530
+$ # last modification time
+$ stat -c %y fruits.txt
+2017-07-13 13:54:03.576055933 +0530
+
+$ touch fruits.txt 
+$ stat -c %x fruits.txt
+2017-07-21 10:11:44.241921229 +0530
+$ stat -c %y fruits.txt
+2017-07-21 10:11:44.241921229 +0530
+```
+
+* Updating only access or modification timestamp
+
+```bash
+$ touch -a greeting.txt
+$ stat -c %x greeting.txt
+2017-07-21 10:14:08.457268564 +0530
+$ stat -c %y greeting.txt
+2017-07-13 13:54:26.004499660 +0530
+
+$ touch -m sample.txt
+$ stat -c %x sample.txt
+2017-07-13 13:48:24.945450646 +0530
+$ stat -c %y sample.txt
+2017-07-21 10:14:40.770006144 +0530
+```
+
+* Using timestamp from another file to update
+
+```bash
+$ stat -c $'%x\n%y' power.log report.log
+2017-07-19 10:48:03.978295434 +0530
+2017-07-14 20:50:42.850887578 +0530
+2017-06-24 13:00:31.773583923 +0530
+2017-06-24 12:59:53.316751651 +0530
+
+$ # copy both access and modification timestamp from power.log to report.log
+$ touch -r power.log report.log
+$ stat -c $'%x\n%y' report.log
+2017-07-19 10:48:03.978295434 +0530
+2017-07-14 20:50:42.850887578 +0530
+
+$ # add -a or -m options to limit to only access or modification timestamp
+```
+
+* Using date string to update
+* See also `-t` option
+
+```bash
+$ # add -a or -m as needed
+$ touch -d '2010-03-17 17:04:23' report.log
+$ stat -c $'%x\n%y' report.log
+2010-03-17 17:04:23.000000000 +0530
+2010-03-17 17:04:23.000000000 +0530
+```
+
+<br>
+
+#### <a name="preserving-timestamp"></a>Preserving timestamp
+
+* Text processing on files would update the timestamps
+
+```bash
+$ stat -c $'%x\n%y' power.log
+2017-07-21 11:11:42.862874240 +0530
+2017-07-13 21:31:53.496323704 +0530
+
+$ sed -i 's/foo/bar/g' power.log
+$ stat -c $'%x\n%y' power.log
+2017-07-21 11:12:20.303504336 +0530
+2017-07-21 11:12:20.303504336 +0530
+```
+
+* `touch` can be used to restore timestamps after processing
+
+```bash
+$ # first copy the timestamps using touch -r
+$ stat -c $'%x\n%y' story.txt
+2017-06-24 13:00:31.773583923 +0530
+2017-06-24 12:59:53.316751651 +0530
+$ # tmp.txt is temporary empty file
+$ touch -r story.txt tmp.txt
+$ stat -c $'%x\n%y' tmp.txt 
+2017-06-24 13:00:31.773583923 +0530
+2017-06-24 12:59:53.316751651 +0530
+
+$ # after text processing, copy back the timestamps and remove temporary file
+$ sed -i 's/cat/dog/g' story.txt
+$ touch -r tmp.txt story.txt && rm tmp.txt 
+$ stat -c $'%x\n%y' story.txt 
+2017-06-24 13:00:31.773583923 +0530
+2017-06-24 12:59:53.316751651 +0530
+```
+
+<br>
+
+#### <a name="further-reading-for-touch"></a>Further reading for touch
+
+* `man touch` and `info touch` for more options and detailed documentation
 * [touch Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/touch?sort=votes&pageSize=15)
 
 <br>
