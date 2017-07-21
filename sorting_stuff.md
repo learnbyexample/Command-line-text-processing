@@ -614,6 +614,30 @@ baz:parrot:5
 boss:dog:10
 ```
 
+* Sometimes, the input has to be sorted first and then `-u` used on the sorted output
+* See also [remove duplicates based on the value of another column](https://unix.stackexchange.com/questions/379835/remove-duplicates-based-on-the-value-of-another-column)
+
+```bash
+$ # sort by number in 3rd column
+$ sort -t: -k3,3n pets.txt
+bar:fox:1
+joe:dog:1
+xyz:cat:1
+foo:dog:2
+abcd:cat:3
+temp_var:squirrel:4
+baz:parrot:5
+boss:dog:10
+
+$ # then get unique entry based on 2nd column
+$ sort -t: -k3,3n pets.txt | sort -t: -u -k2,2
+xyz:cat:1
+joe:dog:1
+bar:fox:1
+baz:parrot:5
+temp_var:squirrel:4
+```
+
 * Specifying particular characters within fields
 * If character position is not specified, defaults to `1` for starting column and `0` (last character) for ending column
 
@@ -660,6 +684,8 @@ banana  31
 guava   6
 ```
 
+* See also [sort by last field value when number of fields varies](https://stackoverflow.com/questions/3832068/bash-sort-text-file-by-last-field-value)
+
 <br>
 
 #### <a name="further-reading-for-sort"></a>Further reading for sort
@@ -670,6 +696,7 @@ guava   6
 * [sort Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sort?sort=votes&pageSize=15)
 * [sort on multiple columns using -k option](https://unix.stackexchange.com/questions/249452/unix-multiple-column-sort-issue)
 * [sort a string character wise](https://stackoverflow.com/questions/2373874/how-to-sort-characters-in-a-string)
+* [Scalability of 'sort -u' for gigantic files](https://unix.stackexchange.com/questions/279096/scalability-of-sort-u-for-gigantic-files)
 
 <br>
 
