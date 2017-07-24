@@ -21,7 +21,8 @@
     * [Preserving timestamp](#preserving-timestamp)
     * [Further reading for touch](#further-reading-for-touch)
 * [file](#file)
-* [identify](#identify)
+    * [File type examples](#file-type-examples)
+    * [Further reading for file](#further-reading-for-file)
 
 <br>
 
@@ -691,60 +692,54 @@ DESCRIPTION
 ...
 ```
 
-**Examples**
+<br>
+
+<br>
+
+#### <a name="file-type-examples"></a>File type examples
 
 ```bash
 $ file sample.txt 
 sample.txt: ASCII text
+$ # without file name in output
+$ file -b sample.txt 
+ASCII text
 
-$ file sunset.jpg 
+$ file ch
+ch:  Bourne-Again shell script, ASCII text executable
+
+$ file sunset.jpg moon.png
 sunset.jpg: JPEG image data
+moon.png: PNG image data, 32 x 32, 8-bit/color RGBA, non-interlaced
+```
 
-$ mv sunset.jpg xyz
-$ file xyz 
-xyz: JPEG image data
+* different line terminators
 
-$ file perl.png 
-perl.png: PNG image data, 32 x 32, 8-bit/color RGBA, non-interlaced
+```bash
+$ printf 'hi' | file -
+/dev/stdin: ASCII text, with no line terminators
+
+$ printf 'hi\r' | file -
+/dev/stdin: ASCII text, with CR line terminators
+
+$ printf 'hi\r\n' | file -
+/dev/stdin: ASCII text, with CRLF line terminators
+
+$ printf 'hi\n' | file -
+/dev/stdin: ASCII text
+```
+
+* find all files of particular type in current directory, for example `image` files
+
+```bash
+$ find -type f -exec bash -c '(file -b "$0" | grep -wq "image data") && echo "$0"' {} \;
+./sunset.jpg
+./moon.png
 ```
 
 <br>
 
-## <a name="identify"></a>identify
+#### <a name="further-reading-for-file"></a>Further reading for file
 
-```bash
-$ identify --version | head -n1
-Version: ImageMagick 6.8.9-9 Q16 x86_64 2017-05-26 http://www.imagemagick.org
-
-$ man identify
-identify(1)                 General Commands Manual                identify(1)
-
-NAME
-       identify  -  describes  the  format  and characteristics of one or more
-       image files.
-
-SYNOPSIS
-       identify [options] input-file
-
-OVERVIEW
-       The identify program is a member of the ImageMagick(1) suite of  tools.
-       It describes the format and characteristics of one or more image files.
-       It also reports if an image is incomplete or corrupt.  The  information
-       returned includes the image number, the file name, the width and height
-       of the image, whether the image is colormapped or not,  the  number  of
-       colors  in  the  image (by default off use -define unique=true option),
-       the number of bytes in the image, the format of the image  (JPEG,  PNM,
-       etc.),  and  finally  the number of seconds it took to read and process
-       the image. Many more attributes are available with the verbose option.
-...
-```
-
-Although file command can also give information like pixel dimensions and image type, identify is more reliable command for images and gives complete format information
-
-```bash
-$ identify sunset.jpg
-sunset.jpg JPEG 740x740 740x740+0+0 8-bit DirectClass 110KB 0.000u 0:00.030
-
-$ identify perl.png 
-perl.png PNG 32x32 32x32+0+0 8-bit DirectClass 838B 0.000u 0:00.000
-```
+* `man file` and `info file` for more options and detailed documentation
+* See also `identify` command which `describes the format and characteristics of one or more image files`
