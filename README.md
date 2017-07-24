@@ -18,13 +18,14 @@ Use [![Join the chat at https://gitter.im/learnbyexample/scripting_course](https
     * sort, uniq, comm, shuf
 * [Restructure text](./restructure_text.md)
     * paste, column, pr, fold
+* [File attributes](./file_attributes.md)
+    * wc, du, df, touch, file
 * [Miscellaneous](./miscellaneous.md) 
     * cut, tr, basename, dirname, xargs, seq
 
 Rough drafts
 
 * [Wheres my file](./wheres_my_file.md)
-* [File attributes](./file_attributes.md)
 * [Whats the difference](./whats_the_difference.md)
 * [GNU awk](./gnu_awk.md)
 * [Perl the swiss knife](./perl_the_swiss_knife.md)
