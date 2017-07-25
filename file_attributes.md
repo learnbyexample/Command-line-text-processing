@@ -705,6 +705,11 @@ $ # without file name in output
 $ file -b sample.txt 
 ASCII text
 
+$ printf 'hi👍\n' | file -
+/dev/stdin: UTF-8 Unicode text
+$ printf 'hi👍\n' | file -i -
+/dev/stdin: text/plain; charset=utf-8
+
 $ file ch
 ch:  Bourne-Again shell script, ASCII text executable
 
@@ -733,6 +738,11 @@ $ printf 'hi\n' | file -
 
 ```bash
 $ find -type f -exec bash -c '(file -b "$0" | grep -wq "image data") && echo "$0"' {} \;
+./sunset.jpg
+./moon.png
+
+$ # if filenames do not contain : or newline characters
+$ find -type f -exec file {} + | awk -F: '/\<image data\>/{print $1}'
 ./sunset.jpg
 ./moon.png
 ```
