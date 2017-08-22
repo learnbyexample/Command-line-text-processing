@@ -1095,6 +1095,7 @@ black
 
 * Do check out `man uniq` and `info uniq` for other options and more detailed documentation
 * [uniq Q&A on unix stackexchange](http://unix.stackexchange.com/questions/tagged/uniq?sort=votes&pageSize=15)
+* [process duplicate lines only based on certain fields](https://unix.stackexchange.com/questions/387590/print-the-duplicate-lines-only-on-fields-1-2-from-csv-file)
 
 <br>
 
