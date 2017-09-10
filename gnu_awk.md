@@ -12,6 +12,7 @@
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Line number based filtering](#line-number-based-filtering)
 * [Case Insensitive filtering](#case-insensitive-filtering)
+* [Substitute functions](#substitute-functions)
 
 <br>
 
@@ -186,6 +187,7 @@ $ awk '$1=="apple"{print $2}' fruits.txt
 
 $ # print first field if second field > 35
 $ # NR>1 to avoid the header line
+$ # NR built-in variable contains record number
 $ awk 'NR>1 && $2>35{print $1}' fruits.txt 
 apple
 fig
@@ -294,6 +296,91 @@ $ # another way is to use built-in string function 'tolower'
 $ awk 'tolower($0) ~ /rose/' poem.txt 
 Roses are red,
 ```
+
+<br>
+
+## <a name="substitute-functions"></a>Substitute functions
+
+* Use `sub` string function for replacing first occurrence
+* Use `gsub` for replacing all occurrences
+* By default, `$0` which contains input record is modified, can specify any other field or variable as needed
+
+```bash
+$ # replacing first occurrence
+$ echo '1-2-3-4-5' | awk '{sub("-", ":")} 1'
+1:2-3-4-5
+
+$ # replacing all occurrences
+$ echo '1-2-3-4-5' | awk '{gsub("-", ":")} 1'
+1:2:3:4:5
+
+$ # // form can also be used to specify search REGEXP
+$ echo '1-2-3-4-5' | awk '{gsub(/[^-]+/, "abc")} 1'
+abc-abc-abc-abc-abc
+
+$ # replacing all occurrences only for third field
+$ echo 'one;two;three;four' | awk -F';' '{gsub("e", "E", $3)} 1'
+one two thrEE four
+```
+
+* Use `gensub` to return the modified string unlike `sub` or `gsub` which modifies inplace
+* it also supports back-references and ability to modify specific match
+* acts upon `$0` if target is not specified
+
+```bash
+$ # replace second occurrence
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(":", "-", 2)} 1'
+foo:123-bar:baz
+$ # use REGEXP as needed
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "XYZ", 2)} 1'
+foo:XYZ:bar:baz
+
+$ # or print the returned string directly
+$ echo 'foo:123:bar:baz' | awk '{print gensub(":", "-", 2)}'
+foo:123-bar:baz
+
+$ # replace third occurrence
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "XYZ", 3)} 1'
+foo:123:XYZ:baz
+
+$ # replace all occurrences, similar to gsub
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "XYZ", "g")} 1'
+XYZ:XYZ:XYZ:XYZ
+
+$ # target other than $0
+$ echo 'foo:123:bar:baz' | awk -F: -v OFS=: '{$1=gensub(/o/, "g", 2, $1)} 1'
+fog:123:bar:baz
+```
+
+* back-reference examples
+* use `\"` within double-quotes to represent `"` character in replacement string
+* use `\\1` to represent `\1` - the first captured group and so on
+* `&` or `\0` will back-reference entire matched string
+
+```bash
+$ # replacing last occurrence without knowing how many occurrences are there
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/(.*):/, "\\1-", 1)} 1'
+foo:123:bar-baz
+$ echo 'foo and bar and baz land good' | awk '{$0=gensub(/(.*)and/, "\\1XYZ", 1)} 1'
+foo and bar and baz lXYZ good
+
+$ # use word boundaries as necessary
+$ echo 'foo and bar and baz land good' | awk '{$0=gensub(/(.*)\<and\>/, "\\1XYZ", 1)} 1'
+foo and bar XYZ baz land good
+
+$ # replacing last but one
+$ echo '456:foo:123:bar:789:baz' | awk '{$0=gensub(/(.*):(.*:)/, "\\1-\\2", 1)} 1'
+456:foo:123:bar-789:baz
+
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\"&\"", "g")} 1'
+"foo":"123":"bar":"baz"
+```
+
+**Further Reading**
+
+* [gawk manual - String-Manipulation Functions](https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions)
+* [gawk manual - escape processing](https://www.gnu.org/software/gawk/manual/gawk.html#index-sub_0028_0029-function_002c-escape-processing)
+
 
 
 <br>
