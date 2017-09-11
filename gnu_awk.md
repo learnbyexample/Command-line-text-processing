@@ -13,6 +13,7 @@
     * [Line number based filtering](#line-number-based-filtering)
 * [Case Insensitive filtering](#case-insensitive-filtering)
 * [Substitute functions](#substitute-functions)
+* [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
 
@@ -199,6 +200,34 @@ banana  31
 guava   6
 ```
 
+* If the above examples are too confusing, think of it as syntactical sugar
+* Statements are grouped within `{}`
+    * inside `{}`, we have a `if` control structure
+    * Like `C` language, braces not needed for single statements within `if`, but consider that `{}` is used for clarity
+    * From this explicit syntax, remove the outer `{}`, `if` and `()` used for `if`
+* As we'll see later, this allows to mash up few lines of program compactly on command line itself
+    * Of course, for medium to large programs, it is better to put the code in separate file
+
+```bash
+$ # awk '$1=="apple"{print $2}' fruits.txt 
+$ awk '{
+         if($1 == "apple"){
+            print $2
+         }
+       }' fruits.txt
+42
+
+$ # awk 'NR==1 || $2<35' fruits.txt
+$ awk '{
+         if(NR==1 || $2<35){
+            print $0
+         }
+       }' fruits.txt
+fruit   qty
+banana  31
+guava   6
+```
+
 <br>
 
 #### <a name="regular-expressions-based-filtering"></a>Regular expressions based filtering
@@ -348,8 +377,8 @@ $ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "XYZ", "g")} 1'
 XYZ:XYZ:XYZ:XYZ
 
 $ # target other than $0
-$ echo 'foo:123:bar:baz' | awk -F: -v OFS=: '{$1=gensub(/o/, "g", 2, $1)} 1'
-fog:123:bar:baz
+$ echo 'foo:123:bar:baz' | awk -F: -v OFS=: '{$1=gensub(/o/, "b", 2, $1)} 1'
+fob:123:bar:baz
 ```
 
 * back-reference examples
@@ -381,7 +410,94 @@ $ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\"&\"", "g")} 1'
 * [gawk manual - String-Manipulation Functions](https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions)
 * [gawk manual - escape processing](https://www.gnu.org/software/gawk/manual/gawk.html#index-sub_0028_0029-function_002c-escape-processing)
 
+<br>
 
+## <a name="dealing-with-duplicates"></a>Dealing with duplicates
+
+* we'll use awk's associative arrays (key-value pairs) here
+    * key can be number or string
+    * See also [gawk manual - Arrays](https://www.gnu.org/software/gawk/manual/gawk.html#Arrays)
+* default value of uninitialized variable is `0` in numeric context and empty string in text context
+    * and evaluates to `false` when used conditionally
+
+*Illustration to show default numeric value and array in action*
+
+```bash
+$ printf 'mad\n42\n42\ndam\n42\n'
+mad
+42
+42
+dam
+42
+
+$ printf 'mad\n42\n42\ndam\n42\n' | awk '{print $0 "\t" int(a[$0]); a[$0]++}'
+mad     0
+42      0
+42      1
+dam     0
+42      2
+$ # only those entries with second column value zero will be retained
+$ printf 'mad\n42\n42\ndam\n42\n' | awk '!a[$0]++'
+mad
+42
+dam
+```
+
+* first, examples that retain only first copy of duplicates
+
+```bash
+$ cat duplicates.txt
+abc  7   4
+food toy ****
+abc  7   4
+test toy 123
+good toy ****
+
+$ # whole line
+$ awk '!seen[$0]++' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+good toy ****
+
+$ # particular column
+$ awk '!seen[$2]++' duplicates.txt
+abc  7   4
+food toy ****
+```
+
+* For multiple fields, separate them using `,` or form a string with some character in between
+
+```bash
+$ # or: awk '!seen[$2"_"$3]++' duplicates.txt
+$ # but do NOT use '!seen[$2$3]++' to avoid 'foo' & 'bar' matching 'f' & 'oobar'
+$ awk '!seen[$2,$3]++' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+```
+
+* retaining specific numbered copy
+
+```bash
+$ # second occurrence of duplicate
+$ awk '++seen[$2]==2' duplicates.txt
+abc  7   4
+test toy 123
+
+$ # third occurrence of duplicate
+$ awk '++seen[$2]==3' duplicates.txt
+good toy ****
+```
+
+* retaining only last copy of duplicate
+
+```bash
+$ # reverse the input line-wise, retain first copy and then reverse again
+$ tac duplicates.txt | awk '!seen[$2]++' | tac
+abc  7   4
+good toy ****
+```
 
 <br>
 
