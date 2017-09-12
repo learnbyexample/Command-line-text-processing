@@ -13,6 +13,7 @@
     * [Line number based filtering](#line-number-based-filtering)
 * [Case Insensitive filtering](#case-insensitive-filtering)
 * [Substitute functions](#substitute-functions)
+* [Inplace file editing](#inplace-file-editing)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -409,6 +410,38 @@ $ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\"&\"", "g")} 1'
 
 * [gawk manual - String-Manipulation Functions](https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions)
 * [gawk manual - escape processing](https://www.gnu.org/software/gawk/manual/gawk.html#index-sub_0028_0029-function_002c-escape-processing)
+
+<br>
+
+## <a name="inplace-file-editing"></a>Inplace file editing
+
+* Use this option with caution, preferably after testing that the `awk` code is working as intended
+
+```bash
+$ cat greeting.txt 
+Hi there
+Have a nice day
+
+$ awk -i inplace '{gsub("e", "E")} 1' greeting.txt 
+$ cat greeting.txt 
+Hi thErE
+HavE a nicE day
+```
+
+* Multiple input files are treated individually and changes are written back to respective files
+
+```bash
+$ cat f1
+I ate 3 apples
+$ cat f2
+I bought two bananas and 3 mangoes
+
+$ awk -i inplace '{gsub("3", "three")} 1' f1 f2
+$ cat f1
+I ate three apples
+$ cat f2
+I bought two bananas and three mangoes
+```
 
 <br>
 
