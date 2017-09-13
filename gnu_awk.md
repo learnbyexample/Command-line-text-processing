@@ -14,6 +14,7 @@
 * [Case Insensitive filtering](#case-insensitive-filtering)
 * [Substitute functions](#substitute-functions)
 * [Inplace file editing](#inplace-file-editing)
+* [Using shell variables](#using-shell-variables)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -406,6 +407,20 @@ $ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\"&\"", "g")} 1'
 "foo":"123":"bar":"baz"
 ```
 
+* saving quotes in variables - to avoid escaping double quotes or having to use octal code for single quotes
+
+```bash
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\047&\047", "g")} 1'
+'foo':'123':'bar':'baz'
+$ echo 'foo:123:bar:baz' | awk -v sq="'" '{$0=gensub(/[^:]+/, sq"&"sq, "g")} 1'
+'foo':'123':'bar':'baz'
+
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\"&\"", "g")} 1'
+"foo":"123":"bar":"baz"
+$ echo 'foo:123:bar:baz' | awk -v dq='"' '{$0=gensub(/[^:]+/, dq"&"dq, "g")} 1'
+"foo":"123":"bar":"baz"
+```
+
 **Further Reading**
 
 * [gawk manual - String-Manipulation Functions](https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions)
@@ -441,6 +456,73 @@ $ cat f1
 I ate three apples
 $ cat f2
 I bought two bananas and three mangoes
+```
+
+<br>
+
+## <a name="using-shell-variables"></a>Using shell variables
+
+* when `awk` code is part of shell program and shell variable needs to be passed as input to `awk` code
+* for example:
+    * command line argument passed to shell script, which is in turn passed on to `awk`
+    * control structures in shell script calling `awk` with different search strings
+
+```bash
+$ # examples tested with bash shell
+
+$ f='apple'
+$ awk -v word="$f" '$1==word' fruits.txt
+apple   42
+$ f='fig'
+$ awk -v word="$f" '$1==word' fruits.txt
+fig     90
+
+$ q='20'
+$ awk -v threshold="$q" 'NR==1 || $2>threshold' fruits.txt
+fruit   qty
+apple   42
+banana  31
+fig     90
+```
+
+* accessing shell environment variables
+
+```bash
+$ # existing environment variable
+$ awk 'BEGIN{print ENVIRON["PWD"]}'
+/home/learnbyexample
+$ awk 'BEGIN{print ENVIRON["SHELL"]}'
+/bin/bash
+
+$ # defined along with awk code
+$ word='hello world' awk 'BEGIN{print ENVIRON["word"]}'
+hello world
+```
+
+* passing *REGEXP*
+* See also [gawk manual - Using Dynamic Regexps](https://www.gnu.org/software/gawk/manual/html_node/Computed-Regexps.html)
+
+```bash
+$ s='are'
+$ # for: awk '!/are/' poem.txt
+$ awk -v s="$s" '$0 !~ s' poem.txt
+Sugar is sweet,
+$ # for: awk '/are/ && !/so/' poem.txt
+$ awk -v s="$s" '$0 ~ s && !/so/' poem.txt
+Roses are red,
+Violets are blue,
+
+$ r='[^-]+'
+$ echo '1-2-3-4-5' | awk -v r="$r" '{gsub(r, "abc")} 1'
+abc-abc-abc-abc-abc
+
+$ # when string has to be interpreted as REGEXP, the escape sequence has to be doubled
+$ echo 'foo and bar and baz land good' | awk '{$0=gensub("(.*)\\<and\\>", "\\1XYZ", 1)} 1'
+foo and bar XYZ baz land good
+$ # hence passing as variable should be
+$ r='(.*)\\<and\\>'
+$ echo 'foo and bar and baz land good' | awk -v r="$r" '{$0=gensub(r, "\\1XYZ", 1)} 1'
+foo and bar XYZ baz land good
 ```
 
 <br>
