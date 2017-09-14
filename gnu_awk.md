@@ -15,6 +15,7 @@
 * [Substitute functions](#substitute-functions)
 * [Inplace file editing](#inplace-file-editing)
 * [Using shell variables](#using-shell-variables)
+* [Multiple file processing](#multiple-file-processing)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -128,7 +129,7 @@ three
 * default is single space
 
 ```bash
-$ # statements inside BEGIN are executed before processing input
+$ # statements inside BEGIN are executed before processing any input text
 $ echo 'foo:123:bar:789' | awk 'BEGIN{FS=OFS=":"} {print $1, $NF}'
 foo:789
 $ # can also be set using command line option -v
@@ -181,7 +182,7 @@ And so are you.
 
 * Each block of statements within `{}` can be prefixed by an optional condition so that those statements will execute only if condition evaluates to true
 * Condition specified without corresponding statements will lead to printing contents of `$0` if condition evaluates to true
-* See also [gawk manual - Truth Values and Conditions](https://www.gnu.org/software/gawk/manual/gawk.html#Truth-Values-and-Conditions) and [gawk manual - Operator Precedence](https://www.gnu.org/software/gawk/manual/gawk.html#Precedence)
+* See also [gawk manual - Truth Values and Conditions](https://www.gnu.org/software/gawk/manual/html_node/Truth-Values-and-Conditions.html) and [gawk manual - Operator Precedence](https://www.gnu.org/software/gawk/manual/html_node/Precedence.html)
 
 ```bash
 $ # if first field exactly matches the string 'apple'
@@ -286,7 +287,7 @@ fig     90
 #### <a name="line-number-based-filtering"></a>Line number based filtering
 
 * Built-in variable `NR` contains total records read so far
-* Use `FNR` if there are multliple input files and you need line numbers separately for each file
+* Use `FNR` if you need line numbers separately for [multiple file processing](#multiple-file-processing)
 
 ```bash
 $ # same as: head -n2 poem.txt | tail -n1
@@ -299,6 +300,7 @@ Violets are blue,
 And so are you.
 
 $ # same as: tail -n1 poem.txt
+$ # statements inside END are executed after processing all input text
 $ awk 'END{print}' poem.txt 
 And so are you.
 
@@ -423,8 +425,8 @@ $ echo 'foo:123:bar:baz' | awk -v dq='"' '{$0=gensub(/[^:]+/, dq"&"dq, "g")} 1'
 
 **Further Reading**
 
-* [gawk manual - String-Manipulation Functions](https://www.gnu.org/software/gawk/manual/gawk.html#String-Functions)
-* [gawk manual - escape processing](https://www.gnu.org/software/gawk/manual/gawk.html#index-sub_0028_0029-function_002c-escape-processing)
+* [gawk manual - String-Manipulation Functions](https://www.gnu.org/software/gawk/manual/html_node/String-Functions.html)
+* [gawk manual - escape processing](https://www.gnu.org/software/gawk/manual/html_node/Gory-Details.html)
 
 <br>
 
@@ -527,11 +529,81 @@ foo and bar XYZ baz land good
 
 <br>
 
+## <a name="multiple-file-processing"></a>Multiple file processing
+
+* Example to show difference between `NR` and `FNR`
+
+```bash
+$ # NR for overall record number
+$ awk 'NR==1' poem.txt greeting.txt 
+Roses are red,
+
+$ # FNR for individual file's record number
+$ awk 'FNR==1' poem.txt greeting.txt 
+Roses are red,
+Hi thErE
+```
+
+* Constructs to do some processing before starting each file as well as at the end
+
+```bash
+$ # similar to: tail -n1 poem.txt greeting.txt
+$ awk 'BEGINFILE{print "file: "FILENAME}
+       ENDFILE{print $0"\n------"}' poem.txt greeting.txt
+file: poem.txt
+And so are you.
+------
+file: greeting.txt
+HavE a nicE day
+------
+
+$ # using file count instead of filename
+$ awk 'BEGINFILE{print "file: "ARGIND}
+       ENDFILE{print $0"\n------"}' poem.txt greeting.txt
+file: 1
+And so are you.
+------
+file: 2
+HavE a nicE day
+------
+```
+
+* And of course, there can be usual `awk` code
+
+```bash
+$ awk 'BEGINFILE{print "file: "ARGV[++c]}
+       FNR==1;
+       ENDFILE{print "------"}' poem.txt greeting.txt
+file: poem.txt
+Roses are red,
+------
+file: greeting.txt
+Hi thErE
+------
+
+$ awk 'BEGINFILE{print "file: "FILENAME}
+       FNR==2;
+       END{print "\nTotal input files: "ARGC-1}' poem.txt greeting.txt
+file: poem.txt
+Violets are blue,
+file: greeting.txt
+HavE a nicE day
+
+Total input files: 2
+```
+
+**Further Reading**
+
+* [gawk manual - Using ARGC and ARGV](https://www.gnu.org/software/gawk/manual/html_node/ARGC-and-ARGV.html) and [gawk manual - ARGIND](https://www.gnu.org/software/gawk/manual/html_node/Auto_002dset.html#index-ARGIND-variable)
+* [stackoverflow - Finding common value across multiple files](https://stackoverflow.com/a/43473385/4082052)
+
+<br>
+
 ## <a name="dealing-with-duplicates"></a>Dealing with duplicates
 
 * we'll use awk's associative arrays (key-value pairs) here
     * key can be number or string
-    * See also [gawk manual - Arrays](https://www.gnu.org/software/gawk/manual/gawk.html#Arrays)
+    * See also [gawk manual - Arrays](https://www.gnu.org/software/gawk/manual/html_node/Arrays.html)
 * default value of uninitialized variable is `0` in numeric context and empty string in text context
     * and evaluates to `false` when used conditionally
 
