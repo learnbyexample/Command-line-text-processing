@@ -618,6 +618,7 @@ test_files/vibgyor.txt
 
 * using file input to specify search terms
 * `-F` option will force matching strings literally(no regular expressions)
+* See also [Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash) - read all answers
 
 ```bash
 $ grep -if test_files/colors.txt poem.txt 
@@ -1233,9 +1234,9 @@ catty
 coyly
 curly
 
-$ # 7 letter words starting with e and ending with rted or sted
-$ grep -xE 'e..(rt|st)ed' /usr/share/dict/words 
-exerted
+$ # 7 letter words starting with e and ending with rged or sted
+$ grep -xE 'e..(rg|st)ed' /usr/share/dict/words 
+emerged
 existed
 
 $ # repeat a pattern 3 times
@@ -1288,6 +1289,28 @@ $ # 17 letter words with first and last as same letter
 $ grep -xE '(.)[a-z]{15}\1' /usr/share/dict/words 
 semiprofessionals
 transcendentalist
+```
+
+* **Note** that there is an [issue for certain usage of back-reference and quantifier](https://debbugs.gnu.org/cgi/bugreport.cgi?bug=26864)
+
+```bash
+$ # no output
+$ grep -m5 -xiE '([a-z]*([a-z])\2[a-z]*){2}' /usr/share/dict/words
+$ # works when nesting is unrolled
+$ grep -m5 -xiE '[a-z]*([a-z])\1[a-z]*([a-z])\2[a-z]*' /usr/share/dict/words
+Abbott
+Annabelle
+Annette
+Appaloosa
+Appleseed
+
+$ # no problem if PCRE is used instead of ERE
+$ grep -m5 -xiP '([a-z]*([a-z])\2[a-z]*){2}' /usr/share/dict/words
+Abbott
+Annabelle
+Annette
+Appaloosa
+Appleseed
 ```
 
 * Useful to spot repeated words
