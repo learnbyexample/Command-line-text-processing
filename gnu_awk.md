@@ -16,6 +16,8 @@
 * [Inplace file editing](#inplace-file-editing)
 * [Using shell variables](#using-shell-variables)
 * [Multiple file processing](#multiple-file-processing)
+* [Control Structures](#control-structures)
+    * [if-else and loops](#if-else-and-loops)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -545,6 +547,9 @@ Hi thErE
 ```
 
 * Constructs to do some processing before starting each file as well as at the end
+* `BEGINFILE` - to add code to be executed before start of each input file
+* `ENDFILE` - to add code to be executed after processing each input file
+* `FILENAME` - file name of current input file being processed
 
 ```bash
 $ # similar to: tail -n1 poem.txt greeting.txt
@@ -556,22 +561,12 @@ And so are you.
 file: greeting.txt
 HavE a nicE day
 ------
-
-$ # using file count instead of filename
-$ awk 'BEGINFILE{print "file: "ARGIND}
-       ENDFILE{print $0"\n------"}' poem.txt greeting.txt
-file: 1
-And so are you.
-------
-file: 2
-HavE a nicE day
-------
 ```
 
 * And of course, there can be usual `awk` code
 
 ```bash
-$ awk 'BEGINFILE{print "file: "ARGV[++c]}
+$ awk 'BEGINFILE{print "file: "FILENAME}
        FNR==1;
        ENDFILE{print "------"}' poem.txt greeting.txt
 file: poem.txt
@@ -581,9 +576,9 @@ file: greeting.txt
 Hi thErE
 ------
 
-$ awk 'BEGINFILE{print "file: "FILENAME}
+$ awk 'BEGINFILE{c++; print "file: "FILENAME}
        FNR==2;
-       END{print "\nTotal input files: "ARGC-1}' poem.txt greeting.txt
+       END{print "\nTotal input files: "c}' poem.txt greeting.txt
 file: poem.txt
 Violets are blue,
 file: greeting.txt
@@ -596,6 +591,68 @@ Total input files: 2
 
 * [gawk manual - Using ARGC and ARGV](https://www.gnu.org/software/gawk/manual/html_node/ARGC-and-ARGV.html) and [gawk manual - ARGIND](https://www.gnu.org/software/gawk/manual/html_node/Auto_002dset.html#index-ARGIND-variable)
 * [stackoverflow - Finding common value across multiple files](https://stackoverflow.com/a/43473385/4082052)
+
+<br>
+
+## <a name="control-structures"></a>Control Structures
+
+<br>
+
+#### <a name="if-else-and-loops"></a>if-else and loops
+
+* Syntax is similar to `C` language and single statements inside control structures don't require to be grouped within `{}`
+* We have already seen simple `if` examples in [Filtering](#filtering) section
+
+```bash
+$ # same as: sed -n '/are/ s/so/SO/p' poem.txt 
+$ awk '/are/{if(sub("so", "SO")) print}' poem.txt
+And SO are you.
+$ # of course, can also use
+$ awk '/are/ && sub("so", "SO")' poem.txt
+
+$ # if-else example
+$ awk 'NR>1{if($2>40) $0="+"$0; else $0="-"$0} 1' fruits.txt 
+fruit   qty
++apple   42
+-banana  31
++fig     90
+-guava   6
+```
+
+* for loop
+
+```bash
+$ awk 'BEGIN{for(i=2; i<11; i+=2) print i}'
+2
+4
+6
+8
+10
+
+$ # looping each field
+$ s='scat:cat:no cat:abdicate:cater'
+$ echo "$s" | awk -F: -v OFS=: '{for(i=1;i<=NF;i++) if($i=="cat") $i="CAT"} 1'
+scat:CAT:no cat:abdicate:cater
+$ # can also use sub function
+$ echo "$s" | awk -F: -v OFS=: '{for(i=1;i<=NF;i++) sub(/^cat$/,"CAT",$i)} 1'
+scat:CAT:no cat:abdicate:cater
+```
+
+* while loop
+
+```bash
+$ awk 'BEGIN{i=2; while(i<11){print i; i+=2}}'
+2
+4
+6
+8
+10
+
+$ # recursive substitution
+$ echo 'titillate' | awk '{while( gsub(/til/, "") ) print}'
+tilate
+ate
+```
 
 <br>
 
