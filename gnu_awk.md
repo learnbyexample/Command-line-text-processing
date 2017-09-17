@@ -18,6 +18,7 @@
 * [Multiple file processing](#multiple-file-processing)
 * [Control Structures](#control-structures)
     * [if-else and loops](#if-else-and-loops)
+    * [next and nextfile](#next-and-nextfile)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -596,12 +597,15 @@ Total input files: 2
 
 ## <a name="control-structures"></a>Control Structures
 
+* Syntax is similar to `C` language and single statements inside control structures don't require to be grouped within `{}`
+* See [gawk manual - Control Statements](https://www.gnu.org/software/gawk/manual/html_node/Statements.html) for details
+
 <br>
 
 #### <a name="if-else-and-loops"></a>if-else and loops
 
-* Syntax is similar to `C` language and single statements inside control structures don't require to be grouped within `{}`
 * We have already seen simple `if` examples in [Filtering](#filtering) section
+* See also [gawk manual - Switch](https://www.gnu.org/software/gawk/manual/html_node/Switch-Statement.html)
 
 ```bash
 $ # same as: sed -n '/are/ s/so/SO/p' poem.txt 
@@ -611,7 +615,7 @@ $ # of course, can also use
 $ awk '/are/ && sub("so", "SO")' poem.txt
 
 $ # if-else example
-$ awk 'NR>1{if($2>40) $0="+"$0; else $0="-"$0} 1' fruits.txt 
+$ awk 'NR>1{if($2>40) $0="+"$0; else $0="-"$0} 1' fruits.txt
 fruit   qty
 +apple   42
 -banana  31
@@ -619,7 +623,28 @@ fruit   qty
 -guava   6
 ```
 
+* conditional operator
+
+```bash
+$ cat nums.txt 
+42
+-2
+10101
+-3.14
+-75
+
+$ # changing -ve to +ve and vice versa
+$ # same as: awk '{if($0 ~ /^-/) sub(/^-/,""); else sub(/^/,"-")} 1' nums.txt
+$ awk '{$0 ~ /^-/ ? sub(/^-/,"") : sub(/^/,"-")} 1' nums.txt
+-42
+2
+-10101
+3.14
+75
+```
+
 * for loop
+* similar to `C` language, `break` and `continue` statements are also available
 
 ```bash
 $ awk 'BEGIN{for(i=2; i<11; i+=2) print i}'
@@ -639,6 +664,7 @@ scat:CAT:no cat:abdicate:cater
 ```
 
 * while loop
+* do-while is also available
 
 ```bash
 $ awk 'BEGIN{i=2; while(i<11){print i; i+=2}}'
@@ -652,6 +678,44 @@ $ # recursive substitution
 $ echo 'titillate' | awk '{while( gsub(/til/, "") ) print}'
 tilate
 ate
+```
+
+<br>
+
+#### <a name="next-and-nextfile"></a>next and nextfile
+
+* `next` will skip rest of statements and start processing next line of current file being processed
+    * there is a loop by default which goes over all input records, `next` is applicable for that
+    * it is similar to `continue` statement within loops
+* it is often used in two file processing (examples in later sections)
+
+```bash
+$ # here 'next' is used to skip processing header line
+$ awk 'NR==1{print; next} /a.*a/{$0="*"$0} /[eiou]/{$0="-"$0} 1' fruits.txt
+fruit   qty
+-apple   42
+*banana  31
+-fig     90
+-*guava   6
+```
+
+* `nextfile` is useful to skip remaining lines from current file being processed and move on to next file
+
+```bash
+$ # same as: head -q -n1 poem.txt greeting.txt fruits.txt
+$ awk 'FNR>1{nextfile} 1' poem.txt greeting.txt fruits.txt
+Roses are red,
+Hi thErE
+fruit   qty
+
+$ # specific field
+$ awk 'FNR>2{nextfile} {print $1}' poem.txt greeting.txt fruits.txt
+Roses
+Violets
+Hi
+HavE
+fruit
+apple
 ```
 
 <br>
