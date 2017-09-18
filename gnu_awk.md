@@ -19,6 +19,7 @@
 * [Control Structures](#control-structures)
     * [if-else and loops](#if-else-and-loops)
     * [next and nextfile](#next-and-nextfile)
+* [Multiline processing](#multiline-processing)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -716,6 +717,92 @@ Hi
 HavE
 fruit
 apple
+```
+
+<br>
+
+## <a name="multiline-processing"></a>Multiline processing
+
+* Processing consecutive lines
+
+```bash
+$ cat poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # match two consecutive lines
+$ awk 'p~/are/ && /is/{print p ORS $0} {p=$0}' poem.txt 
+Violets are blue,
+Sugar is sweet,
+$ # if only the second line is needed
+$ awk 'p~/are/ && /is/; {p=$0}' poem.txt 
+Sugar is sweet,
+
+$ # match three consecutive lines
+$ awk 'p2~/red/ && p1~/blue/ && /is/{print p2} {p2=p1; p1=$0}' poem.txt
+Roses are red,
+
+$ # common mistake
+$ sed -n '/are/{N;/is/p}' poem.txt 
+$ # would need something like this and not practical to extend for other cases
+$ sed '$!N; /are.*\n.*is/p; D' poem.txt 
+Violets are blue,
+Sugar is sweet,
+```
+
+Consider this sample input file
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+* extracting lines around matching line
+* See also [stackoverflow - lines around matching regexp](https://stackoverflow.com/questions/17908555/printing-with-sed-or-awk-a-line-following-a-matching-pattern)
+
+```bash
+$ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt 
+$ awk '/BEGIN/{n=2} n && n--' range.txt
+BEGIN
+1234
+BEGIN
+a
+
+$ # only print the line after matching line
+$ # can also use: awk '/BEGIN/{n=1; next} n && n--' range.txt
+$ awk 'n && n--; /BEGIN/{n=1}' range.txt 
+1234
+a
+$ # generic case: print nth line after match
+$ awk 'n && !--n; /BEGIN/{n=3}' range.txt
+END
+c
+
+$ # print second line prior to matched line
+$ awk '/END/{print p2} {p2=p1; p1=$0}' range.txt
+1234
+b
+$ # save all lines in an array for generic case
+$ awk '/END/{print a[NR-3]} {a[NR]=$0}' range.txt
+BEGIN
+a
+$ # or use the reversing trick
+$ tac range.txt | awk 'n && !--n; /END/{n=3}' | tac
+BEGIN
+a
 ```
 
 <br>
