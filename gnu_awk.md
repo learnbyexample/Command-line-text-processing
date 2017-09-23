@@ -772,6 +772,12 @@ baz
 
 * extracting lines around matching line
 * See also [stackoverflow - lines around matching regexp](https://stackoverflow.com/questions/17908555/printing-with-sed-or-awk-a-line-following-a-matching-pattern)
+* how `n && n--` works:
+    * need to note that right hand side of `&&` is processed only if left hand side is `true`
+    * so for example, if initially `n=2`, then we get
+        * `2 && 2; n=1` - evaluates to `true`
+        * `1 && 1; n=0` - evaluates to `true`
+        * `0 && ` - evaluates to `false` ... no decrementing `n` and hence will be `false` until `n` is re-assigned non-zero value
 
 ```bash
 $ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt 
