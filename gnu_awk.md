@@ -20,6 +20,9 @@
     * [if-else and loops](#if-else-and-loops)
     * [next and nextfile](#next-and-nextfile)
 * [Multiline processing](#multiline-processing)
+* [Two file processing](#two-file-processing)
+    * [Comparing whole lines](#comparing-whole-lines)
+    * [Comparing specific fields](#comparing-specific-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -813,11 +816,149 @@ a
 
 <br>
 
-## <a name="dealing-with-duplicates"></a>Dealing with duplicates
+## <a name="two-file-processing"></a>Two file processing
 
-* we'll use awk's associative arrays (key-value pairs) here
+* We'll use awk's associative arrays (key-value pairs) here
     * key can be number or string
     * See also [gawk manual - Arrays](https://www.gnu.org/software/gawk/manual/html_node/Arrays.html)
+* Unlike [comm](./sorting_stuff.md#comm) the input files need not be sorted and comparison can be done based on certain field(s) as well
+
+<br>
+
+#### <a name="comparing-whole-lines"></a>Comparing whole lines
+
+Consider the following test files
+
+```bash
+$ cat colors_1.txt
+Blue
+Brown
+Purple
+Red
+Teal
+Yellow
+
+$ cat colors_2.txt
+Black
+Blue
+Green
+Red
+White
+```
+
+* common lines and lines unique to one of the files
+* For two files as input, `NR==FNR` will be true only when first file is being processed
+* Using `next` will skip rest of code when first file is processed
+* `a[$0]` will create unique keys (here entire line content is used as key) in array `a`
+* `$0 in a` will be true if key already exists in array `a`
+
+```bash
+$ # common lines
+$ # same as: grep -Fxf colors_1.txt colors_2.txt
+$ awk 'NR==FNR{a[$0]; next} $0 in a' colors_1.txt colors_2.txt
+Blue
+Red
+
+$ # lines from colors_2.txt not present in colors_1.txt
+$ # same as: grep -vFxf colors_1.txt colors_2.txt
+$ awk 'NR==FNR{a[$0]; next} !($0 in a)' colors_1.txt colors_2.txt
+Black
+Green
+White
+
+$ # reversing the order of input files gives
+$ # lines from colors_1.txt not present in colors_2.txt
+$ awk 'NR==FNR{a[$0]; next} !($0 in a)' colors_2.txt colors_1.txt
+Brown
+Purple
+Teal
+Yellow
+```
+
+<br>
+
+#### <a name="comparing-specific-fields"></a>Comparing specific fields
+
+Consider the sample input file
+
+```bash
+$ cat marks.txt
+Dept    Name    Marks
+ECE     Raj     53
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+EEE     Tia     59
+ECE     Om      92
+CSE     Amy     67
+```
+
+* single field
+* For ex: only first field comparison by using `$1` instead of `$0` as key
+
+```bash
+$ cat list1
+ECE
+CSE
+
+$ # extract only lines matching first field specified in list1
+$ awk 'NR==FNR{a[$1]; next} $1 in a' list1 marks.txt
+ECE     Raj     53
+ECE     Joel    72
+CSE     Surya   81
+ECE     Om      92
+CSE     Amy     67
+
+$ # if header is needed as well
+$ awk 'NR==FNR{a[$1]; next} FNR==1 || $1 in a' list1 marks.txt
+Dept    Name    Marks
+ECE     Raj     53
+ECE     Joel    72
+CSE     Surya   81
+ECE     Om      92
+CSE     Amy     67
+```
+
+* multiple fields
+* create a string by adding some character between the fields to act as key
+    * for ex: to avoid matching two field values `abc` and `123` to match with two other field values `ab` and `c123`
+    * by adding character, say `_`, the key would be `abc_123` for first case and `ab_c123` for second case
+
+```bash
+$ cat list2
+EEE Moi
+CSE Amy
+ECE Raj
+
+$ # extract only lines matching both fields specified in list2
+$ awk 'NR==FNR{a[$1"_"$2]; next} $1"_"$2 in a' list2 marks.txt
+ECE     Raj     53
+EEE     Moi     68
+CSE     Amy     67
+```
+
+* field and value comparison
+
+```bash
+$ cat list3
+ECE 70
+EEE 65
+CSE 80
+
+$ # extract line matching Dept and minimum marks specified in list3
+$ awk 'NR==FNR{d[$1]; m[$1]=$2; next} $1 in d && $3 >= m[$1]' list3 marks.txt
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+ECE     Om      92
+```
+
+* See also [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash)
+
+<br>
+
+## <a name="dealing-with-duplicates"></a>Dealing with duplicates
+
 * default value of uninitialized variable is `0` in numeric context and empty string in text context
     * and evaluates to `false` when used conditionally
 
@@ -870,9 +1011,8 @@ food toy ****
 * For multiple fields, separate them using `,` or form a string with some character in between
 
 ```bash
-$ # or: awk '!seen[$2"_"$3]++' duplicates.txt
-$ # but do NOT use '!seen[$2$3]++' to avoid 'foo' & 'bar' matching 'f' & 'oobar'
-$ awk '!seen[$2,$3]++' duplicates.txt
+$ # can also use: awk '!seen[$2,$3]++' duplicates.txt
+$ awk '!seen[$2"_"$3]++' duplicates.txt
 abc  7   4
 food toy ****
 test toy 123
