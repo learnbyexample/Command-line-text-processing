@@ -1040,6 +1040,32 @@ abc  7   4
 good toy ****
 ```
 
+* filtering based on duplicate count
+* allows to emulate [uniq](./sorting_stuff.md#uniq) command for specific fields
+
+```bash
+$ # all duplicates based on 1st column
+$ awk 'NR==FNR{a[$1]++; next} a[$1]>1' duplicates.txt duplicates.txt 
+abc  7   4
+abc  7   4
+$ # all duplicates based on 3rd column
+$ awk 'NR==FNR{a[$3]++; next} a[$3]>1' duplicates.txt duplicates.txt 
+abc  7   4
+food toy ****
+abc  7   4
+good toy ****
+
+$ # more than 2 duplicates based on 2nd column
+$ awk 'NR==FNR{a[$2]++; next} a[$2]>2' duplicates.txt duplicates.txt 
+food toy ****
+test toy 123
+good toy ****
+
+$ # only unique lines based on 3rd column
+$ awk 'NR==FNR{a[$3]++; next} a[$3]==1' duplicates.txt duplicates.txt 
+test toy 123
+```
+
 <br>
 
 <br>
