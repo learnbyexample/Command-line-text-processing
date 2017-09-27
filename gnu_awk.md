@@ -24,6 +24,9 @@
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
+* [Lines between two REGEXPs](#lines-between-two-regexps)
+    * [All unbroken blocks](#all-unbroken-blocks)
+    * [Specific blocks](#specific-blocks)
 
 <br>
 
@@ -1064,6 +1067,172 @@ good toy ****
 $ # only unique lines based on 3rd column
 $ awk 'NR==FNR{a[$3]++; next} a[$3]==1' duplicates.txt duplicates.txt 
 test toy 123
+```
+
+<br>
+
+## <a name="lines-between-two-regexps"></a>Lines between two REGEXPs
+
+* This section deals with filtering lines bound by two *REGEXP*s (referred to as blocks)
+* For simplicity the two *REGEXP*s usually used in below examples are the strings **BEGIN** and **END**
+
+<br>
+
+#### <a name="all-unbroken-blocks"></a>All unbroken blocks
+
+Consider the below sample input file, which doesn't have any unbroken blocks (i.e **BEGIN** and **END** are always present in pairs)
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+* Extracting lines between starting and ending *REGEXP*
+
+```bash
+$ # include both starting/ending REGEXP
+$ # can also use: awk '/BEGIN/,/END/' range.txt
+$ # which is similar to sed -n '/BEGIN/,/END/p'
+$ # but not suitable to extend for other cases
+$ awk '/BEGIN/{f=1} f; /END/{f=0}' range.txt
+BEGIN
+1234
+6789
+END
+BEGIN
+a
+b
+c
+END
+
+$ # exclude both starting/ending REGEXP
+$ can also use: awk '/BEGIN/{f=1; next} /END/{f=0} f' range.txt
+$ awk '/END/{f=0} f; /BEGIN/{f=1}' range.txt
+1234
+6789
+a
+b
+c
+```
+
+* Include only start or end *REGEXP*
+
+```bash
+$ # include only starting REGEXP
+$ awk '/BEGIN/{f=1} /END/{f=0} f' range.txt
+BEGIN
+1234
+6789
+BEGIN
+a
+b
+c
+
+$ # include only ending REGEXP
+$ awk 'f; /END/{f=0} /BEGIN/{f=1}' range.txt
+1234
+6789
+END
+a
+b
+c
+END
+```
+
+* Extracting lines other than lines between the two *REGEXP*s
+
+```bash
+$ awk '/BEGIN/{f=1} !f; /END/{f=0}' range.txt
+foo
+bar
+baz
+
+$ # the other three cases would be
+$ awk '/END/{f=0} !f; /BEGIN/{f=1}' range.txt
+$ awk '!f; /BEGIN/{f=1} /END/{f=0}' range.txt 
+$ awk '/BEGIN/{f=1} /END/{f=0} !f' range.txt
+```
+
+<br>
+
+#### <a name="specific-blocks"></a>Specific blocks
+
+* Getting first block
+
+```bash
+$ awk '/BEGIN/{f=1} f; /END/{exit}' range.txt 
+BEGIN
+1234
+6789
+END
+
+$ # use other tricks discussed in previous section as needed
+$ awk '/END/{exit} f; /BEGIN/{f=1}' range.txt
+1234
+6789
+```
+
+* Getting last block
+
+```bash
+$ # reverse input linewise, change the order of REGEXPs, finally reverse again
+$ tac range.txt | awk '/END/{f=1} f; /BEGIN/{exit}' | tac
+BEGIN
+a
+b
+c
+END
+
+$ # or, save the blocks in a buffer and print the last one alone
+$ # ORS contains output record separator, which is newline by default
+$ seq 30 | awk '/4/{f=1; b=$0; next} f{b=b ORS $0} /6/{f=0} END{print b}'
+24
+25
+26
+```
+
+* Getting blocks based on a counter
+
+```bash
+$ # all blocks
+$ seq 30 | sed -n '/4/,/6/p'
+4
+5
+6
+14
+15
+16
+24
+25
+26
+
+$ # get only 2nd block
+$ # can also use: seq 30 | awk -v b=2 '/4/{c++} c==b{print; if(/6/) exit}'
+$ seq 30 | awk -v b=2 '/4/{c++} c==b; /6/ && c==b{exit}'
+14
+15
+16
+
+$ # to get all blocks greater than 'b' blocks
+$ seq 30 | awk -v b=1 '/4/{f=1; c++} f && c>b; /6/{f=0}'
+14
+15
+16
+24
+25
+26
+$ # except 'b' block: seq 30 | awk -v b=2 '/4/{f=1; c++} f && c!=b; /6/{f=0}'
 ```
 
 <br>
