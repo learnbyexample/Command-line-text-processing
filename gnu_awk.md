@@ -27,6 +27,7 @@
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
+    * [Broken blocks](#broken-blocks)
 
 <br>
 
@@ -1234,6 +1235,70 @@ $ seq 30 | awk -v b=1 '/4/{f=1; c++} f && c>b; /6/{f=0}'
 26
 $ # except 'b' block: seq 30 | awk -v b=2 '/4/{f=1; c++} f && c!=b; /6/{f=0}'
 ```
+
+<br>
+
+#### <a name="broken-blocks"></a>Broken blocks
+
+* If there are blocks with ending *REGEXP* but without corresponding starting *REGEXP*, `awk '/BEGIN/{f=1} f; /END/{f=0}'` will suffice
+* Consider the modified input file where starting *REGEXP* doesn't have corresponding ending
+
+```bash
+$ cat broken_range.txt
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+baz
+
+$ # the file reversing trick comes in handy here as well
+$ tac broken_range.txt | awk '/END/{f=1} f; /BEGIN/{f=0}' | tac
+BEGIN
+1234
+6789
+END
+```
+
+* But if both kinds of broken blocks are present, accumulate the records and print accordingly
+
+```bash
+$ cat multiple_broken.txt 
+qqqqqqq
+BEGIN
+foo
+BEGIN
+1234
+6789
+END
+bar
+END
+0-42-1
+BEGIN
+a
+BEGIN
+b
+END
+;as;s;sd;
+
+$ awk '/BEGIN/{f=1; buf=$0; next}
+       f{buf=buf ORS $0}
+       /END/{f=0; if(buf) print buf; buf=""}' multiple_broken.txt
+BEGIN
+1234
+6789
+END
+BEGIN
+b
+END
+```
+
+* See also [stackoverflow - select lines between two regexps](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
 
 <br>
 
