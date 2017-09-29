@@ -130,6 +130,10 @@ bar
 $ # use quotes to avoid clashes with shell special characters
 $ echo 'one;two;three;four' | awk -F';' '{print $3}'
 three
+
+$ # regular expressions based input field separator
+$ echo 'Sample123string54with908numbers' | awk -F'[0-9]+' '{print $2}'
+string
 ```
 
 <br>
@@ -157,6 +161,9 @@ foo-123-bar-789
 $ # OFS is used to separate different arguments given to print
 $ echo 'foo:123:bar:789' | awk -F: -v OFS='\t' '{print $1, $3}'
 foo     bar
+
+$ echo 'Sample123string54with908numbers' | awk -F'[0-9]+' '{$1=$1; print $0}'
+Sample string with numbers
 ```
 
 <br>
@@ -1298,7 +1305,10 @@ b
 END
 ```
 
-* See also [stackoverflow - select lines between two regexps](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
+**Further Reading**
+
+* [stackoverflow - select lines between two regexps](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
+* [unix.stackexchange - print only blocks with lines > n](https://unix.stackexchange.com/questions/295600/deleting-lines-between-rows-in-a-text-file-using-awk-or-sed)
 
 <br>
 
