@@ -12,6 +12,8 @@
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Line number based filtering](#line-number-based-filtering)
 * [Case Insensitive filtering](#case-insensitive-filtering)
+* [Changing record separators](#changing-record-separators)
+    * [Paragraph mode](#paragraph-mode)
 * [Substitute functions](#substitute-functions)
 * [Inplace file editing](#inplace-file-editing)
 * [Using shell variables](#using-shell-variables)
@@ -108,6 +110,7 @@ qty
 
 * by using `-F` command line option
 * by setting `FS` variable
+* See also [gawk manual - Field Splitting Summary](https://www.gnu.org/software/gawk/manual/html_node/Field-Splitting-Summary.html#Field-Splitting-Summary)
 
 ```bash
 $ # second field where input field separator is :
@@ -347,6 +350,129 @@ $ # another way is to use built-in string function 'tolower'
 $ awk 'tolower($0) ~ /rose/' poem.txt 
 Roses are red,
 ```
+
+<br>
+
+## <a name="changing-record-separators"></a>Changing record separators
+
+* `RS` to change input record separator
+* default is newline character
+
+```bash
+$ s='this is a sample string'
+
+$ # space as input record separator, printing all records
+$ printf "$s" | awk -v RS=' ' '{print NR, $0}'
+1 this
+2 is
+3 a
+4 sample
+5 string
+
+$ # print all records containing 'a'
+$ printf "$s" | awk -v RS=' ' '/a/'
+a
+sample
+```
+
+* `ORS` to change output record separator
+* default is newline character
+
+```bash
+$ seq 3 | awk '{print $0}'
+1
+2
+3
+$ # note that there is empty line after last record
+$ seq 3 | awk -v ORS='\n\n' '{print $0}'
+1
+
+2
+
+3
+
+$ # dynamically changing ORS
+$ # can also use: seq 6 | awk '{ORS = NR%2 ? " " : RS} 1'
+$ seq 6 | awk '{ORS = NR%2 ? " " : "\n"} 1'
+1 2
+3 4
+5 6
+$ seq 6 | awk '{ORS = NR%3 ? "-" : "\n"} 1'
+1-2-3
+4-5-6
+```
+
+<br>
+
+#### <a name="paragraph-mode"></a>Paragraph mode
+
+* When `RS` is set to empty string, one or more consecutive empty lines is used as input record separator
+    * can also use regular expression `RS=\n\n+` but there are subtle differences, see [gawk manual - multiline records](https://www.gnu.org/software/gawk/manual/html_node/Multiple-Line.html)
+
+Consider the below sample file
+
+```bash
+$ cat sample.txt
+Hello World
+
+Good day
+How are you
+
+Just do-it
+Believe it
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+Much ado about nothing
+He he he
+```
+
+* Filtering paragraphs
+
+```bash
+$ # print all paragraphs containing 'it'
+$ awk -v RS= -v ORS='\n\n' '/it/' sample.txt
+Just do-it
+Believe it
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+$ # if extra newline at end is undesirable, can use
+$ awk -v RS= '/it/{print c++ ? "\n" $0 : $0}' sample.txt
+```
+
+* Re-structuring paragraphs
+
+```bash
+$ # default FS is one or more of continuous space, tab or newline characters
+$ # default OFS is single space
+$ # so, $1=$1 will change it uniformly to single space between fields
+$ awk -v RS= '{$1=$1} 1' sample.txt
+Hello World
+Good day How are you
+Just do-it Believe it
+Today is sunny Not a bit funny No doubt you like it too
+Much ado about nothing He he he
+
+$ # a better usecase
+$ awk 'BEGIN{FS="\n"; OFS=". "; RS=""; ORS="\n\n"} {$1=$1} 1' sample.txt
+Hello World
+
+Good day. How are you
+
+Just do-it. Believe it
+
+Today is sunny. Not a bit funny. No doubt you like it too
+
+Much ado about nothing. He he he
+
+```
+
+* See also [gawk manual - Records](https://www.gnu.org/software/gawk/manual/html_node/Records.html#Records)
 
 <br>
 
@@ -1309,6 +1435,8 @@ END
 
 * [stackoverflow - select lines between two regexps](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
 * [unix.stackexchange - print only blocks with lines > n](https://unix.stackexchange.com/questions/295600/deleting-lines-between-rows-in-a-text-file-using-awk-or-sed)
+* [unix.stackexchange - print a block only if it contains matching string](https://unix.stackexchange.com/a/335523/109046)
+* [unix.stackexchange - print a block matching two different strings](https://unix.stackexchange.com/questions/347368/grep-with-range-and-pass-three-filters)
 
 <br>
 
