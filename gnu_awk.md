@@ -14,6 +14,7 @@
 * [Case Insensitive filtering](#case-insensitive-filtering)
 * [Changing record separators](#changing-record-separators)
     * [Paragraph mode](#paragraph-mode)
+    * [Multicharacter RS](#multicharacter-rs)
 * [Substitute functions](#substitute-functions)
 * [Inplace file editing](#inplace-file-editing)
 * [Using shell variables](#using-shell-variables)
@@ -443,6 +444,18 @@ No doubt you like it too
 
 $ # if extra newline at end is undesirable, can use
 $ awk -v RS= '/it/{print c++ ? "\n" $0 : $0}' sample.txt
+
+$ # based on number of lines in each paragraph
+$ awk -F'\n' -v RS= -v ORS='\n\n' 'NF==1' sample.txt
+Hello World
+
+$ awk -F'\n' -v RS= -v ORS='\n\n' 'NF==2 && /do/' sample.txt
+Just do-it
+Believe it
+
+Much ado about nothing
+He he he
+
 ```
 
 * Re-structuring paragraphs
@@ -469,6 +482,73 @@ Just do-it. Believe it
 Today is sunny. Not a bit funny. No doubt you like it too
 
 Much ado about nothing. He he he
+
+```
+
+<br>
+
+#### <a name="multicharacter-rs"></a>Multicharacter RS
+
+* Some marker like `Error` or `Warning` etc
+
+```bash
+$ cat report.log 
+blah blah
+Error: something went wrong
+more blah
+whatever
+Error: something surely went wrong
+some text
+some more text
+blah blah blah
+
+$ awk -v RS='Error:' 'NR==1' report.log
+blah blah
+
+$ # filter 'Error:' block matching particular string
+$ # to preserve formatting, use: '/whatever/{print RS $0}'
+$ awk -v RS='Error:' '/whatever/' report.log
+ something went wrong
+more blah
+whatever
+
+$ # blocks with more than 3 lines
+$ # splitting string with 3 newlines will yeild 4 fields
+$ awk -F'\n' -v RS='Error:' 'NF>4{print RS $0}' report.log
+Error: something surely went wrong
+some text
+some more text
+blah blah blah
+
+```
+
+* Regular expression based `RS`
+    * the `RT` variable will contain string matched by `RS`
+* Note that entire input is treated as single string, so `^` and `$` anchors will apply only once - not every line
+
+```bash
+$ s='Sample123string54with908numbers'
+$ printf "$s" | awk -v RS='[0-9]+' 'NR==1'
+Sample
+
+$ # note the relationship between record and separators
+$ printf "$s" | awk -v RS='[0-9]+' '{print NR " : " $0 " - " RT}'
+1 : Sample - 123
+2 : string - 54
+3 : with - 908
+4 : numbers - 
+
+$ # need to be careful of empty records
+$ printf '123string54with908' | awk -v RS='[0-9]+' '{print NR " : " $0}'
+1 : 
+2 : string
+3 : with
+$ # and newline at end of input
+$ printf '123string54with908\n' | awk -v RS='[0-9]+' '{print NR " : " $0}'
+1 : 
+2 : string
+3 : with
+4 : 
 
 ```
 
