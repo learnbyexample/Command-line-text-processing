@@ -31,6 +31,7 @@
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
+* [Miscellaneous](#miscellaneous)
 
 <br>
 
@@ -134,10 +135,45 @@ bar
 $ # use quotes to avoid clashes with shell special characters
 $ echo 'one;two;three;four' | awk -F';' '{print $3}'
 three
+```
 
-$ # regular expressions based input field separator
+* Regular expressions based input field separator
+
+```bash
 $ echo 'Sample123string54with908numbers' | awk -F'[0-9]+' '{print $2}'
 string
+
+$ # first field will be empty as there is nothing before '{'
+$ echo '{foo}   bar=baz' | awk -F'[{}= ]+' '{print $1}'
+
+$ echo '{foo}   bar=baz' | awk -F'[{}= ]+' '{print $2}'
+foo
+$ echo '{foo}   bar=baz' | awk -F'[{}= ]+' '{print $3}'
+bar
+```
+
+* default input field separator is one or more of continuous space, tab or newline characters (will be termed as whitespace here on)
+    * exact same behavior if `FS` is assigned single space character
+* in addition, leading and trailing whitespaces won't be considered when splitting the input record
+
+```bash
+$ printf ' a    ate b\tc   \n'
+ a    ate b     c
+$ printf ' a    ate b\tc   \n' | awk '{print $1}'
+a
+$ printf ' a    ate b\tc   \n' | awk '{print NF}'
+4
+$ # same behavior if FS is assigned to single space character
+$ printf ' a    ate b\tc   \n' | awk -F' ' '{print $1}'
+a
+$ printf ' a    ate b\tc   \n' | awk -F' ' '{print NF}'
+4
+
+$ # for anything else, leading/trailing whitespaces will be considered
+$ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print $2}'
+a
+$ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print NF}'
+6
 ```
 
 <br>
@@ -155,8 +191,11 @@ $ # can also be set using command line option -v
 $ echo 'foo:123:bar:789' | awk -F: -v OFS=':' '{print $1, $NF}'
 foo:789
 
-$ # to change field separator, need to re-build contents of $0
-$ # $1=$1 is an idiomatic way to do it
+$ # changing a field will re-build contents of $0
+$ echo ' a      ate b   ' | awk '{$2 = "foo"} 1' | cat -A
+a foo b$
+
+$ # $1=$1 is an idiomatic way to re-build when there is nothing else to change
 $ echo 'foo:123:bar:789' | awk -F: -v OFS='-' '{print $0}'
 foo:123:bar:789
 $ echo 'foo:123:bar:789' | awk -F: -v OFS='-' '{$1=$1; print $0}'
@@ -1517,6 +1556,52 @@ END
 * [unix.stackexchange - print only blocks with lines > n](https://unix.stackexchange.com/questions/295600/deleting-lines-between-rows-in-a-text-file-using-awk-or-sed)
 * [unix.stackexchange - print a block only if it contains matching string](https://unix.stackexchange.com/a/335523/109046)
 * [unix.stackexchange - print a block matching two different strings](https://unix.stackexchange.com/questions/347368/grep-with-range-and-pass-three-filters)
+
+<br>
+
+## <a name="miscellaneous"></a>Miscellaneous
+
+* `length` function - returns length of string, by default acts on `$0`
+
+```bash
+$ seq 8 13 | awk 'length()==1'
+8
+9
+
+$ awk 'NR==1 || length($1)>4' fruits.txt
+fruit   qty
+apple   42
+banana  31
+guava   6
+```
+
+* redirecting print output to file instead of stdout
+* See also [unix.stackexchange - inplace editing as well as stdout](https://unix.stackexchange.com/questions/321679/gawk-inplace-and-stdout)
+
+```bash
+$ seq 6 | awk 'NR%2{print > "odd.txt"; next} {print > "even.txt"}'
+$ cat odd.txt
+1
+3
+5
+$ cat even.txt
+2
+4
+6
+
+$ awk 'NR==1{col1=$1".txt"; col2=$2".txt"; next}
+       {print $1 > col1; print $2 > col2}' fruits.txt
+$ cat fruit.txt
+apple
+banana
+fig
+guava
+$ cat qty.txt
+42
+31
+90
+6
+```
 
 <br>
 
