@@ -1603,6 +1603,33 @@ $ cat qty.txt
 6
 ```
 
+* `split` function
+* similar to `FS` splitting input record into fields
+* See also [gawk manual - Split function](https://www.gnu.org/software/gawk/manual/gawk.html#index-split_0028_0029-function)
+
+```bash
+$ # 1st argument is string to be split
+$ # 2nd argument is array to save results, indexed from 1
+$ # 3rd argument is separator, default is FS
+$ s='foo,1996-10-25,hello,good'
+$ echo "$s" | awk -F, '{split($2,d,"-"); print "Month is: " d[2]}'
+Month is: 10
+
+$ # using regular expression to define separator
+$ # return value is number of fields after splitting
+$ s='Sample123string54with908numbers'
+$ echo "$s" | awk '{n=split($0,s,/[0-9]+/); for(i=1;i<=n;i++)print s[i]}'
+Sample
+string
+with
+numbers
+$ # use 4th argument if separators are needed as well
+$ echo "$s" | awk '{n=split($0,s,/[0-9]+/,seps); for(i=1;i<n;i++)print seps[i]}'
+123
+54
+908
+```
+
 <br>
 
 <br>
