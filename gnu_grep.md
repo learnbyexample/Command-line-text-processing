@@ -879,6 +879,11 @@ Screenshot for above example:
 
 ![highlighting string](./images/highlight_string_whole_file_op.png)
 
+See also
+
+* [stackoverflow - Grep output with multiple Colors](https://stackoverflow.com/questions/17236005/grep-output-with-multiple-colors)
+* [unix.stackexchange - Multicolored Grep](https://unix.stackexchange.com/questions/104350/multicolored-grep)
+
 <br>
 
 #### <a name="the-dot-meta-character"></a>The dot meta character
