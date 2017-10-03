@@ -176,6 +176,22 @@ $ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print NF}'
 6
 ```
 
+* assigning empty string to FS will split the input record character wise
+* note the use of command line option `-v` to set FS
+
+```bash
+$ echo 'apple' | awk -v FS='' '{print $1}'
+a
+$ echo 'apple' | awk -v FS='' '{print $2}'
+p
+$ echo 'apple' | awk -v FS='' '{print $NF}'
+e
+
+$ # character wise, not byte wise
+$ printf 'hi👍 how are you?' | awk -v FS='' '{print $3}'
+👍
+```
+
 <br>
 
 #### <a name="specifying-different-output-field-separator"></a>Specifying different output field separator
@@ -447,7 +463,13 @@ $ seq 6 | awk '{ORS = NR%3 ? "-" : "\n"} 1'
 #### <a name="paragraph-mode"></a>Paragraph mode
 
 * When `RS` is set to empty string, one or more consecutive empty lines is used as input record separator
-    * can also use regular expression `RS=\n\n+` but there are subtle differences, see [gawk manual - multiline records](https://www.gnu.org/software/gawk/manual/html_node/Multiple-Line.html)
+* Can also use regular expression `RS=\n\n+` but there are subtle differences, see [gawk manual - multiline records](https://www.gnu.org/software/gawk/manual/html_node/Multiple-Line.html). Important points from that link quoted below
+
+>However, there is an important difference between ‘RS = ""’ and ‘RS = "\n\n+"’. In the first case, leading newlines in the input data file are ignored, and if a file ends without extra blank lines after the last record, the final newline is removed from the record. In the second case, this special processing is not done
+
+>Now that the input is separated into records, the second step is to separate the fields in the records. One way to do this is to divide each of the lines into fields in the normal manner. This happens by default as the result of a special feature. When RS is set to the empty string and FS is set to a single character, the newline character always acts as a field separator. This is in addition to whatever field separations result from FS
+
+>When FS is the null string ("") or a regexp, this special feature of RS does not apply. It does apply to the default field separator of a single space: ‘FS = " "’
 
 Consider the below sample file
 
@@ -591,7 +613,20 @@ $ printf '123string54with908\n' | awk -v RS='[0-9]+' '{print NR " : " $0}'
 
 ```
 
-* See also [gawk manual - Records](https://www.gnu.org/software/gawk/manual/html_node/Records.html#Records)
+* processing null terminated input
+
+```bash
+$ printf 'foo\0bar\0' | cat -A
+foo^@bar^@$ 
+$ printf 'foo\0bar\0' | awk -v RS='\0' '{print}'
+foo
+bar
+```
+
+**Further Reading**
+
+* [gawk manual - Records](https://www.gnu.org/software/gawk/manual/html_node/Records.html#Records)
+* [unix.stackexchange - Slurp-mode in awk](https://unix.stackexchange.com/questions/304457/slurp-mode-in-awk)
 
 <br>
 
