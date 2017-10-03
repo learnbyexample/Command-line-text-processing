@@ -32,6 +32,8 @@
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
 * [Miscellaneous](#miscellaneous)
+    * [String functions](#string-functions)
+    * [Redirecting to file](#redirecting-to-file)
 
 <br>
 
@@ -59,10 +61,12 @@ DESCRIPTION
 ...
 ```
 
-* Assumes that you are familiar with programming concepts like variables, printing, control structures, arrays, etc
-* Assumes that you are familiar with regular expressions
+**Prerequisites**
+
+* familiarity with programming concepts like variables, printing, control structures, arrays, etc
+* familiarity with regular expressions
     * if not, check out **ERE** portion of [GNU sed regular expressions](./gnu_sed.md#regular-expressions) which is close enough to features available in `gawk`
-* Refer to [Gawk: Effective AWK Programming](https://www.gnu.org/software/gawk/manual/) manual for complete reference, has information on other `awk` versions as well as POSIX capabilities
+* see [Gawk: Effective AWK Programming](https://www.gnu.org/software/gawk/manual/) manual for complete reference, has information on other `awk` versions as well as notes on POSIX standard
 
 <br>
 
@@ -180,15 +184,15 @@ $ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print NF}'
 * note the use of command line option `-v` to set FS
 
 ```bash
-$ echo 'apple' | awk -v FS='' '{print $1}'
+$ echo 'apple' | awk -v FS= '{print $1}'
 a
-$ echo 'apple' | awk -v FS='' '{print $2}'
+$ echo 'apple' | awk -v FS= '{print $2}'
 p
-$ echo 'apple' | awk -v FS='' '{print $NF}'
+$ echo 'apple' | awk -v FS= '{print $NF}'
 e
 
 $ # character wise, not byte wise
-$ printf 'hi👍 how are you?' | awk -v FS='' '{print $3}'
+$ printf 'hi👍 how are you?' | awk -v FS= '{print $3}'
 👍
 ```
 
@@ -208,7 +212,7 @@ $ echo 'foo:123:bar:789' | awk -F: -v OFS=':' '{print $1, $NF}'
 foo:789
 
 $ # changing a field will re-build contents of $0
-$ echo ' a      ate b   ' | awk '{$2 = "foo"} 1' | cat -A
+$ echo ' a      ate b   ' | awk '{$2 = "foo"; print $0}' | cat -A
 a foo b$
 
 $ # $1=$1 is an idiomatic way to re-build when there is nothing else to change
@@ -1596,6 +1600,10 @@ END
 
 ## <a name="miscellaneous"></a>Miscellaneous
 
+<br>
+
+#### <a name="string-functions"></a>String functions
+
 * `length` function - returns length of string, by default acts on `$0`
 
 ```bash
@@ -1609,6 +1617,36 @@ apple   42
 banana  31
 guava   6
 ```
+
+* `split` function - similar to `FS` splitting input record into fields
+* See also [gawk manual - Split function](https://www.gnu.org/software/gawk/manual/gawk.html#index-split_0028_0029-function)
+
+```bash
+$ # 1st argument is string to be split
+$ # 2nd argument is array to save results, indexed from 1
+$ # 3rd argument is separator, default is FS
+$ s='foo,1996-10-25,hello,good'
+$ echo "$s" | awk -F, '{split($2,d,"-"); print "Month is: " d[2]}'
+Month is: 10
+
+$ # using regular expression to define separator
+$ # return value is number of fields after splitting
+$ s='Sample123string54with908numbers'
+$ echo "$s" | awk '{n=split($0,s,/[0-9]+/); for(i=1;i<=n;i++)print s[i]}'
+Sample
+string
+with
+numbers
+$ # use 4th argument if separators are needed as well
+$ echo "$s" | awk '{n=split($0,s,/[0-9]+/,seps); for(i=1;i<n;i++)print seps[i]}'
+123
+54
+908
+```
+
+<br>
+
+#### <a name="redirecting-to-file"></a>Redirecting to file
 
 * redirecting print output to file instead of stdout
 * See also [unix.stackexchange - inplace editing as well as stdout](https://unix.stackexchange.com/questions/321679/gawk-inplace-and-stdout)
@@ -1636,33 +1674,6 @@ $ cat qty.txt
 31
 90
 6
-```
-
-* `split` function
-* similar to `FS` splitting input record into fields
-* See also [gawk manual - Split function](https://www.gnu.org/software/gawk/manual/gawk.html#index-split_0028_0029-function)
-
-```bash
-$ # 1st argument is string to be split
-$ # 2nd argument is array to save results, indexed from 1
-$ # 3rd argument is separator, default is FS
-$ s='foo,1996-10-25,hello,good'
-$ echo "$s" | awk -F, '{split($2,d,"-"); print "Month is: " d[2]}'
-Month is: 10
-
-$ # using regular expression to define separator
-$ # return value is number of fields after splitting
-$ s='Sample123string54with908numbers'
-$ echo "$s" | awk '{n=split($0,s,/[0-9]+/); for(i=1;i<=n;i++)print s[i]}'
-Sample
-string
-with
-numbers
-$ # use 4th argument if separators are needed as well
-$ echo "$s" | awk '{n=split($0,s,/[0-9]+/,seps); for(i=1;i<n;i++)print seps[i]}'
-123
-54
-908
 ```
 
 <br>
