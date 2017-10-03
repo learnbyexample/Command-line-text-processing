@@ -387,10 +387,27 @@ And so are you.
 
 $ awk 'NR==4{print $2}' fruits.txt 
 90
+```
 
-$ # for large input, use exit to avoid unnecessary record processing
+* for large input, use `exit` to avoid unnecessary record processing
+
+```bash
 $ seq 14323 14563435 | awk 'NR==234{print; exit}'
 14556
+
+$ # sample time comparison
+$ time seq 14323 14563435 | awk 'NR==234{print; exit}'
+14556
+
+real    0m0.004s
+user    0m0.004s
+sys     0m0.000s
+$ time seq 14323 14563435 | awk 'NR==234{print}'
+14556
+
+real    0m2.167s
+user    0m2.280s
+sys     0m0.092s
 ```
 
 <br>
@@ -499,6 +516,8 @@ He he he
 
 ```bash
 $ # print all paragraphs containing 'it'
+$ # if extra newline at end is undesirable, can use
+$ # awk -v RS= '/it/{print c++ ? "\n" $0 : $0}' sample.txt
 $ awk -v RS= -v ORS='\n\n' '/it/' sample.txt
 Just do-it
 Believe it
@@ -506,9 +525,6 @@ Believe it
 Today is sunny
 Not a bit funny
 No doubt you like it too
-
-$ # if extra newline at end is undesirable, can use
-$ awk -v RS= '/it/{print c++ ? "\n" $0 : $0}' sample.txt
 
 $ # based on number of lines in each paragraph
 $ awk -F'\n' -v RS= -v ORS='\n\n' 'NF==1' sample.txt
@@ -649,7 +665,12 @@ $ # replacing all occurrences
 $ echo '1-2-3-4-5' | awk '{gsub("-", ":")} 1'
 1:2:3:4:5
 
-$ # // form can also be used to specify search REGEXP
+$ # return value for sub/gsub is number of replacements made
+$ echo '1-2-3-4-5' | awk '{n=gsub("-", ":"); print n} 1'
+4
+1:2:3:4:5
+
+$ # // format is better suited to specify search REGEXP
 $ echo '1-2-3-4-5' | awk '{gsub(/[^-]+/, "abc")} 1'
 abc-abc-abc-abc-abc
 
@@ -841,6 +862,7 @@ $ awk 'NR==1' poem.txt greeting.txt
 Roses are red,
 
 $ # FNR for individual file's record number
+$ # same as: head -q -n1 poem.txt greeting.txt
 $ awk 'FNR==1' poem.txt greeting.txt 
 Roses are red,
 Hi thErE
@@ -908,6 +930,7 @@ Total input files: 2
 
 ```bash
 $ # same as: sed -n '/are/ s/so/SO/p' poem.txt 
+$ # remember that sub/gsub returns number of substitutions made
 $ awk '/are/{if(sub("so", "SO")) print}' poem.txt
 And SO are you.
 $ # of course, can also use
@@ -940,6 +963,7 @@ $ awk '{$0 ~ /^-/ ? sub(/^-/,"") : sub(/^/,"-")} 1' nums.txt
 -10101
 3.14
 75
+$ # can also use: awk '!sub(/^-/,""){sub(/^/,"-")} 1' nums.txt
 ```
 
 * for loop
@@ -974,6 +998,7 @@ $ awk 'BEGIN{i=2; while(i<11){print i; i+=2}}'
 10
 
 $ # recursive substitution
+$ # here again return value of sub/gsub is useful
 $ echo 'titillate' | awk '{while( gsub(/til/, "") ) print}'
 tilate
 ate
@@ -986,7 +1011,7 @@ ate
 * `next` will skip rest of statements and start processing next line of current file being processed
     * there is a loop by default which goes over all input records, `next` is applicable for that
     * it is similar to `continue` statement within loops
-* it is often used in two file processing (examples in later sections)
+* it is often used in [Two file processing](#two-file-processing)
 
 ```bash
 $ # here 'next' is used to skip processing header line
@@ -1145,6 +1170,7 @@ White
 * For two files as input, `NR==FNR` will be true only when first file is being processed
 * Using `next` will skip rest of code when first file is processed
 * `a[$0]` will create unique keys (here entire line content is used as key) in array `a`
+    * just referencing a key will create it if it doesn't already exist, with value as empty string (will also act as zero in numeric context)
 * `$0 in a` will be true if key already exists in array `a`
 
 ```bash
@@ -1409,7 +1435,7 @@ c
 END
 
 $ # exclude both starting/ending REGEXP
-$ can also use: awk '/BEGIN/{f=1; next} /END/{f=0} f' range.txt
+$ # can also use: awk '/BEGIN/{f=1; next} /END/{f=0} f' range.txt
 $ awk '/END/{f=0} f; /BEGIN/{f=1}' range.txt
 1234
 6789
@@ -1524,14 +1550,26 @@ $ seq 30 | awk -v b=1 '/4/{f=1; c++} f && c>b; /6/{f=0}'
 24
 25
 26
-$ # except 'b' block: seq 30 | awk -v b=2 '/4/{f=1; c++} f && c!=b; /6/{f=0}'
+```
+
+* excluding a particular block
+
+```bash
+$ # excludes 2nd block
+$ seq 30 | awk -v b=2 '/4/{f=1; c++} f && c!=b; /6/{f=0}'
+4
+5
+6
+24
+25
+26
 ```
 
 <br>
 
 #### <a name="broken-blocks"></a>Broken blocks
 
-* If there are blocks with ending *REGEXP* but without corresponding starting *REGEXP*, `awk '/BEGIN/{f=1} f; /END/{f=0}'` will suffice
+* If there are blocks with ending *REGEXP* but without corresponding start, `awk '/BEGIN/{f=1} f; /END/{f=0}'` will suffice
 * Consider the modified input file where starting *REGEXP* doesn't have corresponding ending
 
 ```bash
