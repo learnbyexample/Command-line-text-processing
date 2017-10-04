@@ -61,11 +61,12 @@ DESCRIPTION
 ...
 ```
 
-**Prerequisites**
+**Prerequisites and notes**
 
 * familiarity with programming concepts like variables, printing, control structures, arrays, etc
 * familiarity with regular expressions
     * if not, check out **ERE** portion of [GNU sed regular expressions](./gnu_sed.md#regular-expressions) which is close enough to features available in `gawk`
+* this tutorial is primarily focussed on short programs that are easily usable from command line, similar to using `grep`, `sed`, etc
 * see [Gawk: Effective AWK Programming](https://www.gnu.org/software/gawk/manual/) manual for complete reference, has information on other `awk` versions as well as notes on POSIX standard
 
 <br>
@@ -605,7 +606,10 @@ Much ado about nothing. He he he
 
 ```
 
-* See also [unix.stackexchange - filtering line surrounded by empty lines](https://unix.stackexchange.com/questions/359717/select-line-with-empty-line-above-and-under)
+**Further Reading**
+
+* [unix.stackexchange - filtering line surrounded by empty lines](https://unix.stackexchange.com/questions/359717/select-line-with-empty-line-above-and-under)
+* [stackoverflow - excellent example and explanation of RS and FS](https://stackoverflow.com/questions/46142118/converting-regex-to-sed-or-grep-regex)
 
 <br>
 
@@ -832,6 +836,7 @@ I bought two bananas and three mangoes
 * for example:
     * command line argument passed to shell script, which is in turn passed on to `awk`
     * control structures in shell script calling `awk` with different search strings
+* See also [stackoverflow - How do I use shell variables in an awk script?](https://stackoverflow.com/questions/19075671/how-do-i-use-shell-variables-in-an-awk-script)
 
 ```bash
 $ # examples tested with bash shell
@@ -987,6 +992,7 @@ fruit   qty
 ```
 
 * conditional operator
+* See also [stackoverflow - finding min and max value of a column](https://stackoverflow.com/a/29784278/4082052)
 
 ```bash
 $ cat nums.txt 
@@ -1321,6 +1327,7 @@ ECE     Om      92
 * [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash)
 * [unix.stackexchange - filter lines based on line numbers specified in another file](https://unix.stackexchange.com/questions/320651/read-numbers-from-control-file-and-extract-matching-line-numbers-from-the-data-f)
 * [stackoverflow - three file processing to extract a matrix subset](https://stackoverflow.com/questions/45036019/how-to-filter-the-values-from-selected-columns-and-rows)
+* [unix.stackexchange - column wise merging](https://unix.stackexchange.com/questions/294145/merging-two-files-one-column-at-a-time)
 
 <br>
 
