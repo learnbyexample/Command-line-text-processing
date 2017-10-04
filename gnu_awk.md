@@ -116,7 +116,6 @@ qty
 
 * by using `-F` command line option
 * by setting `FS` variable
-* See also [gawk manual - Field Splitting Summary](https://www.gnu.org/software/gawk/manual/html_node/Field-Splitting-Summary.html#Field-Splitting-Summary)
 
 ```bash
 $ # second field where input field separator is :
@@ -196,6 +195,12 @@ $ printf 'hi👍 how are you?' | awk -v FS= '{print $3}'
 👍
 ```
 
+**Further Reading**
+
+* [gawk manual - Field Splitting Summary](https://www.gnu.org/software/gawk/manual/html_node/Field-Splitting-Summary.html#Field-Splitting-Summary)
+* [stackoverflow - explanation on default FS](https://stackoverflow.com/questions/30405694/default-field-separator-for-awk)
+* [unix.stackexchange - filter lines if it contains a particular character only once](https://unix.stackexchange.com/questions/362550/how-to-remove-line-if-it-contains-a-character-exactly-once)
+
 <br>
 
 #### <a name="specifying-different-output-field-separator"></a>Specifying different output field separator
@@ -263,7 +268,6 @@ And so are you.
 
 * Each block of statements within `{}` can be prefixed by an optional condition so that those statements will execute only if condition evaluates to true
 * Condition specified without corresponding statements will lead to printing contents of `$0` if condition evaluates to true
-* See also [gawk manual - Truth Values and Conditions](https://www.gnu.org/software/gawk/manual/html_node/Truth-Values-and-Conditions.html) and [gawk manual - Operator Precedence](https://www.gnu.org/software/gawk/manual/html_node/Precedence.html)
 
 ```bash
 $ # if first field exactly matches the string 'apple'
@@ -312,6 +316,12 @@ banana  31
 guava   6
 ```
 
+**Further Reading**
+
+* [gawk manual - Truth Values and Conditions](https://www.gnu.org/software/gawk/manual/html_node/Truth-Values-and-Conditions.html)
+* [gawk manual - Operator Precedence](https://www.gnu.org/software/gawk/manual/html_node/Precedence.html)
+* [unix.stackexchange - filtering columns by header name](https://unix.stackexchange.com/questions/359697/print-columns-in-awk-by-header-name)
+
 <br>
 
 #### <a name="regular-expressions-based-filtering"></a>Regular expressions based filtering
@@ -336,11 +346,38 @@ $ awk '/are/ && !/so/' poem.txt
 Roses are red,
 Violets are blue,
 
+$ # lines starting with 'a' or 'b'
+$ awk '/^[ab]/' fruits.txt
+apple   42
+banana  31
+
 $ # print last field of all lines containing 'are'
 $ awk '/are/{print $NF}' poem.txt
 red,
 blue,
 you.
+```
+
+* strings can be used as well, which will be interpreted as *REGEXP* if necessary
+* Allows [using shell variables](#using-shell-variables) instead of hardcoded *REGEXP*
+    * that section also notes difference between using `//` and string
+
+```bash
+$ awk '$0 !~ "are"' poem.txt
+Sugar is sweet,
+
+$ awk '$0 ~ "^[ab]"' fruits.txt
+apple   42
+banana  31
+
+$ # also helpful if search strings have the / delimiter character
+$ cat paths.txt
+/foo/a/report.log
+/foo/y/power.log
+$ awk '/\/foo\/a\//' paths.txt
+/foo/a/report.log
+$ awk '$0 ~ "/foo/a/"' paths.txt
+/foo/a/report.log
 ```
 
 * *REGEXP* matching against specific field
@@ -409,6 +446,8 @@ real    0m2.167s
 user    0m2.280s
 sys     0m0.092s
 ```
+
+* See also [unix.stackexchange - filtering list of lines from every X number of lines](https://unix.stackexchange.com/questions/325985/how-to-print-lines-number-15-and-25-out-of-each-50-lines)
 
 <br>
 
@@ -565,6 +604,8 @@ Today is sunny. Not a bit funny. No doubt you like it too
 Much ado about nothing. He he he
 
 ```
+
+* See also [unix.stackexchange - filtering line surrounded by empty lines](https://unix.stackexchange.com/questions/359717/select-line-with-empty-line-above-and-under)
 
 <br>
 
@@ -968,6 +1009,7 @@ $ # can also use: awk '!sub(/^-/,""){sub(/^/,"-")} 1' nums.txt
 
 * for loop
 * similar to `C` language, `break` and `continue` statements are also available
+* See also [stackoverflow - find missing numbers from sequential list](https://stackoverflow.com/questions/38491676/how-can-i-find-the-missing-integers-in-a-unique-and-sequential-list-one-per-lin)
 
 ```bash
 $ awk 'BEGIN{for(i=2; i<11; i+=2) print i}'
@@ -1274,7 +1316,11 @@ CSE     Surya   81
 ECE     Om      92
 ```
 
-* See also [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash)
+**Further Reading**
+
+* [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash)
+* [unix.stackexchange - filter lines based on line numbers specified in another file](https://unix.stackexchange.com/questions/320651/read-numbers-from-control-file-and-extract-matching-line-numbers-from-the-data-f)
+* [stackoverflow - three file processing to extract a matrix subset](https://stackoverflow.com/questions/45036019/how-to-filter-the-values-from-selected-columns-and-rows)
 
 <br>
 
@@ -1363,6 +1409,7 @@ good toy ****
 
 * filtering based on duplicate count
 * allows to emulate [uniq](./sorting_stuff.md#uniq) command for specific fields
+* See also [unix.stackexchange - retain only parent directory paths](https://unix.stackexchange.com/questions/362571/filter-out-paths-from-a-text-file-that-are-deeper-than-their-immediate-predecces)
 
 ```bash
 $ # all duplicates based on 1st column
@@ -1687,7 +1734,6 @@ $ echo "$s" | awk '{n=split($0,s,/[0-9]+/,seps); for(i=1;i<n;i++)print seps[i]}'
 #### <a name="redirecting-to-file"></a>Redirecting to file
 
 * redirecting print output to file instead of stdout
-* See also [unix.stackexchange - inplace editing as well as stdout](https://unix.stackexchange.com/questions/321679/gawk-inplace-and-stdout)
 
 ```bash
 $ seq 6 | awk 'NR%2{print > "odd.txt"; next} {print > "even.txt"}'
@@ -1713,6 +1759,11 @@ $ cat qty.txt
 90
 6
 ```
+
+**Further Reading**
+
+* [unix.stackexchange - inplace editing as well as stdout](https://unix.stackexchange.com/questions/321679/gawk-inplace-and-stdout)
+* [stackoverflow - redirect blocks to separate files](https://stackoverflow.com/questions/45098279/write-blocks-in-a-text-file-to-multiple-new-files)
 
 <br>
 
