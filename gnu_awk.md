@@ -18,7 +18,7 @@
 * [Substitute functions](#substitute-functions)
 * [Inplace file editing](#inplace-file-editing)
 * [Using shell variables](#using-shell-variables)
-* [Multiple file processing](#multiple-file-processing)
+* [Multiple file input](#multiple-file-input)
 * [Control Structures](#control-structures)
     * [if-else and loops](#if-else-and-loops)
     * [next and nextfile](#next-and-nextfile)
@@ -32,6 +32,7 @@
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
 * [Miscellaneous](#miscellaneous)
+    * [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths)
     * [String functions](#string-functions)
     * [Redirecting to file](#redirecting-to-file)
 
@@ -117,6 +118,7 @@ qty
 
 * by using `-F` command line option
 * by setting `FS` variable
+* See [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths) section for other ways of defining input fields
 
 ```bash
 $ # second field where input field separator is :
@@ -898,7 +900,7 @@ foo and bar XYZ baz land good
 
 <br>
 
-## <a name="multiple-file-processing"></a>Multiple file processing
+## <a name="multiple-file-input"></a>Multiple file input
 
 * Example to show difference between `NR` and `FNR`
 
@@ -1691,6 +1693,56 @@ END
 <br>
 
 ## <a name="miscellaneous"></a>Miscellaneous
+
+<br>
+
+#### <a name="fpat-and-fieldwidths"></a>FPAT and FIELDWIDTHS
+
+* `FS` allows to define field separator
+* In contrast, `FPAT` allows to define what should the fields be made up of
+* See also [gawk manual - Defining Fields by Content](https://www.gnu.org/software/gawk/manual/html_node/Splitting-By-Content.html)
+
+```bash
+$ s='Sample123string54with908numbers'
+$ # define fields to be one or more consecutive digits
+$ echo "$s" | awk -v FPAT='[0-9]+' '{print $1, $2, $3}'
+123 54 908
+$ # define fields to be one or more consecutive alphabets
+$ echo "$s" | awk -v FPAT='[a-zA-Z]+' '{print $1, $2, $3, $4}'
+Sample string with numbers
+```
+
+* For simpler **csv** input having quoted strings if fields themselves have `,` in them, using `FPAT` is reasonable approach
+* Use a proper parser if input can have other cases like newlines in fields
+    * See [unix.stackexchange - using csv parser](https://unix.stackexchange.com/a/238192) for a sample program in `perl`
+
+```bash
+$ s='foo,"bar,123",baz,abc'
+$ echo "$s" | awk -F, '{print $2}'
+"bar
+$ echo "$s" | awk -v FPAT='"[^"]*"|[^,]*' '{print $2}'
+"bar,123"
+```
+
+* if input has well defined fields based on number of characters, `FIELDWIDTHS` can be used to specify width of each field
+* See also [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files)
+
+```bash
+$ awk -v FIELDWIDTHS='8 3' -v OFS= '/fig/{$2=35} 1' fruits.txt
+fruit   qty
+apple   42
+banana  31
+fig     35
+guava   6
+
+$ # without FIELDWIDTHS
+$ awk '/fig/{$2=35} 1' fruits.txt
+fruit   qty
+apple   42
+banana  31
+fig 35
+guava   6
+```
 
 <br>
 
