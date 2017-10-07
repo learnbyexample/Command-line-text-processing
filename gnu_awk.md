@@ -10,6 +10,7 @@
     * [Idiomatic print usage](#idiomatic-print-usage)
     * [Field comparison](#field-comparison)
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
+    * [Fixed string matching](#fixed-string-matching)
     * [Line number based filtering](#line-number-based-filtering)
 * [Case Insensitive filtering](#case-insensitive-filtering)
 * [Changing record separators](#changing-record-separators)
@@ -401,6 +402,55 @@ $ # if first field does NOT contain 'a'
 $ awk '$1 !~ /a/' fruits.txt 
 fruit   qty
 fig     90
+```
+
+<br>
+
+#### <a name="fixed-string-matching"></a>Fixed string matching
+
+* to search a string literally, `index` function can be used instead of *REGEXP*
+    * similar to `grep -F`
+* the function returns the starting position and `0` if no match found
+
+```bash
+$ cat eqns.txt
+a=b,a+b=c,c*d
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ # no output since '+' is meta character, would need '/a\+b/'
+$ awk '/a+b/' eqns.txt
+$ # same as: grep -F 'a+b' eqns.txt
+$ awk 'index($0,"a+b")' eqns.txt
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ # much easier than '/i\*\(t\+9-g\)/'
+$ awk 'index($0,"i*(t+9-g)")' eqns.txt
+i*(t+9-g)/8,4-a+b
+
+$ # check only last field
+$ awk -F, 'index($NF,"a+b")' eqns.txt
+i*(t+9-g)/8,4-a+b
+$ # index not needed if entire field/line is being compared
+$ awk -F, '$1=="a+b"' eqns.txt
+a+b,pi=3.14,5e12
+```
+
+* return value is useful to match at specific position
+* for ex: at start/end of line
+
+```bash
+$ # start of line
+$ awk 'index($0,"a+b")==1' eqns.txt
+a+b,pi=3.14,5e12
+
+$ # end of line
+$ awk 'index($0,"a+b")==length()-length("a+b")+1' eqns.txt
+i*(t+9-g)/8,4-a+b
+$ # to avoid repetitions, save the search string in variable
+$ awk -v s="a+b" 'index($0,s)==length()-length(s)+1' eqns.txt
+i*(t+9-g)/8,4-a+b
 ```
 
 <br>
@@ -1760,9 +1810,14 @@ fruit   qty
 apple   42
 banana  31
 guava   6
+
+$ # character count and not byte count is calculated, similar to 'wc -m'
+$ printf 'hi👍' | awk '{print length()}'
+3
 ```
 
 * `split` function - similar to `FS` splitting input record into fields
+* use `patsplit` function to get results similar to `FPAT`
 * See also [gawk manual - Split function](https://www.gnu.org/software/gawk/manual/gawk.html#index-split_0028_0029-function)
 
 ```bash
