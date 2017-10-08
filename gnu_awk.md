@@ -1775,7 +1775,7 @@ $ echo "$s" | awk -v FPAT='"[^"]*"|[^,]*' '{print $2}'
 ```
 
 * if input has well defined fields based on number of characters, `FIELDWIDTHS` can be used to specify width of each field
-* See also [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files)
+* See also [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files) and [unix.stackexchange - detecting empty fields in fixed width files](https://unix.stackexchange.com/questions/321559/extracting-data-with-awk-when-some-lines-have-empty-missing-values)
 
 ```bash
 $ awk -v FIELDWIDTHS='8 3' -v OFS= '/fig/{$2=35} 1' fruits.txt
@@ -1841,6 +1841,32 @@ $ echo "$s" | awk '{n=split($0,s,/[0-9]+/,seps); for(i=1;i<n;i++)print seps[i]}'
 123
 54
 908
+```
+
+* `substr` function allows to extract specified number of characters from given string
+    * indexing starts with `1`
+* See [gawk manual - substr function](https://www.gnu.org/software/gawk/manual/gawk.html#index-substr_0028_0029-function) for corner cases and details
+
+```bash
+$ # 1st argument is string to be worked on
+$ # 2nd argument is starting position
+$ # 3rd argument is number of characters to be extracted
+$ echo 'abcdefghij' | awk '{print substr($0,1,5)}'
+abcde
+$ echo 'abcdefghij' | awk '{print substr($0,4,3)}'
+def
+$ # if 3rd argument is not given, string is extracted until end
+$ echo 'abcdefghij' | awk '{print substr($0,6)}'
+fghij
+
+$ echo 'abcdefghij' | awk -v OFS=':' '{print substr($0,2,3), substr($0,6,3)}'
+bcd:fgh
+
+$ # if only few characters are needed from input line, can use empty FS
+$ echo 'abcdefghij' | awk -v FS= '{print $3}'
+c
+$ echo 'abcdefghij' | awk -v FS= '{print $3, $5}'
+c e
 ```
 
 <br>
