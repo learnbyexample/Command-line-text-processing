@@ -35,6 +35,7 @@
 * [Miscellaneous](#miscellaneous)
     * [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths)
     * [String functions](#string-functions)
+    * [Executing external commands](#executing-external-commands)
     * [Redirecting to file](#redirecting-to-file)
 
 <br>
@@ -1871,6 +1872,36 @@ c e
 
 <br>
 
+#### <a name="executing-external-commands"></a>Executing external commands
+
+* External commands can be issued using `system` function
+* Output would be as usual on `stdout` unless redirected while calling the command
+* Return value of `system` depends on `exit` status of executed command, see [gawk manual - Input/Output Functions](https://www.gnu.org/software/gawk/manual/html_node/I_002fO-Functions.html) for details
+
+```bash
+$ awk 'BEGIN{system("echo Hello World")}'
+Hello World
+
+$ wc poem.txt
+ 4 13 65 poem.txt
+$ awk 'BEGIN{system("wc poem.txt")}'
+ 4 13 65 poem.txt
+
+$ awk 'BEGIN{system("seq 10 | paste -sd, > out.txt")}'
+$ cat out.txt
+1,2,3,4,5,6,7,8,9,10
+
+$ ls xyz.txt
+ls: cannot access 'xyz.txt': No such file or directory
+$ echo $?
+2
+$ awk 'BEGIN{s=system("ls xyz.txt"); print "Status: " s}'
+ls: cannot access 'xyz.txt': No such file or directory
+Status: 2
+```
+
+<br>
+
 #### <a name="redirecting-to-file"></a>Redirecting to file
 
 * redirecting print output to file instead of stdout
@@ -1902,6 +1933,7 @@ $ cat qty.txt
 
 **Further Reading**
 
+* [gawk manual - Input/Output Functions](https://www.gnu.org/software/gawk/manual/html_node/I_002fO-Functions.html)
 * [unix.stackexchange - inplace editing as well as stdout](https://unix.stackexchange.com/questions/321679/gawk-inplace-and-stdout)
 * [stackoverflow - redirect blocks to separate files](https://stackoverflow.com/questions/45098279/write-blocks-in-a-text-file-to-multiple-new-files)
 
