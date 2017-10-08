@@ -681,6 +681,8 @@ some text
 some more text
 blah blah blah
 
+$ awk -v RS='Error:' 'END{print NR-1}' report.log
+2
 $ awk -v RS='Error:' 'NR==1' report.log
 blah blah
 
@@ -745,6 +747,7 @@ bar
 
 * [gawk manual - Records](https://www.gnu.org/software/gawk/manual/html_node/Records.html#Records)
 * [unix.stackexchange - Slurp-mode in awk](https://unix.stackexchange.com/questions/304457/slurp-mode-in-awk)
+* [stackoverflow - using RS to count number of occurrences of a given string](https://stackoverflow.com/questions/45102651/how-to-grep-double-quote-followed-by-a-string-at-same-time/45102962#45102962)
 
 <br>
 
@@ -1019,6 +1022,26 @@ Total input files: 2
 
 * Syntax is similar to `C` language and single statements inside control structures don't require to be grouped within `{}`
 * See [gawk manual - Control Statements](https://www.gnu.org/software/gawk/manual/html_node/Statements.html) for details
+
+Remember that by default there is a loop that goes over all input records and constructs like `BEGIN` and `END` fall outside that loop
+
+```bash
+$ cat nums.txt 
+42
+-2
+10101
+-3.14
+-75
+$ awk '{sum += $1} END{print sum}' nums.txt
+10062.9
+
+$ # uninitialized variables will have empty string
+$ printf '' | awk '{sum += $1} END{print sum}'
+
+$ # so either add '0' or use unary '+' operator to convert to number
+$ printf '' | awk '{sum += $1} END{print +sum}'
+0
+```
 
 <br>
 
@@ -1776,7 +1799,6 @@ $ echo "$s" | awk -v FPAT='"[^"]*"|[^,]*' '{print $2}'
 ```
 
 * if input has well defined fields based on number of characters, `FIELDWIDTHS` can be used to specify width of each field
-* See also [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files) and [unix.stackexchange - detecting empty fields in fixed width files](https://unix.stackexchange.com/questions/321559/extracting-data-with-awk-when-some-lines-have-empty-missing-values)
 
 ```bash
 $ awk -v FIELDWIDTHS='8 3' -v OFS= '/fig/{$2=35} 1' fruits.txt
@@ -1794,6 +1816,12 @@ banana  31
 fig 35
 guava   6
 ```
+
+**Further Reading**
+
+* [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files)
+* [unix.stackexchange - detecting empty fields in fixed width files](https://unix.stackexchange.com/questions/321559/extracting-data-with-awk-when-some-lines-have-empty-missing-values)
+* [stackoverflow - count number of times value is repeated each line](https://stackoverflow.com/questions/37450880/how-do-i-filter-tab-separated-input-by-the-count-of-fields-with-a-given-value)
 
 <br>
 
@@ -1898,6 +1926,11 @@ $ echo $?
 $ awk 'BEGIN{s=system("ls xyz.txt"); print "Status: " s}'
 ls: cannot access 'xyz.txt': No such file or directory
 Status: 2
+
+$ cat f2
+I bought two bananas and three mangoes
+$ echo 'f1,f2,odd.txt' | awk -F, '{system("cat " $2)}'
+I bought two bananas and three mangoes
 ```
 
 <br>
