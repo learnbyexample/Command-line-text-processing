@@ -85,9 +85,11 @@ DESCRIPTION
 * `$1` contains the first field text
     * default input field separator is one or more of continuous space, tab or newline characters
 * `$2` contains the second field text and so on
-* `$NF` points to last field
-    * `NF` is built-in variable and can be used in expressions
-* `$(NF-1)` points to second last field and so on
+* `$(2+3)` result of expressions can be used, this one evaluates to `$5` and hence gives fifth field
+    * similarly if variable `i` has value `2`, then `$(i+3)` will give fifth field
+* `NF` is a built-in variable which contains number of fields in the current record
+    * so, `$NF` will give last field
+    * `$(NF-1)` will give second last field and so on
 
 ```bash
 $ cat fruits.txt 
