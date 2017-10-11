@@ -27,6 +27,7 @@
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
+* [Creating new fields](#creating-new-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
@@ -1409,6 +1410,58 @@ ECE     Om      92
 
 <br>
 
+## <a name="creating-new-fields"></a>Creating new fields
+
+* Number of fields in input record can be changes by simply manipulating `NF`
+
+```bash
+$ # reducing fields
+$ echo 'foo,bar,123,baz' | awk -F, -v OFS=, '{NF=2} 1'
+foo,bar
+
+$ # creating new empty field(s)
+$ echo 'foo,bar,123,baz' | awk -F, -v OFS=, '{NF=5} 1'
+foo,bar,123,baz,
+
+$ # assigning to field greater than NF will create empty fields as needed
+$ echo 'foo,bar,123,baz' | awk -F, -v OFS=, '{$7=42} 1'
+foo,bar,123,baz,,,42
+
+$ # adding a new 'Grade' field
+$ awk 'BEGIN{OFS="\t"; g[9]="S"; g[8]="A"; g[7]="B"; g[6]="C"; g[5]="D"}
+      {NF++; if(NR==1)$NF="Grade"; else $NF=g[int($(NF-1)/10)]} 1' marks.txt
+Dept    Name    Marks   Grade
+ECE     Raj     53      D
+ECE     Joel    72      B
+EEE     Moi     68      C
+CSE     Surya   81      A
+EEE     Tia     59      D
+ECE     Om      92      S
+CSE     Amy     67      C
+```
+
+* two file example
+
+```bash
+$ cat list4
+Raj class_rep
+Amy sports_rep
+Tia placement_rep
+
+$ awk -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
+         {NF++; if(FNR==1)$NF="Role"; else $NF=r[$2]} 1' list4 marks.txt
+Dept    Name    Marks   Role
+ECE     Raj     53      class_rep
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+EEE     Tia     59      placement_rep
+ECE     Om      92
+CSE     Amy     67      sports_rep
+```
+
+<br>
+
 ## <a name="dealing-with-duplicates"></a>Dealing with duplicates
 
 * default value of uninitialized variable is `0` in numeric context and empty string in text context
@@ -1850,6 +1903,7 @@ $ printf 'hi👍' | awk '{print length()}'
 * `split` function - similar to `FS` splitting input record into fields
 * use `patsplit` function to get results similar to `FPAT`
 * See also [gawk manual - Split function](https://www.gnu.org/software/gawk/manual/gawk.html#index-split_0028_0029-function)
+* See also [unix.stackexchange - delimit second column](https://unix.stackexchange.com/questions/372253/awk-command-to-delimit-the-second-column)
 
 ```bash
 $ # 1st argument is string to be split
@@ -1872,6 +1926,13 @@ $ echo "$s" | awk '{n=split($0,s,/[0-9]+/,seps); for(i=1;i<n;i++)print seps[i]}'
 123
 54
 908
+
+$ # single row to multiple rows based on splitting last field
+$ s='foo,baz,12:42:3'
+$ echo "$s" | awk -F, '{n=split($NF,a,":"); NF--; for(i=1;i<=n;i++) print $0,a[i]}'
+foo baz 12
+foo baz 42
+foo baz 3
 ```
 
 * `substr` function allows to extract specified number of characters from given string
