@@ -1167,6 +1167,15 @@ Hi
 HavE
 fruit
 apple
+
+$ # similar to 'grep -il'
+$ awk -v IGNORECASE=1 '/red/{print FILENAME; nextfile}' *
+colors_1.txt
+colors_2.txt
+poem.txt
+$ awk -v IGNORECASE=1 '$1 ~ /red/{print FILENAME; nextfile}' *
+colors_1.txt
+colors_2.txt
 ```
 
 <br>
@@ -1259,6 +1268,18 @@ $ # or use the reversing trick
 $ tac range.txt | awk 'n && !--n; /END/{n=3}' | tac
 BEGIN
 a
+```
+
+* Checking if multiple strings are present at least once in entire input file
+* If there are lots of strings to check, use arrays
+
+```bash
+$ awk 'FNR==1{s1=s2=0} /is/{s1=1} /are/{s2=1} s1&&s2{print FILENAME; nextfile}' *
+poem.txt
+sample.txt
+
+$ awk 'FNR==1{s1=s2=0} /foo/{s1=1} /report/{s2=1} s1&&s2{print FILENAME; nextfile}' *
+paths.txt
 ```
 
 <br>
@@ -1412,7 +1433,7 @@ ECE     Om      92
 
 ## <a name="creating-new-fields"></a>Creating new fields
 
-* Number of fields in input record can be changes by simply manipulating `NF`
+* Number of fields in input record can be changed by simply manipulating `NF`
 
 ```bash
 $ # reducing fields
