@@ -33,6 +33,7 @@
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
+* [awk scripts](#awk-scripts)
 * [Miscellaneous](#miscellaneous)
     * [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths)
     * [String functions](#string-functions)
@@ -198,7 +199,7 @@ p
 $ echo 'apple' | awk -v FS= '{print $NF}'
 e
 
-$ # character wise, not byte wise
+$ # detecting multibyte characters depends on locale
 $ printf 'hi👍 how are you?' | awk -v FS= '{print $3}'
 👍
 ```
@@ -1537,7 +1538,7 @@ food toy ****
 * For multiple fields, separate them using `,` or form a string with some character in between
 
 ```bash
-$ # can also use: awk '!seen[$2,$3]++' duplicates.txt
+$ # can also use multi-dimension array: awk '!seen[$2,$3]++' duplicates.txt
 $ awk '!seen[$2"_"$3]++' duplicates.txt
 abc  7   4
 food toy ****
@@ -1840,6 +1841,106 @@ END
 * [unix.stackexchange - print a block only if it contains matching string](https://unix.stackexchange.com/a/335523/109046)
 * [unix.stackexchange - print a block matching two different strings](https://unix.stackexchange.com/questions/347368/grep-with-range-and-pass-three-filters)
 
+
+<br>
+
+## <a name="awk-scripts"></a>awk scripts
+
+* For larger programs, save the code in a file and use `-f` command line option
+* `;` is not needed to terminate a command
+* See also [gawk manual - Command-Line Options](https://www.gnu.org/software/gawk/manual/html_node/Options.html#Options) for other related options
+
+```bash
+$ cat buf.awk
+/BEGIN/{
+    f=1
+    buf=$0
+    next
+}
+
+f{
+    buf=buf ORS $0
+}
+
+/END/{
+    f=0
+    if(buf)
+        print buf
+    buf=""
+}
+
+$ awk -f buf.awk multiple_broken.txt 
+BEGIN
+1234
+6789
+END
+BEGIN
+b
+END
+```
+
+* Another advantage is that single quotes can be freely used
+
+```bash
+$ echo 'foo:123:bar:baz' | awk '{$0=gensub(/[^:]+/, "\047&\047", "g")} 1'
+'foo':'123':'bar':'baz'
+
+$ cat quotes.awk
+{
+    $0 = gensub(/[^:]+/, "'&'", "g")
+}
+
+1
+
+$ echo 'foo:123:bar:baz' | awk -f quotes.awk
+'foo':'123':'bar':'baz'
+```
+
+* If the code has been first tried out on command line, add `-o` option to get a pretty printed version
+
+```bash
+$ awk -o -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
+         {NF++; if(FNR==1)$NF="Role"; else $NF=r[$2]} 1' list4 marks.txt
+Dept	Name	Marks	Role
+ECE	Raj	53	class_rep
+ECE	Joel	72	
+EEE	Moi	68	
+CSE	Surya	81	
+EEE	Tia	59	placement_rep
+ECE	Om	92	
+CSE	Amy	67	sports_rep
+```
+
+File name can be passed along `-o` option, otherwise by default `awkprof.out` will be used
+
+```bash
+$ cat awkprof.out
+	# gawk profile, created Thu Oct 12 14:23:15 2017
+
+	# Rule(s)
+
+	NR == FNR {
+		r[$1] = $2
+		next
+	}
+
+	{
+		NF++
+		if (FNR == 1) {
+			$NF = "Role"
+		} else {
+			$NF = r[$2]
+		}
+	}
+
+	1 {
+		print $0
+	}
+
+$ # note that other command line options have to be provided as usual
+$ awk -v OFS='\t' -f awkprof.out list4 marks.txt
+```
+
 <br>
 
 ## <a name="miscellaneous"></a>Miscellaneous
@@ -1919,6 +2020,10 @@ guava   6
 $ # character count and not byte count is calculated, similar to 'wc -m'
 $ printf 'hi👍' | awk '{print length()}'
 3
+
+$ # use -b option if number of bytes are needed
+$ printf 'hi👍' | awk -b '{print length()}'
+6
 ```
 
 * `split` function - similar to `FS` splitting input record into fields
