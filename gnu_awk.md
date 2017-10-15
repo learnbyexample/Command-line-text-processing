@@ -34,6 +34,7 @@
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
+* [Arrays](#arrays)
 * [awk scripts](#awk-scripts)
 * [Miscellaneous](#miscellaneous)
     * [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths)
@@ -1885,6 +1886,66 @@ END
 * [unix.stackexchange - print a block only if it contains matching string](https://unix.stackexchange.com/a/335523/109046)
 * [unix.stackexchange - print a block matching two different strings](https://unix.stackexchange.com/questions/347368/grep-with-range-and-pass-three-filters)
 
+<br>
+
+## <a name="arrays"></a>Arrays
+
+We've already seen examples using arrays, some more examples discussed in this section
+
+* Sorting
+* See [gawk manual - Predefined Array Scanning Orders](https://www.gnu.org/software/gawk/manual/html_node/Controlling-Scanning.html#Controlling-Scanning) for details
+
+```bash
+$ # by default, keys are traversed in random order
+$ awk 'BEGIN{a["z"]=1; a["x"]=12; a["b"]=42; for(i in a)print i, a[i]}'
+x 12
+z 1
+b 42
+
+$ # index sorted ascending order as strings
+$ awk 'BEGIN{PROCINFO["sorted_in"] = "@ind_str_asc";
+       a["z"]=1; a["x"]=12; a["b"]=42; for(i in a)print i, a[i]}'
+b 42
+x 12
+z 1
+
+$ # value sorted ascending order as numbers
+$ awk 'BEGIN{PROCINFO["sorted_in"] = "@val_num_asc";
+       a["z"]=1; a["x"]=12; a["b"]=42; for(i in a)print i, a[i]}'
+z 1
+x 12
+b 42
+```
+
+* deleting array elements
+
+```bash
+$ cat list5
+CSE     Surya   75
+EEE     Jai     69
+ECE     Kal     83
+
+$ # update entry is match found
+$ # else append the new entries
+$ awk '{ky=$1"_"$2} NR==FNR{upd[ky]=$0; next}
+        ky in upd{$0=upd[ky]; delete upd[ky]} 1;
+        END{for(i in upd)print upd[i]}' list5 marks.txt
+Dept    Name    Marks
+ECE     Raj     53
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   75
+EEE     Tia     59
+ECE     Om      92
+CSE     Amy     67
+ECE     Kal     83
+EEE     Jai     69
+```
+
+**Further Reading**
+
+* [unix.stackexchange - count words based on length](https://unix.stackexchange.com/questions/396855/is-there-an-easy-way-to-count-characters-in-words-in-file-from-terminal)
+* [unix.stackexchange - filtering specific lines](https://unix.stackexchange.com/a/326215/109046)
 
 <br>
 
