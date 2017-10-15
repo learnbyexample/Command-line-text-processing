@@ -27,6 +27,7 @@
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
+    * [getline](#getline)
 * [Creating new fields](#creating-new-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
@@ -1017,7 +1018,9 @@ Total input files: 2
 
 **Further Reading**
 
-* [gawk manual - Using ARGC and ARGV](https://www.gnu.org/software/gawk/manual/html_node/ARGC-and-ARGV.html) and [gawk manual - ARGIND](https://www.gnu.org/software/gawk/manual/html_node/Auto_002dset.html#index-ARGIND-variable)
+* [gawk manual - Using ARGC and ARGV](https://www.gnu.org/software/gawk/manual/html_node/ARGC-and-ARGV.html)
+* [gawk manual - ARGIND](https://www.gnu.org/software/gawk/manual/html_node/Auto_002dset.html#index-ARGIND-variable)
+* [gawk manual - ERRNO](https://www.gnu.org/software/gawk/manual/html_node/Auto_002dset.html#index-ERRNO-variable)
 * [stackoverflow - Finding common value across multiple files](https://stackoverflow.com/a/43473385/4082052)
 
 <br>
@@ -1423,12 +1426,53 @@ CSE     Surya   81
 ECE     Om      92
 ```
 
+<br>
+
+#### <a name="getline"></a>getline
+
+* If entire line (instead of fields) from one file is needed to change the other file, using `getline` would be faster
+* But use it with caution. See [gawk manual - getline](https://www.gnu.org/software/gawk/manual/html_node/Getline.html) for details, especially about corner cases, errors, etc
+
+```bash
+$ # replace mth line in poem.txt with nth line from nums.txt
+$ awk -v m=3 -v n=2 'BEGIN{while(n-- > 0) getline s < "nums.txt"}
+                     FNR==m{$0=s} 1' poem.txt
+Roses are red,
+Violets are blue,
+-2
+And so are you.
+
+$ # without getline, but slower due to NR==FNR check for every line processed
+$ awk -v m=3 -v n=2 'NR==FNR{if(FNR==n){s=$0; nextfile} next}
+                     FNR==m{$0=s} 1' nums.txt poem.txt
+Roses are red,
+Violets are blue,
+-2
+And so are you.
+```
+
+* Another use case is if two files are to be processed exactly for same line numbers
+
+```bash
+
+$ # print line from fruits.txt if corresponding line from nums.txt is +ve number
+$ awk -v file='nums.txt' '{getline num < file; if(num>0) print}' fruits.txt
+fruit   qty
+banana  31
+
+$ # without getline, but has to save entire file in array
+$ awk 'NR==FNR{n[FNR]=$0; next} n[FNR]>0' nums.txt fruits.txt
+fruit   qty
+banana  31
+```
+
 **Further Reading**
 
 * [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash)
 * [unix.stackexchange - filter lines based on line numbers specified in another file](https://unix.stackexchange.com/questions/320651/read-numbers-from-control-file-and-extract-matching-line-numbers-from-the-data-f)
 * [stackoverflow - three file processing to extract a matrix subset](https://stackoverflow.com/questions/45036019/how-to-filter-the-values-from-selected-columns-and-rows)
 * [unix.stackexchange - column wise merging](https://unix.stackexchange.com/questions/294145/merging-two-files-one-column-at-a-time)
+* [stackoverflow - extract specific rows from a text file using an index file](https://stackoverflow.com/questions/40595990/print-many-specific-rows-from-a-text-file-using-an-index-file)
 
 <br>
 
@@ -1573,24 +1617,24 @@ good toy ****
 
 ```bash
 $ # all duplicates based on 1st column
-$ awk 'NR==FNR{a[$1]++; next} a[$1]>1' duplicates.txt duplicates.txt 
+$ awk 'NR==FNR{a[$1]++; next} a[$1]>1' duplicates.txt duplicates.txt
 abc  7   4
 abc  7   4
 $ # all duplicates based on 3rd column
-$ awk 'NR==FNR{a[$3]++; next} a[$3]>1' duplicates.txt duplicates.txt 
+$ awk 'NR==FNR{a[$3]++; next} a[$3]>1' duplicates.txt duplicates.txt
 abc  7   4
 food toy ****
 abc  7   4
 good toy ****
 
 $ # more than 2 duplicates based on 2nd column
-$ awk 'NR==FNR{a[$2]++; next} a[$2]>2' duplicates.txt duplicates.txt 
+$ awk 'NR==FNR{a[$2]++; next} a[$2]>2' duplicates.txt duplicates.txt
 food toy ****
 test toy 123
 good toy ****
 
 $ # only unique lines based on 3rd column
-$ awk 'NR==FNR{a[$3]++; next} a[$3]==1' duplicates.txt duplicates.txt 
+$ awk 'NR==FNR{a[$3]++; next} a[$3]==1' duplicates.txt duplicates.txt
 test toy 123
 ```
 
