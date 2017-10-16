@@ -305,7 +305,7 @@ guava   6
     * Like `C` language, braces not needed for single statements within `if`, but consider that `{}` is used for clarity
     * From this explicit syntax, remove the outer `{}`, `if` and `()` used for `if`
 * As we'll see later, this allows to mash up few lines of program compactly on command line itself
-    * Of course, for medium to large programs, it is better to put the code in separate file
+    * Of course, for medium to large programs, it is better to put the code in separate file. See [awk scripts](#awk-scripts) section
 
 ```bash
 $ # awk '$1=="apple"{print $2}' fruits.txt 
@@ -453,6 +453,7 @@ $ awk 'index($0,"a+b")==1' eqns.txt
 a+b,pi=3.14,5e12
 
 $ # end of line
+$ # length function returns number of characters, by default acts on $0
 $ awk 'index($0,"a+b")==length()-length("a+b")+1' eqns.txt
 i*(t+9-g)/8,4-a+b
 $ # to avoid repetitions, save the search string in variable
@@ -1397,6 +1398,8 @@ CSE     Amy     67
 * create a string by adding some character between the fields to act as key
     * for ex: to avoid matching two field values `abc` and `123` to match with two other field values `ab` and `c123`
     * by adding character, say `_`, the key would be `abc_123` for first case and `ab_c123` for second case
+    * this can still lead to false match if input data has `_`
+    * there is also a built-in way to do this using [gawk manual - Multidimensional Arrays](https://www.gnu.org/software/gawk/manual/html_node/Multidimensional.html#Multidimensional)
 
 ```bash
 $ cat list2
@@ -1406,6 +1409,12 @@ ECE Raj
 
 $ # extract only lines matching both fields specified in list2
 $ awk 'NR==FNR{a[$1"_"$2]; next} $1"_"$2 in a' list2 marks.txt
+ECE     Raj     53
+EEE     Moi     68
+CSE     Amy     67
+
+$ # uses SUBSEP as separator, whose default value is non-printing character \034
+$ awk 'NR==FNR{a[$1,$2]; next} ($1,$2) in a' list2 marks.txt
 ECE     Raj     53
 EEE     Moi     68
 CSE     Amy     67
@@ -1581,10 +1590,17 @@ food toy ****
 ```
 
 * For multiple fields, separate them using `,` or form a string with some character in between
+    * choose a character unlikely to appear in input data, else there can be false matches
 
 ```bash
-$ # can also use multi-dimension array: awk '!seen[$2,$3]++' duplicates.txt
 $ awk '!seen[$2"_"$3]++' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+
+$ # can also use simulated multidimensional array
+$ # SUBSEP, whose default is \034 non-printing character, is used as separator
+$ awk '!seen[$2,$3]++' duplicates.txt
 abc  7   4
 food toy ****
 test toy 123
@@ -1892,8 +1908,18 @@ END
 
 We've already seen examples using arrays, some more examples discussed in this section
 
+* array looping
+
+```bash
+$ # average marks for each department
+$ awk 'NR>1{d[$1]+=$3; c[$1]++} END{for(i in d)print i, d[i]/c[i]}' marks.txt
+ECE 72.3333
+EEE 63.5
+CSE 74
+```
+
 * Sorting
-* See [gawk manual - Predefined Array Scanning Orders](https://www.gnu.org/software/gawk/manual/html_node/Controlling-Scanning.html#Controlling-Scanning) for details
+* See [gawk manual - Predefined Array Scanning Orders](https://www.gnu.org/software/gawk/manual/html_node/Controlling-Scanning.html#Controlling-Scanning) for more details
 
 ```bash
 $ # by default, keys are traversed in random order
@@ -1925,7 +1951,7 @@ CSE     Surya   75
 EEE     Jai     69
 ECE     Kal     83
 
-$ # update entry is match found
+$ # update entry if a match is found
 $ # else append the new entries
 $ awk '{ky=$1"_"$2} NR==FNR{upd[ky]=$0; next}
         ky in upd{$0=upd[ky]; delete upd[ky]} 1;
@@ -1942,8 +1968,23 @@ ECE     Kal     83
 EEE     Jai     69
 ```
 
+* true multidimensional arrays
+* length of sub-arrays need not be same. See [gawk manual - Arrays of Arrays](https://www.gnu.org/software/gawk/manual/html_node/Arrays-of-Arrays.html#Arrays-of-Arrays) for details
+
+```bash
+$ awk 'NR>1{d[$1][$2]=$3} END{for(i in d["ECE"])print i}' marks.txt
+Joel
+Raj
+Om
+
+$ awk -v f='CSE' 'NR>1{d[$1][$2]=$3} END{for(i in d[f])print i, d[f][i]}' marks.txt
+Surya 81
+Amy 67
+```
+
 **Further Reading**
 
+* [gawk manual - all array topics](https://www.gnu.org/software/gawk/manual/html_node/Arrays.html)
 * [unix.stackexchange - count words based on length](https://unix.stackexchange.com/questions/396855/is-there-an-easy-way-to-count-characters-in-words-in-file-from-terminal)
 * [unix.stackexchange - filtering specific lines](https://unix.stackexchange.com/a/326215/109046)
 
