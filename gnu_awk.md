@@ -740,6 +740,23 @@ $ printf '123string54with908\n' | awk -v RS='[0-9]+' '{print NR " : " $0}'
 
 ```
 
+* Joining lines based on specific end of line condition
+
+```bash
+$ cat msg.txt
+Hello there.
+It will rain to-
+day. Have a safe
+and pleasant jou-
+rney.
+
+$ # join lines ending with - to next line
+$ awk -v RS='-\n' -v ORS= '1' msg.txt
+Hello there.
+It will rain today. Have a safe
+and pleasant journey.
+```
+
 * processing null terminated input
 
 ```bash
@@ -890,6 +907,18 @@ I ate three apples
 $ cat f2
 I bought two bananas and three mangoes
 ```
+
+* to create backups of original file, set `INPLACE_SUFFIX` variable
+
+```bash
+$ awk -i inplace -v INPLACE_SUFFIX='.bkp' '{gsub("three", "3")} 1' f1
+$ cat f1
+I ate 3 apples
+$ cat f1.bkp
+I ate three apples
+```
+
+* See [gawk manual - Enabling In-Place File Editing](https://www.gnu.org/software/gawk/manual/html_node/Extension-Sample-Inplace.html) for implementation details
 
 <br>
 
