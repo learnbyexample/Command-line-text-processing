@@ -555,6 +555,8 @@ sample
 ```
 
 * `ORS` to change output record separator
+* gets added to every `print` statement
+    * use [printf](#printf-formatting) to avoid this
 * default is newline character
 
 ```bash
@@ -753,10 +755,18 @@ and pleasant jou-
 rney.
 
 $ # join lines ending with - to next line
+$ # by manipulating RS and ORS
 $ awk -v RS='-\n' -v ORS= '1' msg.txt
 Hello there.
 It will rain today. Have a safe
 and pleasant journey.
+
+$ # by manipulating ORS alone, sub function covered in later sections
+$ awk '{ORS = sub(/-$/,"") ? "" : "\n"} 1' msg.txt
+Hello there.
+It will rain today. Have a safe
+and pleasant journey.
+$ # easier: perl -pe 's/-\n//' msg.txt as newline is still part of input line
 ```
 
 * processing null terminated input
