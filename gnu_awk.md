@@ -219,6 +219,8 @@ $ printf 'hi👍 how are you?' | awk -v FS= '{print $3}'
 #### <a name="specifying-different-output-field-separator"></a>Specifying different output field separator
 
 * by setting `OFS` variable
+* also gets added between every argument to `print` statement
+    * use [printf](#printf-formatting) to avoid this
 * default is single space
 
 ```bash
@@ -2374,6 +2376,18 @@ $ awk 'BEGIN{printf "%.2s\n", "foobar"}'
 fo
 ```
 
+* avoid using `printf` without format specifier
+
+```bash
+$ awk 'BEGIN{s="solve: 5 % x = 1"; printf s}'
+awk: cmd. line:1: fatal: not enough arguments to satisfy format string
+	`solve: 5 % x = 1'
+	           ^ ran out for this one
+
+$ awk 'BEGIN{s="solve: 5 % x = 1"; printf "%s\n", s}'
+solve: 5 % x = 1
+```
+
 <br>
 
 #### <a name="redirecting-print-output"></a>Redirecting print output
@@ -2420,6 +2434,7 @@ $ echo 'foo good 123' | awk '{print $2 | "wc -c"}'
 $ # to avoid newline character being added to print
 $ echo 'foo good 123' | awk -v ORS= '{print $2 | "wc -c"}'
 4
+$ # assuming no format specifiers in input
 $ echo 'foo good 123' | awk '{printf $2 | "wc -c"}'
 4
 
