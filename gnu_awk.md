@@ -40,7 +40,7 @@
     * [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths)
     * [String functions](#string-functions)
     * [Executing external commands](#executing-external-commands)
-    * [Redirecting to file](#redirecting-to-file)
+    * [Redirecting print output](#redirecting-print-output)
 
 <br>
 
@@ -91,6 +91,7 @@ DESCRIPTION
 * `$2` contains the second field text and so on
 * `$(2+3)` result of expressions can be used, this one evaluates to `$5` and hence gives fifth field
     * similarly if variable `i` has value `2`, then `$(i+3)` will give fifth field
+    * See also [gawk manual - Expressions](https://www.gnu.org/software/gawk/manual/html_node/Expressions.html)
 * `NF` is a built-in variable which contains number of fields in the current record
     * so, `$NF` will give last field
     * `$(NF-1)` will give second last field and so on
@@ -1470,7 +1471,9 @@ ECE     Om      92
 #### <a name="getline"></a>getline
 
 * If entire line (instead of fields) from one file is needed to change the other file, using `getline` would be faster
-* But use it with caution. See [gawk manual - getline](https://www.gnu.org/software/gawk/manual/html_node/Getline.html) for details, especially about corner cases, errors, etc
+* But use it with caution
+    * [gawk manual - getline](https://www.gnu.org/software/gawk/manual/html_node/Getline.html) for details, especially about corner cases, errors, etc
+    * [gawk manual - Closing Input and Output Redirections](https://www.gnu.org/software/gawk/manual/html_node/Close-Files-And-Pipes.html) if you have to start from beginning of file again
 
 ```bash
 $ # replace mth line in poem.txt with nth line from nums.txt
@@ -2299,9 +2302,13 @@ I bought two bananas and three mangoes
 
 <br>
 
-#### <a name="redirecting-to-file"></a>Redirecting to file
+#### <a name="redirecting-print-output"></a>Redirecting print output
 
-* redirecting print output to file instead of stdout
+* redirecting to file instead of stdout using `>`
+* similar to behavior in shell, if file already exists it is overwritten
+    * use `>>` to append to an existing file without deleting content
+* however, unlike shell, subsequent redirections to same file will append to it
+* See also [gawk manual - Closing Input and Output Redirections](https://www.gnu.org/software/gawk/manual/html_node/Close-Files-And-Pipes.html) if you have too many redirections
 
 ```bash
 $ seq 6 | awk 'NR%2{print > "odd.txt"; next} {print > "even.txt"}'
@@ -2328,9 +2335,28 @@ $ cat qty.txt
 6
 ```
 
+* redirecting to shell command
+* this is useful if you have different things to redirect to different commands, otherwise it can be done as usual in shell acting on `awk`'s output
+* all redirections to same command gets combined as single input to that command
+
+```bash
+$ # same as: echo 'foo good 123' | awk '{print $2}' | wc -c
+$ echo 'foo good 123' | awk '{print $2 | "wc -c"}'
+5
+$ # to avoid newline character being added to print
+$ echo 'foo good 123' | awk -v ORS= '{print $2 | "wc -c"}'
+4
+
+$ # same as: echo 'foo good 123' | awk -v ORS= '{print $2 $3 | "wc -c"}'
+$ echo 'foo good 123' | awk -v ORS= '{print $2 | "wc -c"; print $3 | "wc -c"}'
+7
+```
+
 **Further Reading**
 
 * [gawk manual - Input/Output Functions](https://www.gnu.org/software/gawk/manual/html_node/I_002fO-Functions.html)
+* [gawk manual - Redirecting Output of print and printf](https://www.gnu.org/software/gawk/manual/html_node/Redirection.html)
+* [gawk manual - Two-Way Communications with Another Process](https://www.gnu.org/software/gawk/manual/html_node/Two_002dway-I_002fO.html)
 * [unix.stackexchange - inplace editing as well as stdout](https://unix.stackexchange.com/questions/321679/gawk-inplace-and-stdout)
 * [stackoverflow - redirect blocks to separate files](https://stackoverflow.com/questions/45098279/write-blocks-in-a-text-file-to-multiple-new-files)
 
