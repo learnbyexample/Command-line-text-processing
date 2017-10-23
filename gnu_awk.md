@@ -40,6 +40,7 @@
     * [FPAT and FIELDWIDTHS](#fpat-and-fieldwidths)
     * [String functions](#string-functions)
     * [Executing external commands](#executing-external-commands)
+    * [printf formatting](#printf-formatting)
     * [Redirecting print output](#redirecting-print-output)
 
 <br>
@@ -2302,6 +2303,69 @@ I bought two bananas and three mangoes
 
 <br>
 
+#### <a name="printf-formatting"></a>printf formatting
+
+* Similar to `printf` function in `C` and shell built-in command
+* See also [gawk manual - printf](https://www.gnu.org/software/gawk/manual/html_node/Printf.html)
+
+```bash
+$ awk '{sum += $1} END{print sum}' nums.txt
+10062.9
+
+$ # note that ORS is not appended and has to be added manually
+$ awk '{sum += $1} END{printf "%.2f\n", sum}' nums.txt
+10062.86
+
+$ awk '{sum += $1} END{printf "%10.2f\n", sum}' nums.txt
+  10062.86
+
+$ awk '{sum += $1} END{printf "%010.2f\n", sum}' nums.txt
+0010062.86
+
+$ awk '{sum += $1} END{printf "%d\n", sum}' nums.txt
+10062
+
+$ awk '{sum += $1} END{printf "%+d\n", sum}' nums.txt
++10062
+
+$ awk '{sum += $1} END{printf "%e\n", sum}' nums.txt
+1.006286e+04
+```
+
+* to refer argument by positional number (starts with 1), use `<num>$`
+
+```bash
+$ # can also use: awk 'BEGIN{printf "hex=%x\noct=%o\ndec=%d\n", 15, 15, 15}'
+$ awk 'BEGIN{printf "hex=%1$x\noct=%1$o\ndec=%1$d\n", 15}'
+hex=f
+oct=17
+dec=15
+
+$ # adding prefix to hex/oct numbers
+$ awk 'BEGIN{printf "hex=%1$#x\noct=%1$#o\ndec=%1$d\n", 15}'
+hex=0xf
+oct=017
+dec=15
+```
+
+* strings
+
+```bash
+$ # prefix remaining width with spaces
+$ awk 'BEGIN{printf "%6s:%5s\n", "foo", "bar"}'
+   foo:  bar
+
+$ # suffix remaining width with spaces
+$ awk 'BEGIN{printf "%-6s:%-5s\n", "foo", "bar"}'
+foo   :bar  
+
+$ # truncate
+$ awk 'BEGIN{printf "%.2s\n", "foobar"}'
+fo
+```
+
+<br>
+
 #### <a name="redirecting-print-output"></a>Redirecting print output
 
 * redirecting to file instead of stdout using `>`
@@ -2346,9 +2410,11 @@ $ echo 'foo good 123' | awk '{print $2 | "wc -c"}'
 $ # to avoid newline character being added to print
 $ echo 'foo good 123' | awk -v ORS= '{print $2 | "wc -c"}'
 4
+$ echo 'foo good 123' | awk '{printf $2 | "wc -c"}'
+4
 
-$ # same as: echo 'foo good 123' | awk -v ORS= '{print $2 $3 | "wc -c"}'
-$ echo 'foo good 123' | awk -v ORS= '{print $2 | "wc -c"; print $3 | "wc -c"}'
+$ # same as: echo 'foo good 123' | awk '{printf $2 $3 | "wc -c"}'
+$ echo 'foo good 123' | awk '{printf $2 | "wc -c"; printf $3 | "wc -c"}'
 7
 ```
 
