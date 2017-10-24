@@ -1630,6 +1630,54 @@ $ grep 'are' poem.txt -n
 4:And so are you.
 ```
 
+* Speed boost if input file is ASCII
+
+```bash
+$ time grep -xE '([a-d][r-z]){3}' /usr/share/dict/words
+avatar
+awards
+cravat
+
+real    0m0.145s
+
+$ time LC_ALL=C grep -xE '([a-d][r-z]){3}' /usr/share/dict/words
+avatar
+awards
+cravat
+
+real    0m0.011s
+```
+
+* Speed boost by using PCRE for back-references
+* might be faster when using quantifiers as well
+
+```bash
+$ time LC_ALL=C grep -xE '([a-z]..)\1' /usr/share/dict/words
+bonbon
+cancan
+chichi
+murmur
+muumuu
+pawpaw
+pompom
+tartar
+testes
+
+real    0m0.174s
+$ time grep -xP '([a-z]..)\1' /usr/share/dict/words
+bonbon
+cancan
+chichi
+murmur
+muumuu
+pawpaw
+pompom
+tartar
+testes
+
+real    0m0.008s
+```
+
 <br>
 
 ## <a name="regular-expressions-reference-ere"></a>Regular Expressions Reference (ERE)
@@ -1702,10 +1750,10 @@ Paraphrasing from `info grep`
     * [Difference between grep, egrep and fgrep](https://unix.stackexchange.com/questions/17949/what-is-the-difference-between-grep-egrep-and-fgrep)
 * Tutorials and Q&A
     * [grep tutorial](http://www.panix.com/~elflord/unix/grep.html)
-    * [grep examples](http://alvinalexander.com/unix/edu/examples/grep.shtml)
+    * [grep examples](https://alvinalexander.com/unix/edu/examples/grep.shtml)
     * [grep Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/grep?sort=votes&pageSize=15)
     * [grep Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/grep?sort=votes&pageSize=15)
-* Learn Regular Expressions
+* Learn Regular Expressions (has information on flavors other than BRE/ERE/PCRE too)
     * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
     * [regexcrossword](https://regexcrossword.com/)
     * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
@@ -1714,3 +1762,4 @@ Paraphrasing from `info grep`
     * [pcregrep](http://www.pcre.org/original/doc/html/pcregrep.html)
     * [ag - silver searcher](https://github.com/ggreer/the_silver_searcher)
     * [ripgrep](https://github.com/BurntSushi/ripgrep)
+* [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
