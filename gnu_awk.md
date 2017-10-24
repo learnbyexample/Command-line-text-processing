@@ -42,6 +42,8 @@
     * [Executing external commands](#executing-external-commands)
     * [printf formatting](#printf-formatting)
     * [Redirecting print output](#redirecting-print-output)
+* [Gotchas and Tips](#gotchas-and-tips)
+* [Further Reading](#further-reading)
 
 <br>
 
@@ -2092,44 +2094,44 @@ $ echo 'foo:123:bar:baz' | awk -f quotes.awk
 ```bash
 $ awk -o -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
          {NF++; if(FNR==1)$NF="Role"; else $NF=r[$2]} 1' list4 marks.txt
-Dept	Name	Marks	Role
-ECE	Raj	53	class_rep
-ECE	Joel	72	
-EEE	Moi	68	
-CSE	Surya	81	
-EEE	Tia	59	placement_rep
-ECE	Om	92	
-CSE	Amy	67	sports_rep
+Dept    Name    Marks   Role
+ECE     Raj     53      class_rep
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+EEE     Tia     59      placement_rep
+ECE     Om      92
+CSE     Amy     67      sports_rep
 ```
 
 File name can be passed along `-o` option, otherwise by default `awkprof.out` will be used
 
 ```bash
 $ cat awkprof.out
-	# gawk profile, created Thu Oct 12 14:23:15 2017
+        # gawk profile, created Tue Oct 24 15:10:02 2017
 
-	# Rule(s)
+        # Rule(s)
 
-	NR == FNR {
-		r[$1] = $2
-		next
-	}
+        NR == FNR {
+                r[$1] = $2
+                next
+        }
 
-	{
-		NF++
-		if (FNR == 1) {
-			$NF = "Role"
-		} else {
-			$NF = r[$2]
-		}
-	}
+        {
+                NF++
+                if (FNR == 1) {
+                        $NF = "Role"
+                } else {
+                        $NF = r[$2]
+                }
+        }
 
-	1 {
-		print $0
-	}
+        1 {
+                print $0
+        }
 
 $ # note that other command line options have to be provided as usual
-$ awk -v OFS='\t' -f awkprof.out list4 marks.txt
+$ # for ex: awk -v OFS='\t' -f awkprof.out list4 marks.txt
 ```
 
 <br>
@@ -2318,6 +2320,7 @@ I bought two bananas and three mangoes
 #### <a name="printf-formatting"></a>printf formatting
 
 * Similar to `printf` function in `C` and shell built-in command
+* use `sprintf` function to save result in variable instead of printing
 * See also [gawk manual - printf](https://www.gnu.org/software/gawk/manual/html_node/Printf.html)
 
 ```bash
@@ -2381,8 +2384,8 @@ fo
 ```bash
 $ awk 'BEGIN{s="solve: 5 % x = 1"; printf s}'
 awk: cmd. line:1: fatal: not enough arguments to satisfy format string
-	`solve: 5 % x = 1'
-	           ^ ran out for this one
+    `solve: 5 % x = 1'
+               ^ ran out for this one
 
 $ awk 'BEGIN{s="solve: 5 % x = 1"; printf "%s\n", s}'
 solve: 5 % x = 1
@@ -2453,8 +2456,125 @@ $ echo 'foo good 123' | awk '{printf $2 | "wc -c"; printf $3 | "wc -c"}'
 
 <br>
 
-<br>
+## <a name="gotchas-and-tips"></a>Gotchas and Tips
+
+* relying on default intial value
+
+```bash
+$ # step 1 - works for single file
+$ awk '{sum += $1} END{print sum}' nums.txt
+10062.9
+
+$ # step 2 - change to work for multiple file
+$ awk '{sum += $1} ENDFILE{print FILENAME, sum}' nums.txt
+nums.txt 10062.9
+
+$ # step 3 - check with multiple file input
+$ # oops, default numerical value '0' for sum works only once
+$ awk '{sum += $1} ENDFILE{print FILENAME, sum}' nums.txt <(seq 3)
+nums.txt 10062.9
+/dev/fd/63 10068.9
+
+$ # step 4 - correctly initialize variables
+$ awk 'BEGINFILE{sum=0} {sum += $1} ENDFILE{print FILENAME, sum}' nums.txt <(seq 3)
+nums.txt 10062.9
+/dev/fd/63 6
+```
+
+* use unary operator `+` to force numeric conversion
+
+```bash
+$ awk '{sum += $1} END{print FILENAME, sum}' nums.txt
+nums.txt 10062.9
+
+$ awk '{sum += $1} END{print FILENAME, sum}' /dev/null
+/dev/null 
+
+$ awk '{sum += $1} END{print FILENAME, +sum}' /dev/null
+/dev/null 0
+```
+
+* concatenate empty string to force string comparison
+
+```bash
+$ echo '5 5.0' | awk '{print $1==$2 ? "same" : "different", "string"}'
+same string
+
+$ echo '5 5.0' | awk '{print $1""==$2 ? "same" : "different", "string"}'
+different string
+```
+
+* beware of expressions going -ve for field calculations
+
+```bash
+$ cat misc.txt
+foo
+good bad ugly
+123 xyz
+a b c d
+
+$ # trying to delete last two fields
+$ awk '{NF -= 2} 1' misc.txt
+awk: cmd. line:1: (FILENAME=misc.txt FNR=1) fatal: NF set to negative value
+$ # dynamically change it depending on number of fields
+$ awk '{NF = (NF<=2) ? 0 : NF-2} 1' misc.txt
+
+good
+
+a b
+
+$ # similarly, trying to access 3rd field from end
+$ awk '{print $(NF-2)}' misc.txt
+awk: cmd. line:1: (FILENAME=misc.txt FNR=1) fatal: attempt to access field -1
+$ awk 'NF>2{print $(NF-2)}' misc.txt
+good
+b
+```
+
+* If input is ASCII alone, simple trick to improve speed
+
+```bash
+$ # all words containing exactly 3 lowercase a
+$ time awk -F'a' 'NF==4{cnt++} END{print +cnt}' /usr/share/dict/words
+1019
+
+real    0m0.075s
+
+$ time LC_ALL=C awk -F'a' 'NF==4{cnt++} END{print +cnt}' /usr/share/dict/words
+1019
+
+real    0m0.045s
+```
 
 <br>
 
-*More to follow*
+## <a name="further-reading"></a>Further Reading
+
+* `man awk` and `info awk` for quick reference from command line
+* [gawk manual](https://www.gnu.org/software/gawk/manual/gawk.html#SEC_Contents) for complete reference, extensions and more
+* What's up with different `awk` versions?
+    * [unix.stackexchange - brief explanation](https://unix.stackexchange.com/questions/29576/difference-between-gawk-vs-awk)
+    * [Differences between gawk, nawk, mawk, and POSIX awk](https://www.reddit.com/r/awk/comments/4omosp/differences_between_gawk_nawk_mawk_and_posix_awk/)
+    * [cheat sheet for awk/nawk/gawk](http://www.catonmat.net/download/awk.cheat.sheet.txt)
+* Tutorials and Q&A
+    * [code.snipcademy - gentle intro](https://code.snipcademy.com/tutorials/shell-scripting/awk/introduction)
+    * [funtoo - using examples](https://www.funtoo.org/Awk_by_Example,_Part_1)
+    * [grymoire - detailed tutorial](http://www.grymoire.com/Unix/Awk.html) - covers information about different `awk` versions as well
+    * [catonmat - one liners explained](http://www.catonmat.net/series/awk-one-liners-explained)
+    * [awk Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/awk?sort=votes&pageSize=15)
+    * [awk Q&A on unix.stackexchange](https://unix.stackexchange.com/questions/tagged/awk?sort=votes&pageSize=15)
+* Alternatives
+    * [GNU datamash](https://www.gnu.org/software/datamash/alternatives/)
+    * [bioawk](https://github.com/lh3/bioawk)
+    * [hawk](https://github.com/gelisam/hawk/blob/master/doc/README.md) - based on Haskell
+    * [miller](https://github.com/johnkerl/miller) - similar to awk/sed/cut/join/sort for name-indexed data such as CSV, TSV, and tabular JSON
+        * See this [ycombinator news](https://news.ycombinator.com/item?id=10066742) for other tools like this
+* [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
+* [awkaster](https://github.com/TheMozg/awk-raycaster) - Pseudo-3D shooter written completely in awk using raycasting technique
+* examples for some of the stuff not covered in this tutorial
+    * [unix.stackexchange - rand/srand](https://unix.stackexchange.com/questions/372816/awk-get-random-lines-of-file-satisfying-a-condition)
+    * [unix.stackexchange - strftime](https://unix.stackexchange.com/questions/224969/current-date-in-awk)
+    * [unix.stackexchange - ARGC and ARGV](https://unix.stackexchange.com/questions/222146/awk-does-not-end/222150#222150)
+    * [stackoverflow - arbitrary precision integer extension](https://stackoverflow.com/questions/46904447/strange-output-while-comparing-engineering-numbers-in-awk)
+    * [unix.stackexchange - sprintf and close](https://unix.stackexchange.com/questions/223727/splitting-file-for-every-10000-numbers-not-lines/223739#223739)
+    * [unix.stackexchange - user defined functions and array passing](https://unix.stackexchange.com/questions/72469/gawk-passing-arrays-to-functions)
