@@ -1125,6 +1125,7 @@ $ awk '/are/{if(sub("so", "SO")) print}' poem.txt
 And SO are you.
 $ # of course, can also use
 $ awk '/are/ && sub("so", "SO")' poem.txt
+And SO are you.
 
 $ # if-else example
 $ awk 'NR>1{if($2>40) $0="+"$0; else $0="-"$0} 1' fruits.txt
@@ -1339,6 +1340,7 @@ a
 * If there are lots of strings to check, use arrays
 
 ```bash
+$ # can also use BEGINFILE instead of FNR==1
 $ awk 'FNR==1{s1=s2=0} /is/{s1=1} /are/{s2=1} s1&&s2{print FILENAME; nextfile}' *
 poem.txt
 sample.txt
@@ -2054,7 +2056,7 @@ Amy 67
 ## <a name="awk-scripts"></a>awk scripts
 
 * For larger programs, save the code in a file and use `-f` command line option
-* `;` is not needed to terminate a command
+* `;` is not needed to terminate a statement
 * See also [gawk manual - Command-Line Options](https://www.gnu.org/software/gawk/manual/html_node/Options.html#Options) for other related options
 
 ```bash
@@ -2471,6 +2473,40 @@ $ echo 'foo good 123' | awk '{printf $2 | "wc -c"; printf $3 | "wc -c"}'
 <br>
 
 ## <a name="gotchas-and-tips"></a>Gotchas and Tips
+
+* using `$` for variables
+* only input record `$0` and field contents `$1`, `$2` etc need `$`
+* See also [unix.stackexchange - Why does awk print the whole line when I want it to print a variable?](https://unix.stackexchange.com/questions/291126/why-does-awk-print-the-whole-line-when-i-want-it-to-print-a-variable)
+
+```bash
+$ # wrong
+$ awk -v word="apple" '$1==$word' fruits.txt
+
+$ # right
+$ awk -v word="apple" '$1==word' fruits.txt
+apple   42
+```
+
+* dos style line endings
+* See also [unix.stackexchange - filtering when last column has \r](https://unix.stackexchange.com/questions/399560/using-awk-to-select-rows-with-specific-value-in-specific-column)
+
+```bash
+$ # no issue with unix style line ending
+$ printf 'foo bar\n123 789\n' | awk '{print $2, $1}'
+bar foo
+789 123
+
+$ # dos style line ending causes trouble
+$ printf 'foo bar\r\n123 789\r\n' | awk '{print $2, $1}'
+ foo
+ 123
+
+$ # easy to deal by simply setting appropriate RS
+$ # note that ORS would still be newline character only
+$ printf 'foo bar\r\n123 789\r\n' | awk -v RS='\r\n' '{print $2, $1}'
+bar foo
+789 123
+```
 
 * relying on default intial value
 
