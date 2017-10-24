@@ -4,7 +4,7 @@ Use [![Join the chat at https://gitter.im/learnbyexample/scripting_course](https
 
 # <a name="command-line-text-processing"></a>Command Line Text Processing
 
-**Just started with this project**, stay tuned :)
+Work still in progress, stay tuned :)
 
 <br>
 
@@ -14,6 +14,7 @@ Use [![Join the chat at https://gitter.im/learnbyexample/scripting_course](https
     * cat, less, tail, head, Text Editors
 * [GNU grep](./gnu_grep.md)
 * [GNU sed](./gnu_sed.md)
+* [GNU awk](./gnu_awk.md)
 * [Sorting stuff](./sorting_stuff.md)
     * sort, uniq, comm, shuf
 * [Restructure text](./restructure_text.md)
@@ -27,8 +28,13 @@ Rough drafts
 
 * [Wheres my file](./wheres_my_file.md)
 * [Whats the difference](./whats_the_difference.md)
-* [GNU awk](./gnu_awk.md)
 * [Perl the swiss knife](./perl_the_swiss_knife.md)
+
+Possible additions
+
+* Parsers for html, xml, json, etc
+* Renaming files
+* other than coreutils like combine, datamash, etc
 
 <br>
 
