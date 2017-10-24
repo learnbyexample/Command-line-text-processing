@@ -709,7 +709,7 @@ more blah
 whatever
 
 $ # blocks with more than 3 lines
-$ # splitting string with 3 newlines will yeild 4 fields
+$ # splitting string with 3 newlines will yield 4 fields
 $ awk -F'\n' -v RS='Error:' 'NF>4{print RS $0}' report.log
 Error: something surely went wrong
 some text
@@ -976,6 +976,14 @@ $ awk 'BEGIN{print ENVIRON["SHELL"]}'
 $ # defined along with awk code
 $ word='hello world' awk 'BEGIN{print ENVIRON["word"]}'
 hello world
+
+$ # using ENVIRON also prevents awk's interpretation of escape sequences
+$ s='a\n=c'
+$ foo="$s" awk 'BEGIN{print ENVIRON["foo"]}'
+a\n=c
+$ awk -v foo="$s" 'BEGIN{print foo}'
+a
+=c
 ```
 
 * passing *REGEXP*
@@ -995,12 +1003,18 @@ $ r='[^-]+'
 $ echo '1-2-3-4-5' | awk -v r="$r" '{gsub(r, "abc")} 1'
 abc-abc-abc-abc-abc
 
-$ # when string has to be interpreted as REGEXP, the escape sequence has to be doubled
-$ echo 'foo and bar and baz land good' | awk '{$0=gensub("(.*)\\<and\\>", "\\1XYZ", 1)} 1'
+$ # escape sequence has to be doubled when string is interpreted as REGEXP
+$ s='foo and bar and baz land good'
+$ echo "$s" | awk '{$0=gensub("(.*)\\<and\\>", "\\1XYZ", 1)} 1'
 foo and bar XYZ baz land good
 $ # hence passing as variable should be
 $ r='(.*)\\<and\\>'
-$ echo 'foo and bar and baz land good' | awk -v r="$r" '{$0=gensub(r, "\\1XYZ", 1)} 1'
+$ echo "$s" | awk -v r="$r" '{$0=gensub(r, "\\1XYZ", 1)} 1'
+foo and bar XYZ baz land good
+
+$ # or use ENVIRON
+$ r='(.*)\<and\>'
+$ echo "$s" | r="$r" awk '{$0=gensub(ENVIRON["r"], "\\1XYZ", 1)} 1'
 foo and bar XYZ baz land good
 ```
 
