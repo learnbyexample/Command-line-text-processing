@@ -109,6 +109,7 @@ The `/` character is idiomatically used as delimiter character. See also [Using 
 #### <a name="editing-stdin"></a>editing stdin
 
 ```bash
+$ # sample command output to be edited
 $ seq 10 | paste -sd,
 1,2,3,4,5,6,7,8,9,10
 
@@ -128,18 +129,19 @@ $ seq 10 | paste -sd, | sed 's/,/ : /g'
 #### <a name="editing-file-input"></a>editing file input
 
 * By default newline character is the line separator
-* See [Regular Expressions](#regular-expressions) section for qualifying search terms
-    * for example to distinguish between 'hi', 'this', 'his', 'history', etc
+* See [Regular Expressions](#regular-expressions) section for qualifying search terms, for ex
+    * word boundaries to distinguish between 'hi', 'this', 'his', 'history', etc
+    * multiple search terms, specific set of character, etc
 
 ```bash
 $ cat greeting.txt 
 Hi there
 Have a nice day
 
-$ # change first 'Hi' in each line to 'Hello'
-$ sed 's/Hi/Hello/' greeting.txt
-Hello there
-Have a nice day
+$ # change first 'e' in each line to 'E'
+$ sed 's/e/E/' greeting.txt
+Hi thEre
+HavE a nice day
 
 $ # change first 'nice day' in each line to 'safe journey'
 $ sed 's/nice day/safe journey/' greeting.txt
@@ -276,7 +278,7 @@ $ # bkp_dir/bkp.*.2017 for both and so on
 
 * By default, `sed` acts on entire file. Often, one needs to extract or change only specific lines based on text search, line numbers, lines between two patterns, etc
 * This filtering is much like using `grep`, `head` and `tail` commands in many ways and there are even more features
-    * Use `sed` for inplace editing, the filtered lines to be transformed etc. Not as substitute for `grep`, `head` and `tail`
+    * Use `sed` for inplace editing, the filtered lines to be transformed etc. Not as substitute for those commands
 
 <br>
 
@@ -376,6 +378,7 @@ And so are you.
 ```bash
 $ # same as: seq 23 45 | head -n5
 $ # remember that printing is default action if -n is not used
+$ # here, 5 is line number based addressing
 $ seq 23 45 | sed '5q'
 23
 24
@@ -419,7 +422,7 @@ $ seq 50 | tac | sed '/7/Q' | tac
 **Note**
 
 * This way of using quit commands won't work for inplace editing with multiple file input
-* See [this Q&A](https://unix.stackexchange.com/questions/309514/sed-apply-changes-in-multiple-files) for alternate solution as well using `gawk` and `perl` instead
+* See [this Q&A](https://unix.stackexchange.com/questions/309514/sed-apply-changes-in-multiple-files) for alternate solution, also has solutions using `gawk` and `perl`
 
 <br>
 
@@ -442,7 +445,7 @@ Sugar is sweet,
 #### <a name="combining-multiple-regexp"></a>Combining multiple REGEXP
 
 * See also [sed manual - Multiple commands syntax](https://www.gnu.org/software/sed/manual/sed.html#Multiple-commands-syntax) for more details
-* See also [sed scripts](#sed-scripts) section to use a file for multiple commands
+* See also [sed scripts](#sed-scripts) section for an alternate way
 
 ```bash
 $ # each command as argument to -e option
@@ -525,7 +528,6 @@ $ sed -n '2p' poem.txt
 Violets are blue,
 
 $ # print 2nd and 4th line
-$ # for `p`, `d`, `s` etc multiple commands can be specified separated by ;
 $ sed -n '2p; 4p' poem.txt 
 Violets are blue,
 And so are you.
@@ -534,10 +536,15 @@ $ # same as: tail -n1 poem.txt
 $ sed -n '$p' poem.txt 
 And so are you.
 
-$ # delete only 3rd line
-$ sed '3d' poem.txt 
+$ # delete except 3rd line
+$ sed '3!d' poem.txt
+Sugar is sweet,
+
+$ # substitution only on 2nd line
+$ sed '2 s/are/ARE/' poem.txt
 Roses are red,
-Violets are blue,
+Violets ARE blue,
+Sugar is sweet,
 And so are you.
 ```
 
@@ -1246,7 +1253,6 @@ Character ranges
     * Note that behavior of range will depend on locale settings
     * [arch wiki - locale](https://wiki.archlinux.org/index.php/locale)
     * [Linux: Define Locale and Language Settings](https://www.shellhacks.com/linux-define-locale-language-settings/)
-* [Matching Numeric Ranges with a Regular Expression](http://www.regular-expressions.info/numericranges.html)
 
 ```bash
 $ # filter lines made up entirely of digits, at least one
@@ -1264,16 +1270,23 @@ cat5
 foo
 123
 42
+```
 
+* Numeric ranges, easy for certain cases but not suitable always. Use `awk` or `perl` for arithmetic computation
+* See also [Matching Numeric Ranges with a Regular Expression](http://www.regular-expressions.info/numericranges.html)
+
+```bash
 $ # numbers between 10 to 29
 $ printf '23\n154\n12\n26\n98234\n' | sed -n '/^[12][0-9]$/p'
 23
 12
 26
+
 $ # numbers >= 100
 $ printf '23\n154\n12\n26\n98234\n' | sed -nE '/^[0-9]{3,}$/p'
 154
 98234
+
 $ # numbers >= 100 if there are leading zeros
 $ printf '0501\n035\n154\n12\n26\n98234\n' | sed -nE '/^0*[1-9][0-9]{2,}$/p'
 0501
@@ -1287,12 +1300,12 @@ Negating character class
 * For example, `^` as first character inside `[]` matches characters other than those specified inside character class
 
 ```bash
-$ # delete all characters before first =
-$ echo 'foo=bar; baz=123' | sed -E 's/^[^=]+//'
+$ # delete zero or more characters before first =
+$ echo 'foo=bar; baz=123' | sed 's/^[^=]*//'
 =bar; baz=123
 
-$ # delete all characters after last =
-$ echo 'foo=bar; baz=123' | sed -E 's/[^=]+$//'
+$ # delete zero or more characters after last =
+$ echo 'foo=bar; baz=123' | sed 's/[^=]*$//'
 foo=bar; baz=
 
 $ # same as: sed -n '/[aeiou]/!p'
@@ -1310,7 +1323,7 @@ Matching meta characters inside `[]`
 
 ```bash
 $ # to match - it should be first or last character within []
-$ printf 'Foo-bar\n123-456\n42\nCo-operate\n' | sed -nE '/^[a-z-]+$/Ip'
+$ printf 'Foo-bar\nabc-456\n42\nCo-operate\n' | sed -nE '/^[a-z-]+$/Ip'
 Foo-bar
 Co-operate
 
@@ -1364,7 +1377,7 @@ foo1
 bar
 
 $ # same as: sed -nE '/^[a-z-]+$/Ip'
-$ printf 'Foo-bar\n123-456\n42\nCo-operate\n' | sed -nE '/^[[:alpha:]-]+$/p'
+$ printf 'Foo-bar\nabc-456\n42\nCo-operate\n' | sed -nE '/^[[:alpha:]-]+$/p'
 Foo-bar
 Co-operate
 
@@ -2981,7 +2994,7 @@ foo bar
     * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), but last modified '10 March 2003'
     * [BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/documentation/sed/9436/bsd-macos-sed-vs-gnu-sed-vs-the-posix-sed-specification#t=201706201518543829325)
 * Tutorials and Q&A
-    * [sed basics](http://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
+    * [sed basics](https://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
     * [sed detailed tutorial](http://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
     * [sed one-liners explained](http://www.catonmat.net/series/sed-one-liners-explained)
     * [cheat sheet](http://www.catonmat.net/download/sed.stream.editor.cheat.sheet.txt)
@@ -3002,4 +3015,4 @@ foo bar
 * Related tools
     * [sedsed - Debugger, indenter and HTMLizer for sed scripts](https://github.com/aureliojargas/sedsed)
     * [xo - composes regular expression match groups](https://github.com/ezekg/xo)
-
+* [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
