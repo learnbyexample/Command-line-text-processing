@@ -1881,6 +1881,7 @@ Sugar is sweet,
 * See also [Difference between single and double quotes in Bash](https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash)
 * For robust substitutions taking care of meta characters in *REGEXP* and *REPLACEMENT* sections, see
     * [How to ensure that string interpolated into sed substitution escapes all metachars](https://unix.stackexchange.com/questions/129059/how-to-ensure-that-string-interpolated-into-sed-substitution-escapes-all-metac)
+    * [What characters do I need to escape when using sed in a sh script?](https://unix.stackexchange.com/questions/32907/what-characters-do-i-need-to-escape-when-using-sed-in-a-sh-script)
     * [Is it possible to escape regex metacharacters reliably with sed](https://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed)
 
 <br>
@@ -2422,6 +2423,7 @@ And so are you.
 ```
 
 * replacing a line or range of lines with contents of file
+* See also [various ways to replace line M in file1 with line N in file2](https://unix.stackexchange.com/a/396450)
 
 ```bash
 $ # replacing range of lines
@@ -2440,7 +2442,7 @@ Violets are blue,
 3
 And so are you.
 
-$ # can also use {} grouping
+$ # can also use {} grouping to avoid repeating the address
 $ seq 3 | sed -e '/blue/{r /dev/stdin' -e 'd}' poem.txt
 Roses are red,
 1
@@ -2481,6 +2483,7 @@ And so are you.
 
 ```bash
 $ # file has more lines than matching address
+$ # 2 lines in 5.txt but only 1 line matching 'is'
 $ sed '/is/R 5.txt' poem.txt 
 Roses are red,
 Violets are blue,
@@ -2489,10 +2492,12 @@ five
 And so are you.
 
 $ # lines matching address is more than file to be read
-$ seq 1 | sed '/are/R /dev/stdin' poem.txt 
+$ # 3 lines matching 'are' but only 2 lines from stdin
+$ seq 2 | sed '/are/R /dev/stdin' poem.txt
 Roses are red,
 1
 Violets are blue,
+2
 Sugar is sweet,
 And so are you.
 ```
@@ -2630,7 +2635,7 @@ $ # as long as match is found, command will be repeated on same input line
 $ echo 'foo bar|a b c|1 2 3|xyz abc' | sed -E ':a s/^(([^|]+\|){2}[^|]*) /\1_/; ta'
 foo bar|a b c|1_2_3|xyz abc
 
-$ # using perl or awk might be simpler
+$ # use awk/perl for simpler syntax
 $ # for ex: awk 'BEGIN{FS=OFS="|"} {gsub(/ /,"_",$3); print}'
 ```
 
@@ -2843,6 +2848,7 @@ c
 ```
 
 * To get a specific block, say 3rd one, `awk` or `perl` would be a better choice
+    * See [Specific blocks](./gnu_awk.md#specific-blocks) for `awk` examples
 
 <br>
 
@@ -2869,6 +2875,7 @@ baz
 * All lines till end of file gets printed with simple use of `sed -n '/BEGIN/,/END/p'`
 * The file reversing trick comes in handy here as well
 * But if both kinds of broken blocks are present, further processing will be required. Better to use `awk` or `perl` in such cases
+    * See [Broken blocks](./gnu_awk.md#broken-blocks) for `awk` examples
 
 ```bash
 $ sed -n '/BEGIN/,/END/p' broken_range.txt 
@@ -2992,7 +2999,8 @@ foo bar
     * `man sed` and `info sed` for more details, known issues/limitations as well as options/commands not covered in this tutorial
     * [GNU sed manual](https://www.gnu.org/software/sed/manual/sed.html) has even more detailed information and examples
     * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), but last modified '10 March 2003'
-    * [BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/documentation/sed/9436/bsd-macos-sed-vs-gnu-sed-vs-the-posix-sed-specification#t=201706201518543829325)
+    * [BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/questions/24275070/sed-not-giving-me-correct-substitute-operation-for-newline-with-mac-difference/24276470#24276470)
+    * [Differences between sed on Mac OSX and other standard sed](https://unix.stackexchange.com/questions/13711/differences-between-sed-on-mac-osx-and-other-standard-sed)
 * Tutorials and Q&A
     * [sed basics](https://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
     * [sed detailed tutorial](http://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
@@ -3008,7 +3016,7 @@ foo bar
     * [How to select lines between two patterns?](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
     * [get lines between two patterns only if there is third pattern between them](https://stackoverflow.com/questions/39960075/bash-how-to-get-lines-between-patterns-only-if-there-is-pattern2-between-them)
         * [similar example](https://unix.stackexchange.com/questions/228699/sed-print-lines-matched-by-a-pattern-range-if-one-line-matches-a-condition)
-* Learn Regular Expressions
+* Learn Regular Expressions (has information on flavors other than BRE/ERE too)
     * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
     * [regexcrossword](https://regexcrossword.com/)
     * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
