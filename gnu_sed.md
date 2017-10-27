@@ -62,6 +62,7 @@
     * [First or Last block](#first-or-last-block)
     * [Broken blocks](#broken-blocks)
 * [sed scripts](#sed-scripts)
+* [Gotchas and Tips](#gotchas-and-tips)
 * [Further Reading](#further-reading)
 
 <br>
@@ -1654,8 +1655,8 @@ $ echo 'foo:123:bar:baz' | sed -E 's/(.*):/\1-/'
 foo:123:bar-baz
 $ echo '456:foo:123:bar:789:baz' | sed -E 's/(.*):/\1-/'
 456:foo:123:bar:789-baz
-$ echo 'foo and bar and baz and good' | sed -E 's/(.*)and/\1XYZ/'
-foo and bar and baz XYZ good
+$ echo 'foo and bar and baz land good' | sed -E 's/(.*)and/\1XYZ/'
+foo and bar and baz lXYZ good
 $ # use word boundaries as necessary
 $ echo 'foo and bar and baz land good' | sed -E 's/(.*)\band\b/\1XYZ/'
 foo and bar XYZ baz land good
@@ -2989,6 +2990,179 @@ $ ./executable.sed -n poem.txt
 foo bar
 3
 13
+```
+
+<br>
+
+## <a name="gotchas-and-tips"></a>Gotchas and Tips
+
+* dos style line endings
+
+```bash
+$ # no issue with unix style line ending
+$ printf 'foo bar\n123 789\n' | sed -E 's/\w+$/xyz/'
+foo xyz
+123 xyz
+
+$ # dos style line ending causes trouble
+$ printf 'foo bar\r\n123 789\r\n' | sed -E 's/\w+$/xyz/'
+foo bar
+123 789
+
+$ # can be corrected by adding \r as well to match
+$ # if needed, add \r in replacement section as well
+$ printf 'foo bar\r\n123 789\r\n' | sed -E 's/\w+\r$/xyz/'
+foo xyz
+123 xyz
+```
+
+* changing dos to unix style line ending and vice versa
+
+```bash
+$ # bash functions
+$ unix2dos() { sed -i 's/$/\r/' "$@" ; }
+$ dos2unix() { sed -i 's/\r$//' "$@" ; }
+
+$ cat -A 5.txt
+five$
+1five$
+
+$ unix2dos 5.txt
+$ cat -A 5.txt
+five^M$
+1five^M$
+
+$ dos2unix 5.txt
+$ cat -A 5.txt
+five$
+1five$
+```
+
+* variable/command substitution
+
+```bash
+$ # variables don't get expanded within single quotes
+$ printf 'user\nhome\n' | sed '/user/ s/$/: $USER/'
+user: $USER
+home
+$ printf 'user\nhome\n' | sed '/user/ s/$/: '"$USER"'/'
+user: learnbyexample
+home
+
+$ # variable being substituted cannot have the delimiter character
+$ printf 'user\nhome\n' | sed '/home/ s/$/: '"$HOME"'/'
+sed: -e expression #1, char 15: unknown option to `s'
+$ printf 'user\nhome\n' | sed '/home/ s#$#: '"$HOME"'#'
+user
+home: /home/learnbyexample
+
+$ # use r command for robust insertion from file/command-output
+$ sed '1a'"$(seq 2)" 5.txt
+sed: -e expression #1, char 5: missing command
+$ seq 2 | sed '1r /dev/stdin' 5.txt
+five
+1
+2
+1five
+```
+
+* common regular expression mistakes #1 - greediness
+
+```bash
+$ s='foo and bar and baz land good'
+$ echo "$s" | sed 's/foo.*ba/123 789/'
+123 789z land good
+
+$ # use a more restrictive version
+$ echo "$s" | sed -E 's/foo \w+ ba/123 789/'
+123 789r and baz land good
+
+$ # or use a tool with non-greedy feature available
+$ echo "$s" | perl -pe 's/foo.*?ba/123 789/'
+123 789r and baz land good
+
+$ # for single characters, use negated character class
+$ echo 'foo=123,baz=789,xyz=42' | sed 's/foo=.*,//'
+xyz=42
+$ echo 'foo=123,baz=789,xyz=42' | sed 's/foo=[^,]*,//'
+baz=789,xyz=42
+```
+
+* common regular expression mistakes #2 - BRE vs ERE syntax
+
+```bash
+$ # + needs to be escaped with BRE or enable ERE
+$ echo 'like 42 and 37' | sed 's/[0-9]+/xxx/g'
+like 42 and 37
+$ echo 'like 42 and 37' | sed -E 's/[0-9]+/xxx/g'
+like xxx and xxx
+
+$ # or escaping when not required
+$ echo 'get {} and let' | sed 's/\{\}/[]/'
+sed: -e expression #1, char 10: Invalid preceding regular expression
+$ echo 'get {} and let' | sed 's/{}/[]/'
+get [] and let
+```
+
+* common regular expression mistakes #3 - using PCRE syntax/features
+    * especially by trying out solution on online sites like [regex101](https://regex101.com/) and expecting it to work with `sed` as well
+
+```bash
+$ # \d is not available as backslash character class, will match 'd' instead
+$ echo 'like 42 and 37' | sed -E 's/\d+/xxx/g'
+like 42 anxxx 37
+$ echo 'like 42 and 37' | sed -E 's/[0-9]+/xxx/g'
+like xxx and xxx
+
+$ # features like lookarounds/non-greedy/etc not available
+$ echo 'foo,baz,,xyz,,,123' | sed -E 's/,\K(?=,)/NaN/g'
+sed: -e expression #1, char 16: Invalid preceding regular expression
+$ echo 'foo,baz,,xyz,,,123' | perl -pe 's/,\K(?=,)/NaN/g'
+foo,baz,NaN,xyz,NaN,NaN,123
+```
+
+* common regular expression mistakes #4 - end of line white-space
+
+```bash
+$ printf 'foo bar \n123 789\t\n' | sed -E 's/\w+$/xyz/'
+foo bar 
+123 789 
+
+$ printf 'foo bar \n123 789\t\n' | sed -E 's/\w+\s*$/xyz/'
+foo xyz
+123 xyz
+```
+
+* and many more... see also
+    * [Why does my regular expression work in X but not in Y?](https://unix.stackexchange.com/questions/119905/why-does-my-regular-expression-work-in-x-but-not-in-y)
+    * [Greedy vs. Reluctant vs. Possessive Quantifiers](https://stackoverflow.com/questions/5319840/greedy-vs-reluctant-vs-possessive-quantifiers)
+    * [How to replace everything between but only until the first occurrence of the end string?](https://stackoverflow.com/questions/45168607/how-to-replace-everything-between-but-only-until-the-first-occurrence-of-the-end)
+    * [How to match a specified pattern with multiple possibilities](https://stackoverflow.com/questions/43650926/how-to-match-a-specified-pattern-with-multiple-possibilities)
+    * [mixing different regex syntax](https://stackoverflow.com/questions/45389684/cant-comment-a-line-in-my-cnf/45389833#45389833)
+    * [sed manual - BRE-vs-ERE](https://www.gnu.org/software/sed/manual/sed.html#BRE-vs-ERE)
+
+* Speed boost for ASCII encoded input
+
+```bash
+$ time sed -nE '/^([a-d][r-z]){3}$/p' /usr/share/dict/words
+avatar
+awards
+cravat
+
+real    0m0.058s
+$ time LC_ALL=C sed -nE '/^([a-d][r-z]){3}$/p' /usr/share/dict/words
+avatar
+awards
+cravat
+
+real    0m0.038s
+
+$ time sed -nE '/^([a-z]..)\1$/p' /usr/share/dict/words > /dev/null
+
+real    0m0.111s
+$ time LC_ALL=C sed -nE '/^([a-z]..)\1$/p' /usr/share/dict/words > /dev/null
+
+real    0m0.073s
 ```
 
 <br>
