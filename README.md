@@ -40,7 +40,7 @@ Possible additions
 
 ## <a name="webinar-recordings"></a>Webinar recordings
 
-Am new to video recording and there are few bumps. But I hope it would be helpful
+I am new to video recording and there are few bumps. But I hope these would be helpful -
 
 * [Using the sort command](https://www.youtube.com/watch?v=qLfAwwb5vGs)
 * [Using uniq and comm](https://www.youtube.com/watch?v=uAb2kxA2TyQ)
