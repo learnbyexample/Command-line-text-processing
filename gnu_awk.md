@@ -1650,6 +1650,24 @@ $ # particular column
 $ awk '!seen[$2]++' duplicates.txt
 abc  7   4
 food toy ****
+
+$ # total count
+$ awk '!seen[$2]++{c++} END{print +c}' duplicates.txt
+2
+```
+
+* if input is so large that integer numbers can overflow
+* See also [gawk manual - Arbitrary-Precision Integer Arithmetic](https://www.gnu.org/software/gawk/manual/html_node/Arbitrary-Precision-Integers.html)
+
+```bash
+$ # avoid unnecessary counting altogether
+$ awk '!($2 in seen); {seen[$2]}' duplicates.txt
+abc  7   4
+food toy ****
+
+$ # use arbitrary-precision integers, limited only by available memory
+$ awk -M '!($2 in seen){c++} {seen[$2]} END{print +c}' duplicates.txt
+2
 ```
 
 * For multiple fields, separate them using `,` or form a string with some character in between
@@ -2205,6 +2223,7 @@ guava   6
 
 **Further Reading**
 
+* [gawk manual - Processing Fixed-Width Data](https://www.gnu.org/software/gawk/manual/html_node/Fixed-width-data.html)
 * [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files)
 * [unix.stackexchange - detecting empty fields in fixed width files](https://unix.stackexchange.com/questions/321559/extracting-data-with-awk-when-some-lines-have-empty-missing-values)
 * [stackoverflow - count number of times value is repeated each line](https://stackoverflow.com/questions/37450880/how-do-i-filter-tab-separated-input-by-the-count-of-fields-with-a-given-value)
@@ -2582,6 +2601,8 @@ b
 ```
 
 * If input is ASCII alone, simple trick to improve speed
+* For simple non-regex based column filtering, using [cut](./miscellaneous.md#cut) command might give faster results
+    * See [stackoverflow - how to split columns faster](https://stackoverflow.com/questions/46882557/how-to-split-columns-faster-in-python/46883120#46883120) for example
 
 ```bash
 $ # all words containing exactly 3 lowercase a
@@ -2600,8 +2621,10 @@ real    0m0.045s
 
 ## <a name="further-reading"></a>Further Reading
 
-* `man awk` and `info awk` for quick reference from command line
-* [gawk manual](https://www.gnu.org/software/gawk/manual/gawk.html#SEC_Contents) for complete reference, extensions and more
+* Manual and related
+    * `man awk` and `info awk` for quick reference from command line
+    * [gawk manual](https://www.gnu.org/software/gawk/manual/gawk.html#SEC_Contents) for complete reference, extensions and more
+    * [awk FAQ](http://www.faqs.org/faqs/computer-lang/awk/faq/) - from 2002, but plenty of information, especially about all the various `awk` implementations
 * What's up with different `awk` versions?
     * [unix.stackexchange - brief explanation](https://unix.stackexchange.com/questions/29576/difference-between-gawk-vs-awk)
     * [Differences between gawk, nawk, mawk, and POSIX awk](https://www.reddit.com/r/awk/comments/4omosp/differences_between_gawk_nawk_mawk_and_posix_awk/)
@@ -2611,6 +2634,7 @@ real    0m0.045s
     * [funtoo - using examples](https://www.funtoo.org/Awk_by_Example,_Part_1)
     * [grymoire - detailed tutorial](http://www.grymoire.com/Unix/Awk.html) - covers information about different `awk` versions as well
     * [catonmat - one liners explained](http://www.catonmat.net/series/awk-one-liners-explained)
+    * [Why Learn AWK?](http://blog.jpalardy.com/posts/why-learn-awk/)
     * [awk Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/awk?sort=votes&pageSize=15)
     * [awk Q&A on unix.stackexchange](https://unix.stackexchange.com/questions/tagged/awk?sort=votes&pageSize=15)
 * Alternatives
@@ -2619,8 +2643,11 @@ real    0m0.045s
     * [hawk](https://github.com/gelisam/hawk/blob/master/doc/README.md) - based on Haskell
     * [miller](https://github.com/johnkerl/miller) - similar to awk/sed/cut/join/sort for name-indexed data such as CSV, TSV, and tabular JSON
         * See this [ycombinator news](https://news.ycombinator.com/item?id=10066742) for other tools like this
-* [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
-* [awkaster](https://github.com/TheMozg/awk-raycaster) - Pseudo-3D shooter written completely in awk using raycasting technique
+* miscellaneous
+    * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
+    * [awk-libs](https://github.com/e36freak/awk-libs) - lots of useful functions
+    * [awkaster](https://github.com/TheMozg/awk-raycaster) - Pseudo-3D shooter written completely in awk using raycasting technique
+    * [awk REPL](http://awk.js.org/) - live editor on browser
 * examples for some of the stuff not covered in this tutorial
     * [unix.stackexchange - rand/srand](https://unix.stackexchange.com/questions/372816/awk-get-random-lines-of-file-satisfying-a-condition)
     * [unix.stackexchange - strftime](https://unix.stackexchange.com/questions/224969/current-date-in-awk)
