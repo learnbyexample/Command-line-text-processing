@@ -27,6 +27,14 @@
     * [combining head and tail](#combining-head-and-tail)
     * [Further Reading for head](#further-reading-for-head)
 * [Text Editors](#text-editors)
+* [Tee](#Store-and-view-the-output-at-the-same-time)
+    * [Write output to stdout, and also to a file](#command-usage)
+    * [Write the output to two commands](#command-usage)
+    * [Misc Tee Command Operations](#command-usage)
+    
+    
+
+
 
 <br>
 
