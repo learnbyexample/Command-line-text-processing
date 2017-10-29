@@ -32,9 +32,9 @@ Rough drafts
 
 Possible additions
 
-* Parsers for html, xml, json, etc
+* Parsers for html, xml, csv, json, etc
 * Renaming files
-* other than coreutils like combine, datamash, etc
+* other commands like split, combine, datamash, etc
 
 <br>
 
@@ -67,7 +67,8 @@ Includes only completed chapters
 ## <a name="acknowledgements"></a>Acknowledgements
 
 * [unix.stackexchange](https://unix.stackexchange.com/) and [stackoverflow](https://stackoverflow.com/) - for getting answers to pertinent questions as well as sharpening skills by understanding and answering questions
-* Forums like [Linux users](https://www.linkedin.com/groups/65688), [/r/commandline/](https://www.reddit.com/r/commandline/), [/r/linux/](https://www.reddit.com/r/linux/), [devup](http://devup.in/) and others for valuable feedback (especially spotting mistakes) and encouragement
+* Forums like [Linux users](https://www.linkedin.com/groups/65688), [/r/commandline/](https://www.reddit.com/r/commandline/), [/r/linux/](https://www.reddit.com/r/linux/), [news.ycombinator](https://news.ycombinator.com/news), [devup](http://devup.in/) and others for valuable feedback (especially spotting mistakes) and encouragement
+* See [wikipedia entry 'Roses Are Red'](https://en.wikipedia.org/wiki/Roses_Are_Red) for `poem.txt` used as sample text input file
 
 <br>
 
