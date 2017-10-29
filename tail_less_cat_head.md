@@ -1,4 +1,4 @@
-# <a name="cat-less-tail-and-head"></a>Cat, Less, Tail and Head
+# <a name="cat--tail-and-head"></a>Cat, Less, Tail, Head and Tee
 
 **Table of Contents**
 
@@ -688,3 +688,15 @@ Powerful text editors
 * [sublime](https://www.sublimetext.com/)
 
 Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/editor-perf) for some performance/feature comparisons of various text editors
+
+
+## <a name="Tee"></a>Tee
+
+  The following command displays output only on the screen (stdout).
+      $ ls 
+
+  The following command writes the output only to the file and not to the screen.
+      $ ls > file
+
+  The following command (with the help of tee command) writes the output both to the screen (stdout) and to the file.
+      $ ls | tee file
