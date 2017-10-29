@@ -691,7 +691,7 @@ Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/ed
 
 
 ## <a name="Tee"></a>Tee
-
+```
   The following command displays output only on the screen (stdout).
       $ ls 
 
@@ -700,3 +700,4 @@ Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/ed
 
   The following command (with the help of tee command) writes the output both to the screen (stdout) and to the file.
       $ ls | tee file
+```
