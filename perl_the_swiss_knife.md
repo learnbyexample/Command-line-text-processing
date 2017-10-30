@@ -7,6 +7,7 @@
 * [Line filtering](#line-filtering)
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Fixed string matching](#fixed-string-matching)
+    * [Line number based filtering](#line-number-based-filtering)
 
 <br>
 
@@ -168,6 +169,8 @@ I bought two bananas and three mangoes
 * syntax is `variable =~ m/REGEXP/FLAGS` to check for a match
     * `variable !~ m/REGEXP/FLAGS` for negated match
     * by default acts on `$_` if variable is not specified
+* as we need to print only selective lines, use `-n` option
+    * by default, contents of `$_` will be printed if no argument is passed to `print`
 
 ```bash
 $ cat poem.txt
@@ -190,6 +193,11 @@ $ # same as: grep -v 'are' poem.txt
 $ # !/are/ is shortcut for $_ !~ m/are/
 $ perl -ne 'print if !/are/' poem.txt
 Sugar is sweet,
+
+$ # same as: awk '/are/ && !/so/' poem.txt
+$ perl -ne 'print if /are/ && !/so/' poem.txt
+Roses are red,
+Violets are blue,
 ```
 
 * using different delimiter
@@ -201,19 +209,24 @@ Sugar is sweet,
 $ cat paths.txt
 /foo/a/report.log
 /foo/y/power.log
+/foo/abc/errors.log
 
 $ perl -ne 'print if /\/foo\/a\//' paths.txt
 /foo/a/report.log
 
 $ perl -ne 'print if m#/foo/a/#' paths.txt
 /foo/a/report.log
+
+$ perl -ne 'print if !m#/foo/a/#' paths.txt
+/foo/y/power.log
+/foo/abc/errors.log
 ```
 
 <br>
 
 #### <a name="fixed-string-matching"></a>Fixed string matching
 
-* like `grep -F` and `awk index`
+* similar to `grep -F` and `awk index`
 * See also
     * [perldoc - index function](https://perldoc.perl.org/functions/index.html)
     * [perldoc - Quote and Quote-like Operators](https://perldoc.perl.org/5.8.8/perlop.html#Quote-and-Quote-like-Operators)
@@ -230,7 +243,13 @@ $ a='123'; echo "$a"
 $ perl -e '$a=123; print "$a\n"'
 123
 
-$ # so, for command line usage, better to pass string as environment variable
+$ # so, for commandline usage, better to pass string as environment variable
+$ # they are accessible via the %ENV hash variable
+$ perl -le 'print $ENV{PWD}'
+/home/learnbyexample
+$ perl -le 'print $ENV{SHELL}'
+/bin/bash
+
 $ echo 'a#$%d' | perl -ne 'print if index($_, "#$%") != -1'
 $ echo 'a#$%d' | s='#$%' perl -ne 'print if index($_, $ENV{s}) != -1'
 a#$%d
@@ -246,6 +265,7 @@ a+b,pi=3.14,5e12
 i*(t+9-g)/8,4-a+b
 
 $ # start of line
+$ # same as: s='a+b' awk 'index($0, ENVIRON["s"])==1' eqns.txt
 $ s='a+b' perl -ne 'print if index($_, $ENV{s})==0' eqns.txt
 a+b,pi=3.14,5e12
 
@@ -254,6 +274,75 @@ $ # length function returns number of characters, by default acts on $_
 $ s='a+b' perl -ne '$pos = length() - length($ENV{s}) - 1;
                     print if index($_, $ENV{s}) == $pos' eqns.txt
 i*(t+9-g)/8,4-a+b
+```
+
+<br>
+
+#### <a name="line-number-based-filtering"></a>Line number based filtering
+
+* special variable `$.` contains total records read so far, similar to `NR` in `awk`
+    * But no equivalent of awk's `FNR`, [see this stackoverflow Q&A for workaround](https://stackoverflow.com/questions/12384692/line-number-of-a-file-in-perl)
+* See also [perldoc - eof](https://perldoc.perl.org/perlfunc.html#eof)
+
+```bash
+$ # same as: head -n2 poem.txt | tail -n1
+$ # or sed -n '2p' or awk 'NR==2'
+$ perl -ne 'print if $.==2' poem.txt
+Violets are blue,
+
+$ # print 2nd and 4th line
+$ # same as: sed -n '2p; 4p' or awk 'NR==2 || NR==4'
+$ perl -ne 'print if $.==2 || $.==4' poem.txt
+Violets are blue,
+And so are you.
+
+$ # same as: tail -n1 poem.txt
+$ # or sed -n '$p' or awk 'END{print}'
+$ perl -ne 'print if eof' poem.txt
+And so are you.
+```
+
+* for large input, use `exit` to avoid unnecessary record processing
+
+```bash
+$ seq 14323 14563435 | perl -ne 'if($.==234){print; exit}'
+14556
+
+$ # sample time comparison
+$ time seq 14323 14563435 | perl -ne 'if($.==234){print; exit}' > /dev/null
+real    0m0.005s
+$ time seq 14323 14563435 | perl -ne 'print if $.==234' > /dev/null
+real    0m2.439s
+
+$ # mimicking head command, same as: head -n3 or sed '3q'
+$ seq 14 25 | perl -pe 'exit if $.>3'
+14
+15
+16
+
+$ # same as: sed '3Q'
+$ seq 14 25 | perl -pe 'exit if $.==3'
+14
+15
+```
+
+* selecting range of lines
+* `..` is [perldoc - range operator](https://perldoc.perl.org/perlop.html#Range-Operators)
+
+```bash
+$ # same as: sed -n '3,5p' or awk 'NR>=3 && NR<=5'
+$ # in this context, the range is compared against $.
+$ seq 14 25 | perl -ne 'print if 3..5'
+16
+17
+18
+
+$ # selecting from particular line number to end of input
+$ # same as: sed -n '10,$p' or awk 'NR>=10'
+$ seq 14 25 | perl -ne 'print if $.>=10'
+23
+24
+25
 ```
 
 <br>
