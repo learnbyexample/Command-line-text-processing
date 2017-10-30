@@ -692,7 +692,7 @@ Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/ed
 
 ## <a name="Tee"></a>Tee
 
-## <a name="Write output to stdout, and also to a file"></a>output-to-stdout
+## <a name="output-to-stdout"></a>Write output to stdout, and also to a file
 ```
   The following command displays output only on the screen (stdout).
       $ ls 
