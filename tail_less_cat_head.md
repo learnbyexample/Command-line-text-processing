@@ -691,6 +691,8 @@ Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/ed
 
 
 ## <a name="Tee"></a>Tee
+
+## <a name="Write output to stdout, and also to a file"></a>Write output to stdout, and also to a file
 ```
   The following command displays output only on the screen (stdout).
       $ ls 
@@ -700,4 +702,25 @@ Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/ed
 
   The following command (with the help of tee command) writes the output both to the screen (stdout) and to the file.
       $ ls | tee file
+```
+
+## <a name="Write the output to two commands"></a>Write the output to two commands
+```
+   You can also use tee command to store the output of a command to a file and redirect the same output as an input to another   command.
+
+   The following command will take a backup of the crontab entries, and pass the crontab entries as an input to sed command which will do the substituion. After the substitution, it will be added as a new cron job.
+
+      $ crontab -l | tee crontab-backup.txt | sed 's/old/new/' | crontab –
+```
+
+## <a name="Misc Tee Command Operations"></a>Misc Tee Command Operations
+```
+   By default tee command overwrites the file. You can instruct tee command to append to the file using the option –a as shown below.
+
+      $ ls | tee –a file
+
+   You can also write the output to multiple files as shown below.
+
+      $ ls | tee file1 file2 file3
+      
 ```
