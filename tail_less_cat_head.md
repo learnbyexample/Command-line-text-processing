@@ -27,10 +27,10 @@
     * [combining head and tail](#combining-head-and-tail)
     * [Further Reading for head](#further-reading-for-head)
 * [Text Editors](#text-editors)
-* [Tee](#Store-and-view-the-output-at-the-same-time)
-    * [Write output to stdout, and also to a file](#command-usage)
-    * [Write the output to two commands](#command-usage)
-    * [Misc Tee Command Operations](#command-usage)
+* [Tee](#Tee)
+    * [Write output to stdout, and also to a file](#output-to-stdout)
+    * [Write the output to two commands](#output-to-two-commands)
+    * [Misc Tee Command Operations](#Misc)
     
     
 
@@ -692,7 +692,7 @@ Check out [this analysis](https://github.com/jhallen/joes-sandbox/tree/master/ed
 
 ## <a name="Tee"></a>Tee
 
-## <a name="Write output to stdout, and also to a file"></a>Write output to stdout, and also to a file
+## <a name="output-to-stdout"></a>output-to-stdout
 ```
   The following command displays output only on the screen (stdout).
       $ ls 
