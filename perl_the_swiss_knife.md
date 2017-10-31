@@ -8,6 +8,8 @@
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Fixed string matching](#fixed-string-matching)
     * [Line number based filtering](#line-number-based-filtering)
+* [Field processing](#field-processing)
+    * [Specifying different input field separator](#specifying-different-input-field-separator)
 
 <br>
 
@@ -78,6 +80,7 @@ $ bash -c 'echo "Hello Bash"'
 Hello Bash
 
 $ # multiple commands can be issued separated by ;
+$ # -l will be covered later, here used to append newline to print
 $ perl -le '$a=25; $b=12; print $a**$b'
 59604644775390625
 ```
@@ -344,6 +347,106 @@ $ seq 14 25 | perl -ne 'print if $.>=10'
 24
 25
 ```
+
+<br>
+
+## <a name="field-processing"></a>Field processing
+
+* `-a` option will auto-split each input record based on one or more continuous white-space, similar to default behavior in `awk`
+* Special variable array `@F` will contain all the elements, index starting from `0`
+* See also [perldoc - split function](https://perldoc.perl.org/functions/split.html)
+
+```bash
+$ cat fruits.txt
+fruit   qty
+apple   42
+banana  31
+fig     90
+guava   6
+
+$ # print only first field, index starting from 0
+$ # same as: awk '{print $1}' fruits.txt 
+$ perl -lane 'print $F[0]' fruits.txt
+fruit
+apple
+banana
+fig
+guava
+
+$ # print only second field
+$ # same as: awk '{print $2}' fruits.txt 
+$ perl -lane 'print $F[1]' fruits.txt
+qty
+42
+31
+90
+6
+```
+
+<br>
+
+#### <a name="specifying-different-input-field-separator"></a>Specifying different input field separator
+
+* by using `-F` command line option
+
+```bash
+$ # second field where input field separator is :
+$ # same as: awk -F: '{print $2}'
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print $F[1]'
+123
+
+$ # last field, same as: awk -F: '{print $NF}'
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print $F[-1]'
+789
+$ # second last field, same as: awk -F: '{print $(NF-1)}'
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print $F[-2]'
+bar
+
+$ # second and last field
+$ # other ways to print more than 1 element will be covered later
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print "$F[1] $F[-1]"'
+123 789
+
+$ # use quotes to avoid clashes with shell special characters
+$ echo 'one;two;three;four' | perl -F';' -lane 'print $F[2]'
+three
+```
+
+* Regular expressions based input field separator
+
+```bash
+$ # same as: awk -F'[0-9]+' '{print $2}'
+$ echo 'Sample123string54with908numbers' | perl -F'\d+' -lane 'print $F[1]'
+string
+
+$ # first field will be empty as there is nothing before '{'
+$ # same as: awk -F'[{}= ]+' '{print $1}'
+$ # \x20 is space character, can't use literal space within [] when using -F
+$ echo '{foo}   bar=baz' | perl -F'[{}=\x20]+' -lane 'print $F[0]'
+
+$ echo '{foo}   bar=baz' | perl -F'[{}=\x20]+' -lane 'print $F[1]'
+foo
+$ echo '{foo}   bar=baz' | perl -F'[{}=\x20]+' -lane 'print $F[2]'
+bar
+```
+
+* empty argument to `-F` will split the input record character wise
+
+```bash
+$ # same as: gawk -v FS= '{print $1}'
+$ echo 'apple' | perl -F -lane 'print $F[0]'
+a
+$ echo 'apple' | perl -F -lane 'print $F[1]'
+p
+$ echo 'apple' | perl -F -lane 'print $F[-1]'
+e
+
+$ # use -C option when dealing with unicode characters
+$ # S will turn on UTF-8 for stdin/stdout/stderr streams
+$ printf 'hi👍 how are you?' | perl -CS -F -lane 'print $F[2]'
+👍
+```
+
 
 <br>
 
