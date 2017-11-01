@@ -10,6 +10,7 @@
     * [Line number based filtering](#line-number-based-filtering)
 * [Field processing](#field-processing)
     * [Specifying different input field separator](#specifying-different-input-field-separator)
+    * [Specifying different output field separator](#specifying-different-output-field-separator)
 
 <br>
 
@@ -383,6 +384,24 @@ qty
 6
 ```
 
+* by default, leading and trailing whitespaces won't be considered when splitting the input record
+    * mimicking `awk`'s default behavior
+
+```bash
+$ printf ' a    ate b\tc   \n'
+ a    ate b	c   
+$ printf ' a    ate b\tc   \n' | perl -lane 'print $F[0]'
+a
+$ printf ' a    ate b\tc   \n' | perl -lane 'print $F[-1]'
+c
+
+$ # number of fields
+$ echo '1 a 7' | perl -lane 'print $#F+1'
+3
+$ printf ' a    ate b\tc   \n' | perl -lane 'print $#F+1'
+4
+```
+
 <br>
 
 #### <a name="specifying-different-input-field-separator"></a>Specifying different input field separator
@@ -445,6 +464,72 @@ $ # use -C option when dealing with unicode characters
 $ # S will turn on UTF-8 for stdin/stdout/stderr streams
 $ printf 'hi👍 how are you?' | perl -CS -F -lane 'print $F[2]'
 👍
+```
+
+<br>
+
+#### <a name="specifying-different-output-field-separator"></a>Specifying different output field separator
+
+* Method 1: use `$,` to change separator between `print` arguments
+    * could be remembered easily by noting that `,` is used to separate `print` arguments
+
+```bash
+$ # by default, the various arguments are concatenated
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print $F[1], $F[-1]'
+123789
+
+$ # change $, if different separator is needed
+$ echo 'foo:123:bar:789' | perl -F: -lane '$,=" "; print $F[1], $F[-1]'
+123 789
+$ echo 'foo:123:bar:789' | perl -F: -lane '$,="-"; print $F[1], $F[-1]'
+123-789
+
+$ # argument can be array too
+$ echo 'foo:123:bar:789' | perl -F: -lane '$,="-"; print @F[1,-1]'
+123-789
+$ echo 'foo:123:bar:789' | perl -F: -lane '$,=" - "; print @F'
+foo - 123 - bar - 789
+```
+
+* Method 2: use `join`
+
+```bash
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print join "-", $F[1], $F[-1]'
+123-789
+
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print join "-", @F[1,-1]'
+123-789
+
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print join " - ", @F'
+foo - 123 - bar - 789
+```
+
+* Method 3: use `$"` to change separator when array is interpolated, default is space character
+    * could be remembered easily by noting that interpolation happens within double quotes
+
+```bash
+$ # default is space
+$ echo 'foo:123:bar:789' | perl -F: -lane 'print "@F[1,-1]"'
+123 789
+
+$ echo 'foo:123:bar:789' | perl -F: -lane '$"="-"; print "@F[1,-1]"'
+123-789
+
+$ echo 'foo:123:bar:789' | perl -F: -lane '$"=","; print "@F"'
+foo,123,bar,789
+```
+
+* use `BEGIN` if same separator is to used for all lines
+    * statements inside `BEGIN` are executed before processing any input text
+
+```bash
+$ # can also use: perl -lane 'BEGIN{$"=","} print "@F"' fruits.txt
+$ perl -lane 'BEGIN{$,=","} print @F' fruits.txt
+fruit,qty
+apple,42
+banana,31
+fig,90
+guava,6
 ```
 
 
