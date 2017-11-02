@@ -9,6 +9,7 @@
     * [Fixed string matching](#fixed-string-matching)
     * [Line number based filtering](#line-number-based-filtering)
 * [Field processing](#field-processing)
+    * [Field comparison](#field-comparison)
     * [Specifying different input field separator](#specifying-different-input-field-separator)
     * [Specifying different output field separator](#specifying-different-output-field-separator)
 
@@ -395,11 +396,44 @@ a
 $ printf ' a    ate b\tc   \n' | perl -lane 'print $F[-1]'
 c
 
-$ # number of fields
+$ # number of fields, $#F gives index of last element - so add 1
 $ echo '1 a 7' | perl -lane 'print $#F+1'
 3
 $ printf ' a    ate b\tc   \n' | perl -lane 'print $#F+1'
 4
+```
+
+<br>
+
+#### <a name="field-comparison"></a>Field comparison
+
+* for numeric context, Perl automatically tries to convert the string to number, ignoring white-space
+* for string comparison, use `eq` for `==`, `ne` for `!=` and so on
+
+```bash
+$ # if first field exactly matches the string 'apple'
+$ # same as: awk '$1=="apple"{print $2}' fruits.txt
+$ perl -lane 'print $F[1] if $F[0] eq "apple"' fruits.txt
+42
+
+$ # print first field if second field > 35 (excluding header)
+$ # same as: awk 'NR>1 && $2>35{print $1}' fruits.txt 
+$ perl -lane 'print $F[0] if $F[1]>35 && $.>1' fruits.txt
+apple
+fig
+
+$ # print header and lines with qty < 35
+$ # same as: awk 'NR==1 || $2<35' fruits.txt
+$ perl -ane 'print if $F[1]<35 || $.==1' fruits.txt
+fruit   qty
+banana  31
+guava   6
+
+$ # if first field does NOT contain 'a'
+$ # same as: awk '$1 !~ /a/' fruits.txt 
+$ perl -ane 'print if $F[0] !~ /a/' fruits.txt
+fruit   qty
+fig     90
 ```
 
 <br>
@@ -519,7 +553,7 @@ $ echo 'foo:123:bar:789' | perl -F: -lane '$"=","; print "@F"'
 foo,123,bar,789
 ```
 
-* use `BEGIN` if same separator is to used for all lines
+* use `BEGIN` if same separator is to be used for all lines
     * statements inside `BEGIN` are executed before processing any input text
 
 ```bash
@@ -531,6 +565,8 @@ banana,31
 fig,90
 guava,6
 ```
+
+
 
 
 <br>
