@@ -34,7 +34,7 @@ Possible additions
 
 * Parsers for html, xml, csv, json, etc
 * Renaming files
-* other commands like split, combine, datamash, etc
+* Other commands like split, combine, datamash, etc
 
 <br>
 
