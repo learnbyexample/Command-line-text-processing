@@ -12,6 +12,7 @@
     * [Field comparison](#field-comparison)
     * [Specifying different input field separator](#specifying-different-input-field-separator)
     * [Specifying different output field separator](#specifying-different-output-field-separator)
+* [Changing record separators](#changing-record-separators)
 
 <br>
 
@@ -566,8 +567,45 @@ fig,90
 guava,6
 ```
 
+## <a name="changing-record-separators"></a>Changing record separators
 
+* by default, newline character is used as input record separator
+* use `$/` to specify a different input record separator
 
+```bash
+$ s='this is a sample string'
+
+$ # space as input record separator, printing all records
+$ # same as: awk -v RS=' ' '{print NR, $0}'
+$ printf "$s" | perl -lne 'BEGIN{$/=" "} print "$. $_"'
+1 this
+2 is
+3 a
+4 sample
+5 string
+
+$ # print all records containing 'a'
+$ # same as: awk -v RS=' ' '/a/'
+$ printf "$s" | perl -lne 'BEGIN{$/=" "} print if /a/'
+a
+sample
+```
+
+* for single characters, can also use command line option `-0` which accepts an octal/hexadecimal value argument
+* use `-l` before `-0`
+
+```bash
+$ printf "$s" | perl -l -0040 -ne 'print "$. $_"'
+1 this
+2 is
+3 a
+4 sample
+5 string
+
+$ printf "$s" | perl -l -0040 -ne 'print if /a/'
+a
+sample
+```
 
 <br>
 
