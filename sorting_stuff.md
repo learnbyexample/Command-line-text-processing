@@ -665,6 +665,28 @@ more,ap_93,7
 rest,up_5,63
 ```
 
+* Debugging sort. Recent (~2010) releases of coreutils sort (v8.6+) allow you to visualize your sort criteria
+
+```bash
+$ sort --debug -t, -k2.4,2n marks.txt
+sort: using ‘en_US.utf8’ sorting rules
+rest,up_5,63
+        _
+____________
+fork,ap_12,54
+        __
+_____________
+fold,tn_48,211
+        __
+______________
+more,ap_93,7
+        __
+____________
+flat,up_342,1.2
+        ___
+_______________
+```
+
 * If there are headers
 
 ```bash
