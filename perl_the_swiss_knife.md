@@ -93,7 +93,7 @@ $ perl -le '$a=25; $b=12; print $a**$b'
 * `perl -h` for summary of options
 * [perldoc - Command Switches](https://perldoc.perl.org/perlrun.html#Command-Switches)
 * [explainshell](https://explainshell.com/explain?cmd=perl+-F+-l+-anpeE+-i+-0+-M) - to quickly get information without having to traverse through the docs
-
+* See [Changing record separators](#changing-record-separators) section for more details on `-l` option
 
 <br>
 
@@ -107,7 +107,7 @@ $ perl -le '$a=25; $b=12; print $a**$b'
     * like `sed`, the `-n` option won't print the record
     * `-p` will print the record, including any changes made
     * newline character being default record separator
-    * `$_` will contain the input record content, including the record separator
+    * `$_` will contain the input record content, including the record separator (unlike `sed` and `awk`)
 * and similar to other commands, `perl` will work with both stdin and file input
 
 ```bash
@@ -569,8 +569,40 @@ guava,6
 
 ## <a name="changing-record-separators"></a>Changing record separators
 
+* Before seeing examples for changing record separators, let's cover a detail about contents of input record and use of `-l` option
+* See also [perldoc - chomp](https://perldoc.perl.org/functions/chomp.html)
+
+```bash
+$ # input record includes the record separator as well
+$ # can also use: perl -pe 's/$/ 123/'
+$ echo 'foo' | perl -pe 's/\n/ 123\n/'
+foo 123
+
+$ # this example shows better use case
+$ # similar to paste -sd but with ability to use multi-character delimiter
+$ seq 5 | perl -pe 's/\n/ : / if !eof'
+1 : 2 : 3 : 4 : 5
+
+$ # -l option will chomp off the record separator (among other things)
+$ echo 'foo' | perl -l -pe 's/\n/ 123\n/'
+foo
+
+$ # -l also sets output record separator which gets added to print statements
+$ # ORS gets input record separator value if no argument is passed to -l
+$ # hence the newline automatically getting added for print in this example
+$ perl -lane 'print $F[0] if $F[1]<35 && $.>1' fruits.txt
+banana
+guava
+```
+
 * by default, newline character is used as input record separator
 * use `$/` to specify a different input record separator
+    * unlike `awk`, only string can be used, no regular expressions
+* for single character separator, can also use `-0` command line option which accepts octal/hexadecimal value as argument
+* if `-l` option is also used
+    * input record separator will be chomped from input record
+    * in addition, if argument is not passed to `-l`, output record separator will get whatever is current value of input record separator
+    * so, order of `-l`, `-0` and/or `$/` usage becomes important
 
 ```bash
 $ s='this is a sample string'
@@ -586,25 +618,35 @@ $ printf "$s" | perl -lne 'BEGIN{$/=" "} print "$. $_"'
 
 $ # print all records containing 'a'
 $ # same as: awk -v RS=' ' '/a/'
-$ printf "$s" | perl -lne 'BEGIN{$/=" "} print if /a/'
+$ printf "$s" | perl -l -0040 -ne 'print if /a/'
 a
 sample
 ```
 
-* for single characters, can also use command line option `-0` which accepts an octal/hexadecimal value argument
-* use `-l` before `-0`
+* `-0` option used without argument will use the ASCII NUL character as input record separator 
 
 ```bash
-$ printf "$s" | perl -l -0040 -ne 'print "$. $_"'
-1 this
-2 is
-3 a
-4 sample
-5 string
+$ printf 'foo\0bar\0' | cat -A
+foo^@bar^@$ 
+$ printf 'foo\0bar\0' | perl -l -0 -ne 'print'
+foo
+bar
 
-$ printf "$s" | perl -l -0040 -ne 'print if /a/'
-a
-sample
+$ # could be golfed to: perl -l -0pe ''
+$ # but dont use `-l0` as `0` will be treated as argument to `-l`
+```
+
+* values `-0400` to `-0777` will cause entire file to be slurped
+    * idiomatically, `-0777` is used
+
+```bash
+$ # s modifier allows . to match newline as well
+$ perl -0777 -pe 's/red.*are //s' poem.txt
+Roses are you.
+
+$ # replace first newline with '. '
+$ perl -0777 -pe 's/\n/. /' greeting.txt
+Hello there. Have a safe journey
 ```
 
 <br>
