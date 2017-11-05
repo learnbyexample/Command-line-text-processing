@@ -13,6 +13,7 @@
     * [Specifying different input field separator](#specifying-different-input-field-separator)
     * [Specifying different output field separator](#specifying-different-output-field-separator)
 * [Changing record separators](#changing-record-separators)
+    * [Input record separator](#input-record-separator)
 
 <br>
 
@@ -595,6 +596,10 @@ banana
 guava
 ```
 
+<br>
+
+#### <a name="input-record-separator"></a>Input record separator
+
 * by default, newline character is used as input record separator
 * use `$/` to specify a different input record separator
     * unlike `awk`, only string can be used, no regular expressions
@@ -647,6 +652,74 @@ Roses are you.
 $ # replace first newline with '. '
 $ perl -0777 -pe 's/\n/. /' greeting.txt
 Hello there. Have a safe journey
+```
+
+* for paragraph mode (two more more consecutive newline characters), use `-00` or assign empty string to `$/`
+
+Consider the below sample file
+
+```bash
+$ cat sample.txt
+Hello World
+
+Good day
+How are you
+
+Just do-it
+Believe it
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+Much ado about nothing
+He he he
+```
+
+* again, input record will have the separator too and using `-l` will chomp it
+* however, if more than two consecutive newline characters separate the paragraphs, only two newlines will be preserved and the rest discarded
+    * use `$/="\n\n"` to avoid this behavior
+
+```bash
+$ # print all paragraphs containing 'it'
+$ # same as: awk -v RS= -v ORS='\n\n' '/it/' sample.txt
+$ perl -00 -ne 'print if /it/' sample.txt
+Just do-it
+Believe it
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+$ # based on number of lines in each paragraph
+$ perl -F'\n' -00 -ane 'print if $#F==0' sample.txt
+Hello World
+
+$ # unlike awk -F'\n' -v RS= -v ORS='\n\n' 'NF==2 && /do/' sample.txt
+$ # there wont be empty line at end because input file didn't have it
+$ perl -F'\n' -00 -ane 'print if $#F==1 && /do/' sample.txt
+Just do-it
+Believe it
+
+Much ado about nothing
+He he he
+```
+
+* Re-structuring paragraphs
+
+```bash
+$ # same as: awk 'BEGIN{FS="\n"; OFS=". "; RS=""; ORS="\n\n"} {$1=$1} 1'
+$ perl -F'\n' -00 -ane 'print join ". ", @F; print "\n\n"' sample.txt
+Hello World
+
+Good day. How are you
+
+Just do-it. Believe it
+
+Today is sunny. Not a bit funny. No doubt you like it too
+
+Much ado about nothing. He he he
+
 ```
 
 <br>
