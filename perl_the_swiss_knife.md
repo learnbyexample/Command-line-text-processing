@@ -14,6 +14,7 @@
     * [Specifying different output field separator](#specifying-different-output-field-separator)
 * [Changing record separators](#changing-record-separators)
     * [Input record separator](#input-record-separator)
+    * [Output record separator](#output-record-separator)
 
 <br>
 
@@ -720,6 +721,75 @@ Today is sunny. Not a bit funny. No doubt you like it too
 
 Much ado about nothing. He he he
 
+```
+
+* multi-character separator
+
+```bash
+$ cat report.log 
+blah blah
+Error: something went wrong
+more blah
+whatever
+Error: something surely went wrong
+some text
+some more text
+blah blah blah
+
+$ # number of records, same as: awk -v RS='Error:' 'END{print NR}'
+$ perl -lne 'BEGIN{$/="Error:"} print $. if eof' report.log
+3
+$ # print first record
+$ perl -lne 'BEGIN{$/="Error:"} print if $.==1' report.log
+blah blah
+
+$ # same as: awk -F'\n' -v RS='Error:' '/surely/{print RS $0}' report.log
+$ perl -F'\n' -lane 'BEGIN{$/="Error:"} print "$/$_" if /surely/' report.log
+Error: something surely went wrong
+some text
+some more text
+blah blah blah
+
+```
+
+<br>
+
+#### <a name="output-record-separator"></a>Output record separator
+
+* one way is to use `$\` to specify a different output record separator
+    * by default it doesn't have a value
+
+```bash
+$ # note that despite $\ not having a value, output has newlines
+$ # because the input record still has the input record separator
+$ seq 3 | perl -ne 'print'
+1
+2
+3
+$ # same as: awk -v ORS='\n\n' '{print $0}'
+$ seq 3 | perl -ne 'BEGIN{$\="\n"} print'
+1
+
+2
+
+3
+
+```
+
+* dynamically changing output record separator
+
+```bash
+$ # same as: awk '{ORS = NR%2 ? " " : "\n"} 1'
+$ # note the use of -l to chomp the input record separator
+$ seq 6 | perl -lpe '$\ = $.%2 ? " " : "\n"'
+1 2
+3 4
+5 6
+$ # -l also sets the output record separator
+$ # but gets overridden by $\
+$ seq 6 | perl -lpe '$\ = $.%3 ? "-" : "\n"'
+1-2-3
+4-5-6
 ```
 
 <br>
