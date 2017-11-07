@@ -615,6 +615,7 @@ $ s='this is a sample string'
 
 $ # space as input record separator, printing all records
 $ # same as: awk -v RS=' ' '{print NR, $0}'
+$ # ORS is newline as it is used before $/ gets changed
 $ printf "$s" | perl -lne 'BEGIN{$/=" "} print "$. $_"'
 1 this
 2 is
@@ -627,6 +628,10 @@ $ # same as: awk -v RS=' ' '/a/'
 $ printf "$s" | perl -l -0040 -ne 'print if /a/'
 a
 sample
+
+$ # if the order is changed, ORS will be space, not newline
+$ printf "$s" | perl -0040 -l -ne 'print if /a/'
+a sample 
 ```
 
 * `-0` option used without argument will use the ASCII NUL character as input record separator 
@@ -752,6 +757,24 @@ blah blah blah
 
 ```
 
+* Joining lines based on specific end of line condition
+
+```bash
+$ cat msg.txt
+Hello there.
+It will rain to-
+day. Have a safe
+and pleasant jou-
+rney.
+
+$ # same as: awk -v RS='-\n' -v ORS= '1' msg.txt
+$ # can also use: perl -pe 's/-\n//' msg.txt
+$ perl -pe 'BEGIN{$/="-\n"} chomp' msg.txt
+Hello there.
+It will rain today. Have a safe
+and pleasant journey.
+```
+
 <br>
 
 #### <a name="output-record-separator"></a>Output record separator
@@ -790,6 +813,26 @@ $ # but gets overridden by $\
 $ seq 6 | perl -lpe '$\ = $.%3 ? "-" : "\n"'
 1-2-3
 4-5-6
+```
+
+* passing argument to `-l` to set output record separator
+
+```bash
+$ seq 8 | perl -ne 'print if /[24]/'
+2
+4
+
+$ # null separator, note how -l also chomps input record separator
+$ seq 8 | perl -l0 -ne 'print if /[24]/' | cat -A
+2^@4^@
+
+$ # comma separator
+$ seq 8 | perl -l054 -ne 'print if /[24]/'
+2,4, 
+
+$ # to add a final newline to output, use END and printf
+$ seq 8 | perl -l054 -ne 'print if /[24]/; END{printf "\n"}'
+2,4,
 ```
 
 <br>
