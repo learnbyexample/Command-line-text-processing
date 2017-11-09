@@ -15,6 +15,7 @@
 * [Changing record separators](#changing-record-separators)
     * [Input record separator](#input-record-separator)
     * [Output record separator](#output-record-separator)
+* [Multiline processing](#multiline-processing)
 
 <br>
 
@@ -615,7 +616,7 @@ $ s='this is a sample string'
 
 $ # space as input record separator, printing all records
 $ # same as: awk -v RS=' ' '{print NR, $0}'
-$ # ORS is newline as it is used before $/ gets changed
+$ # ORS is newline as -l is used before $/ gets changed
 $ printf "$s" | perl -lne 'BEGIN{$/=" "} print "$. $_"'
 1 this
 2 is
@@ -834,6 +835,96 @@ $ # to add a final newline to output, use END and printf
 $ seq 8 | perl -l054 -ne 'print if /[24]/; END{printf "\n"}'
 2,4,
 ```
+
+<br>
+
+## <a name="multiline-processing"></a>Multiline processing
+
+* Processing consecutive lines
+
+```bash
+$ cat poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # match two consecutive lines
+$ # same as: awk 'p~/are/ && /is/{print p ORS $0} {p=$0}' poem.txt
+$ perl -ne 'print "$p$_" if /is/ && $p=~/are/; $p=$_' poem.txt
+Violets are blue,
+Sugar is sweet,
+$ # if only the second line is needed, same as: awk 'p~/are/ && /is/; {p=$0}'
+$ perl -ne 'print if /is/ && $p=~/are/; $p=$_' poem.txt
+Sugar is sweet,
+
+$ # print if line matches a condition as well as condition for next 2 lines
+$ # same as: awk 'p2~/red/ && p1~/blue/ && /is/{print p2} {p2=p1; p1=$0}'
+$ perl -ne 'print $p2 if /is/ && $p1=~/blue/ && $p2=~/red/;
+            $p2=$p1; $p1=$_' poem.txt
+Roses are red,
+```
+
+Consider this sample input file
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+* extracting lines around matching line
+* how `$n && $n--` works:
+    * need to note that right hand side of `&&` is processed only if left hand side is `true`
+    * so for example, if initially `$n=2`, then we get
+        * `2 && 2; $n=1` - evaluates to `true`
+        * `1 && 1; $n=0` - evaluates to `true`
+        * `0 && ` - evaluates to `false` ... no decrementing `$n` and hence will be `false` until `$n` is re-assigned non-zero value
+
+```bash
+$ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt 
+$ # same as: awk '/BEGIN/{n=2} n && n--' range.txt
+$ perl -ne '$n=2 if /BEGIN/; print if $n && $n--' range.txt
+BEGIN
+1234
+BEGIN
+a
+
+$ # print only line after matching line, same as: awk 'n && n--; /BEGIN/{n=1}'
+$ perl -ne 'print if $n && $n--; $n=1 if /BEGIN/' range.txt
+1234
+a
+
+$ # generic case: print nth line after match, awk 'n && !--n; /BEGIN/{n=3}'
+$ perl -ne 'print if $n && !--$n; $n=3 if /BEGIN/' range.txt
+END
+c
+
+$ # print second line prior to matched line
+$ # same as: awk '/END/{print p2} {p2=p1; p1=$0}' range.txt
+$ perl -ne 'print $p2 if /END/; $p2=$p1; $p1=$_' range.txt
+1234
+b
+
+$ # use reversing trick for generic case of nth line before match
+$ # same as: tac range.txt | awk 'n && !--n; /END/{n=3}' | tac
+$ tac range.txt | perl -ne 'print if $n && !--$n; $n=3 if /END/' | tac
+BEGIN
+a
+```
+
+
+
 
 <br>
 
