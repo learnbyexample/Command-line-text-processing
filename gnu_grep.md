@@ -1393,7 +1393,7 @@ $ man grep | sed -n '/^\s*-P/,/^$/p'
 * For more info
     * `man pcrepattern` or [read it online](http://www.pcre.org/original/doc/html/pcrepattern.html)
     * [perldoc - re](http://perldoc.perl.org/perlre.html) - Perl regular expression syntax, also links to other related tutorials
-    * [regular expression examples on SO documentation](https://stackoverflow.com/documentation/regex/topics)
+    * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
 
 <br>
 
