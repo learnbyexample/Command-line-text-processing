@@ -359,6 +359,38 @@ Commonly used commands are given below, press `h` for summary of options
 
 <br>
 
+#### <a name="a-better-tail"></a>A better tail
+
+```bash
+less +F sample.log
+```
+
+* Opens streaming file and updates in real time (similar to `tail -f sample.log`)
+* Ctrl+c will pause update and allow normal less navigation command usage
+* `F` will jump to end of file and resume streaming updates
+* Note: You must stop streaming (Ctrl+c) before attempting to `q`uit less
+
+<br>
+
+#### <a name="edit-file-easier-and-faster"></a>Edit file easier and faster
+
+* When viewing any file with less, `v` will open the file in the editor as defined by the `EDITOR` environment variable (will be `vi` by default)
+* When you quit out of the editor, it returns you back to less
+
+<br>
+
+#### <a name="multiple-files-with-less"></a>Multiple files with less at same time
+
+```bash
+less sample1.log sample2.log sample3.log
+```
+
+* Views multiple files in the order presented on CLI
+* `:n` to view the next file in list
+* `:p` to view the previous file in list
+
+<br>
+
 #### <a name="further-reading-for-less"></a>Further Reading for less
 
 * See `man less` for detailed info on commands and options. For example:
