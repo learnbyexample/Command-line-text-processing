@@ -16,6 +16,9 @@
     * [Input record separator](#input-record-separator)
     * [Output record separator](#output-record-separator)
 * [Multiline processing](#multiline-processing)
+* [Perl regular expressions](#perl-regular-expressions)
+    * [sed vs perl subtle differences](#sed-vs-perl-subtle-differences)
+    * [Backslash sequences](#backslash-sequences)
 
 <br>
 
@@ -923,7 +926,102 @@ BEGIN
 a
 ```
 
+<br>
 
+## <a name="perl-regular-expressions"></a>Perl regular expressions
+
+* examples to showcase some of the features not present in ERE and modifiers not available in `sed`'s substitute command
+* many features of Perl regular expressions will NOT be covered, but external links will be provided wherever relevant
+* examples/descriptions based only on ASCII encoding
+
+<br>
+
+#### <a name="sed-vs-perl-subtle-differences"></a>sed vs perl subtle differences
+
+* input record separator being part of input record
+
+```bash
+$ echo 'foo:123:bar:789' | sed -E 's/[^:]+$/xyz/'
+foo:123:bar:xyz
+$ # newline character gets replaced too as shown by shell prompt
+$ echo 'foo:123:bar:789' | perl -pe 's/[^:]+$/xyz/'
+foo:123:bar:xyz$ 
+$ # simple workaround is to use -l option
+$ echo 'foo:123:bar:789' | perl -lpe 's/[^:]+$/xyz/'
+foo:123:bar:xyz
+
+$ # of course it has uses too
+$ seq 10 | paste -sd, | sed 's/,/ : /g'
+1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
+$ seq 10 | perl -pe 's/\n/ : / if !eof'
+1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
+```
+
+* how much does `*` match?
+
+```bash
+$ # sed will choose biggest match
+$ echo ',baz,,xyz,,,' | sed 's/[^,]*/A/g'
+A,A,A,A,A,A,A
+$ echo 'foo,baz,,xyz,,,123' | sed 's/[^,]*/A/g'
+A,A,A,A,A,A,A
+
+$ # but perl will match both empty and non-empty strings
+$ echo ',baz,,xyz,,,' | perl -lpe 's/[^,]*/A/g'
+A,AA,A,AA,A,A,A
+$ echo 'foo,baz,,xyz,,,123' | perl -lpe 's/[^,]*/A/g'
+AA,AA,A,AA,A,A,AA
+```
+
+* backslash sequences inside character classes
+
+```bash
+$ # \w would simply match w
+$ echo 'w=y-x+9*3' | sed 's/[\w=]//g'
+y-x+9*3
+
+$ # \w would match any word character
+$ echo 'w=y-x+9*3' | perl -pe 's/[\w=]//g'
+-+*
+```
+
+* replacing specific occurrence
+* See [stackoverflow - substitute the nth occurrence of a match in a Perl regex](https://stackoverflow.com/questions/2555662/how-can-i-substitute-the-nth-occurrence-of-a-match-in-a-perl-regex) for workarounds
+
+```bash
+$ echo 'foo:123:bar:baz' | sed 's/:/-/2'
+foo:123-bar:baz
+
+$ echo 'foo:123:bar:baz' | perl -pe 's/:/-/2'
+Unknown regexp modifier "/2" at -e line 1, at end of line
+Execution of -e aborted due to compilation errors.
+```
+
+<br>
+
+#### <a name="backslash-sequences"></a>Backslash sequences
+
+* `\d` for `[0-9]`
+* `\s` for `[ \t\r\n\f]`
+* `\h` for `[ \t]`
+* `\n` for newline character
+* `\D`, `\S`, `\H`, `\N` respectively for their opposites
+* See [perldoc - perlrecharclass](https://perldoc.perl.org/perlrecharclass.html#Backslash-sequences) for full list and details
+
+```bash
+$ # same as: sed -E 's/[0-9]+/xxx/g'
+$ echo 'like 42 and 37' | perl -pe 's/\d+/xxx/g'
+like xxx and xxx
+
+$ # same as: sed -E 's/[^0-9]+/xxx/g'
+$ # note again the use of -l because of newline in input record
+$ echo 'like 42 and 37' | perl -lpe 's/\D+/xxx/g'
+xxx42xxx37
+
+$ # no need -l here as \h won't match newline
+$ echo 'a b c  ' | perl -pe 's/\h*$//'
+a b c
+```
 
 
 <br>
