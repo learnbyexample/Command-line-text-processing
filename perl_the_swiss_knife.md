@@ -997,6 +997,32 @@ Unknown regexp modifier "/2" at -e line 1, at end of line
 Execution of -e aborted due to compilation errors.
 ```
 
+* variable interpolation when `$` or `@` is used
+* See also [perldoc - Quote and Quote-like Operators](https://perldoc.perl.org/5.8.8/perlop.html#Quote-and-Quote-like-Operators)
+
+```bash
+$ seq 2 | sed 's/$a/xyz/'
+1
+2
+
+$ # uninitialized variable, same applies for: perl -pe 's/@a/xyz/'
+$ seq 2 | perl -pe 's/$a/xyz/'
+xyz1
+xyz2
+$ # initialized variable
+$ seq 2 | perl -pe '$a=2; s/$a/xyz/'
+1
+xyz
+
+$ # using single quotes as delimiter won't interpolate
+$ # not usable for one-liners given shell's own single/double quotes behavior
+$ cat sub_sq.pl
+s'$a'xyz'
+$ seq 2 | perl -p sub_sq.pl
+1
+2
+```
+
 <br>
 
 #### <a name="backslash-sequences"></a>Backslash sequences
