@@ -19,6 +19,7 @@
 * [Perl regular expressions](#perl-regular-expressions)
     * [sed vs perl subtle differences](#sed-vs-perl-subtle-differences)
     * [Backslash sequences](#backslash-sequences)
+    * [Non-greedy quantifier](#non-greedy-quantifier)
 
 <br>
 
@@ -1049,6 +1050,39 @@ $ echo 'a b c  ' | perl -pe 's/\h*$//'
 a b c
 ```
 
+<br>
+
+#### <a name="non-greedy-quantifier"></a>Non-greedy quantifier
+
+* adding a `?` to `?` or `*` or `+` or `{}` quantifiers will change matching from greedy to non-greedy. In other words, to match as minimally as possible
+    * also known as lazy quantifier
+* See also [regular-expressions.info - Possessive Quantifiers](http://www.regular-expressions.info/possessive.html)
+
+```bash
+$ # greedy matching
+$ echo 'foo and bar and baz land good' | perl -pe 's/foo.*and//'
+ good
+$ # non-greedy matching
+$ echo 'foo and bar and baz land good' | perl -pe 's/foo.*?and//'
+ bar and baz land good
+
+$ echo '12342789' | perl -pe 's/\d{2,5}//'
+789
+$ echo '12342789' | perl -pe 's/\d{2,5}?//'
+342789
+
+$ # for single character, non-greedy is not always needed
+$ echo '123:42:789:good:5:bad' | perl -pe 's/:.*?:/:/'
+123:789:good:5:bad
+$ echo '123:42:789:good:5:bad' | perl -pe 's/:[^:]*:/:/'
+123:789:good:5:bad
+
+$ # just like greedy, overall matching is considered, as minimal as possible
+$ echo '123:42:789:good:5:bad' | perl -pe 's/:.*?:[a-z]/:/'
+123:ood:5:bad
+$ echo '123:42:789:good:5:bad' | perl -pe 's/:.*:[a-z]/:/'
+123:ad
+```
 
 <br>
 
