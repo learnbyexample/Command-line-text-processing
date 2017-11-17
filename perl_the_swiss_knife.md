@@ -20,6 +20,7 @@
     * [sed vs perl subtle differences](#sed-vs-perl-subtle-differences)
     * [Backslash sequences](#backslash-sequences)
     * [Non-greedy quantifier](#non-greedy-quantifier)
+    * [Lookarounds](#lookarounds)
 
 <br>
 
@@ -1024,6 +1025,24 @@ $ seq 2 | perl -p sub_sq.pl
 2
 ```
 
+* back reference
+* See also [perldoc - Warning on \1 Instead of $1](https://perldoc.perl.org/perlre.html#Warning-on-%5c1-Instead-of-%241)
+
+```bash
+$ # use $& to refer entire matched string in replacement section
+$ echo 'hello world' | sed 's/.*/"&"/'
+"hello world"
+$ echo 'hello world' | perl -pe 's/.*/"&"/'
+"&"
+$ echo 'hello world' | perl -pe 's/.*/"$&"/'
+"hello world"
+
+$ # use \1, \2, etc or \g1, \g2 etc for back referencing in search section
+$ # use $1, $2, etc in replacement section
+$ echo 'a a a walking for for a cause' | perl -pe 's/\b(\w+)( \1)+\b/$1/g'
+a walking for a cause
+```
+
 <br>
 
 #### <a name="backslash-sequences"></a>Backslash sequences
@@ -1083,6 +1102,108 @@ $ echo '123:42:789:good:5:bad' | perl -pe 's/:.*?:[a-z]/:/'
 $ echo '123:42:789:good:5:bad' | perl -pe 's/:.*:[a-z]/:/'
 123:ad
 ```
+
+<br>
+
+#### <a name="lookarounds"></a>Lookarounds
+
+* Ability to add conditions to match before/after required pattern
+* There are four types
+    * positive lookahead `(?=`
+    * negative lookahead `(?!`
+    * positive lookbehind `(?<=`
+    * negative lookbehind `(?<!`
+* One way to remember is that **behind** uses `<` and **negative** uses `!` instead of `=`
+
+The string matched by lookarounds are like word boundaries and anchors, do not constitute as part of matched string
+
+* positive lookbehind `(?<=`
+
+```bash
+$ s='foo=5, bar=3; x=83, y=120'
+
+$ # extract all digit sequences
+$ echo "$s" | perl -lne 'print join " ", /\d+/g'
+5 3 83 120
+
+$ # extract digits only if preceded by two lowercase alphabets and =
+$ # note how the characters matched by lookbehind isn't part of output
+$ echo "$s" | perl -lne 'print join " ", /(?<=[a-z]{2}=)\d+/g'
+5 3
+
+$ # this can be done without lookbehind too
+$ # taking advantage of behavior of //g when () is used
+$ echo "$s" | perl -lne 'print join " ", /[a-z]{2}=(\d+)/g'
+5 3
+
+$ # change all digits preceded by single lowercase alphabet and =
+$ echo "$s" | perl -pe 's/(?<=\b[a-z]=)\d+/42/g'
+foo=5, bar=3; x=42, y=42
+$ # alternate, without lookbehind
+$ echo "$s" | perl -pe 's/(\b[a-z]=)\d+/${1}42/g'
+foo=5, bar=3; x=42, y=42
+```
+
+* positive lookahead `(?=`
+
+```bash
+$ s='foo=5, bar=3; x=83, y=120'
+
+$ # extract digits that end with ,
+$ # can also use: perl -lne 'print join ":", /(\d+),/g'
+$ echo "$s" | perl -lne 'print join ":", /\d+(?=,)/g'
+5:83
+
+$ # change all digits ending with ,
+$ # can also use: perl -pe 's/\d+,/42,/g'
+$ echo "$s" | perl -pe 's/\d+(?=,)/42/g'
+foo=42, bar=3; x=42, y=120
+
+$ # both lookbehind and lookahead
+$ echo 'foo,,baz,,,xyz' | perl -pe 's/,,/,NA,/g'
+foo,NA,baz,NA,,xyz
+$ echo 'foo,,baz,,,xyz' | perl -pe 's/(?<=,)(?=,)/NA/g'
+foo,NA,baz,NA,NA,xyz
+```
+
+* negative lookbehind `(?<!` and negative lookahead `(?!`
+
+```bash
+$ # change foo if not preceded by _
+$ echo 'foo _foo 1foo' | perl -pe 's/(?<!_)foo/baz/g'
+baz _foo 1baz
+
+$ # join each line in paragraph by replacing newline character
+$ # expect the one at end of paragraph
+$ perl -00 -pe 's/\n(?!$)/. /g' sample.txt
+Hello World
+
+Good day. How are you
+
+Just do-it. Believe it
+
+Today is sunny. Not a bit funny. No doubt you like it too
+
+Much ado about nothing. He he he
+```
+
+* variable lookbehind with `\K`
+* useful when positive lookbehind is not a constant length of characters to look up
+    * for ex: quantifiers that can match different number of characters
+
+```bash
+$ # lookbehind is checking start of line (0 characters) and comma(1 character)
+$ echo ',baz,,,xyz,,' | perl -pe 's/(?<=^|,)(?=,|$)/NA/g'
+Variable length lookbehind not implemented in regex m/(?<=^|,)(?=,|$)/ at -e line 1.
+
+$ # \K helps in such cases
+$ echo ',baz,,,xyz,,' | perl -pe 's/(^|,)\K(?=,|$)/NA/g'
+NA,baz,NA,NA,xyz,NA,NA
+```
+
+**Further Reading**
+
+* [stackoverflow - reverse four letter words](https://stackoverflow.com/questions/46870285/reverse-four-length-of-letters-with-sed-in-unix)
 
 <br>
 
