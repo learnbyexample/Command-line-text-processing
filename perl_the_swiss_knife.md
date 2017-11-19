@@ -21,6 +21,8 @@
     * [Backslash sequences](#backslash-sequences)
     * [Non-greedy quantifier](#non-greedy-quantifier)
     * [Lookarounds](#lookarounds)
+    * [Ignoring specific matches](#ignoring-specific-matches)
+    * [Re-using regular expression](#re-using-regular-expression)
 
 <br>
 
@@ -1170,6 +1172,7 @@ foo,NA,baz,NA,NA,xyz
 
 ```bash
 $ # change foo if not preceded by _
+$ # note how 'foo' at start of line is matched as well
 $ echo 'foo _foo 1foo' | perl -pe 's/(?<!_)foo/baz/g'
 baz _foo 1baz
 
@@ -1204,6 +1207,51 @@ NA,baz,NA,NA,xyz,NA,NA
 **Further Reading**
 
 * [stackoverflow - reverse four letter words](https://stackoverflow.com/questions/46870285/reverse-four-length-of-letters-with-sed-in-unix)
+
+<br>
+
+#### <a name="ignoring-specific-matches"></a>Ignoring specific matches
+
+* A useful construct is `(*SKIP)(*F)` which allows to discard matches not needed
+    * regular expression which should be discarded is written first, `(*SKIP)(*F)` is appended and then required regular expression is added after `|`
+* See also [Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail)
+
+```bash
+$ s='Car Bat cod12 Map foo_bar'
+$ # all words except those starting with 'c' or 'C'
+$ echo "$s" | perl -lne 'print join "\n", /\bc\w+(*SKIP)(*F)|\w+/gi'
+Bat
+Map
+foo_bar
+
+$ s='I like "mango" and "guava"'
+$ # all words except those surrounded by double quotes
+$ echo "$s" | perl -lne 'print join "\n", /"[^"]+"(*SKIP)(*F)|\w+/g'
+I
+like
+and
+$ # change words except those surrounded by double quotes
+$ echo "$s" | perl -pe 's/"[^"]+"(*SKIP)(*F)|\w+/\U$&/g'
+I LIKE "mango" AND "guava"
+```
+
+<br>
+
+#### <a name="re-using-regular-expression"></a>Re-using regular expression
+
+* `\1`, `\2` etc only matches exact string
+* `(?1)`, `(?2)` etc re-uses the regular expression itself
+
+```bash
+$ s='baz 2008-03-24 and 2012-08-12 foo 2016-03-25'
+$ # (?1) refers to first capture group (\d{4}-\d{2}-\d{2})
+$ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and (?1)//'
+baz  foo 2016-03-25
+
+$ # using \1 won't work as the two dates are different
+$ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and \1//'
+baz 2008-03-24 and 2012-08-12 foo 2016-03-25
+```
 
 <br>
 
