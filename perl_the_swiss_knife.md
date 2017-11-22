@@ -23,6 +23,7 @@
     * [Lookarounds](#lookarounds)
     * [Ignoring specific matches](#ignoring-specific-matches)
     * [Re-using regular expression](#re-using-regular-expression)
+    * [Modifiers](#modifiers)
 
 <br>
 
@@ -1207,6 +1208,7 @@ NA,baz,NA,NA,xyz,NA,NA
 **Further Reading**
 
 * [stackoverflow - reverse four letter words](https://stackoverflow.com/questions/46870285/reverse-four-length-of-letters-with-sed-in-unix)
+* [stackoverflow - lookarounds and possessive quantifier](https://stackoverflow.com/questions/42437747/pcre-negative-lookahead-gives-unexpected-match)
 
 <br>
 
@@ -1252,6 +1254,56 @@ $ # using \1 won't work as the two dates are different
 $ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and \1//'
 baz 2008-03-24 and 2012-08-12 foo 2016-03-25
 ```
+
+<br>
+
+#### <a name="modifiers"></a>Modifiers
+
+* some are already seen, like the `g` (global match) and `i` (case insensitive matching)
+* first up, the `r` modifier which returns the substitution result instead of modifying the variable it is acting upon
+
+```bash
+$ perl -e '$x="feed"; $y=$x=~s/e/E/gr; print "x=$x\ny=$y\n"'
+x=feed
+y=fEEd
+
+$ # the r modifier is available for transliteration operator too
+$ perl -e '$x="food"; $y=$x=~tr/a-z/A-Z/r; print "x=$x\ny=$y\n"'
+x=food
+y=FOOD
+```
+
+* `e` modifier allows to use Perl code in replacement section instead of string
+* use `ee` if you need to construct a string and then apply evaluation
+
+```bash
+$ # replace numbers with their squares
+$ echo '4 and 10' | perl -pe 's/\d+/$&*$&/ge'
+16 and 100
+
+$ # replace matched string with incremental value
+$ echo '4 and 10 foo 57' | perl -pe 's/\d+/++$c/ge'
+1 and 2 foo 3
+$ # passing initial value
+$ echo '4 and 10 foo 57' | c=100 perl -pe 's/\d+/$ENV{c}++/ge'
+100 and 101 foo 102
+
+$ # formatting string
+$ echo '104 and 10 foo 57' | perl -pe 's/\d+/sprintf "%03d", $&/ge'
+104 and 010 foo 057
+
+$ # calling a function
+$ echo 'food:12:explain:789' | perl -pe 's/\w+/length($&)/ge'
+4:2:7:3
+
+$ # applying another substitution to matched string
+$ echo '"mango" and "guava"' | perl -pe 's/"[^"]+"/$&=~s|a|A|gr/ge'
+"mAngo" and "guAvA"
+```
+
+**Further Reading**
+
+* [perldoc - perlre Modifiers](https://perldoc.perl.org/perlre.html#Modifiers)
 
 <br>
 
