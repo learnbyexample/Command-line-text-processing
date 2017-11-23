@@ -22,7 +22,7 @@
     * [Non-greedy quantifier](#non-greedy-quantifier)
     * [Lookarounds](#lookarounds)
     * [Ignoring specific matches](#ignoring-specific-matches)
-    * [Re-using regular expression](#re-using-regular-expression)
+    * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
 
 <br>
@@ -1239,7 +1239,7 @@ I LIKE "mango" AND "guava"
 
 <br>
 
-#### <a name="re-using-regular-expression"></a>Re-using regular expression
+#### <a name="special-capture-groups"></a>Special capture groups
 
 * `\1`, `\2` etc only matches exact string
 * `(?1)`, `(?2)` etc re-uses the regular expression itself
@@ -1254,6 +1254,48 @@ $ # using \1 won't work as the two dates are different
 $ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and \1//'
 baz 2008-03-24 and 2012-08-12 foo 2016-03-25
 ```
+
+* use `(?:` to group regular expressions without capturing it, so this won't be counted for backreference
+* See also [stackoverflow - what is non-capturing group](https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-what-does-a-question-mark-followed-by-a-colon)
+
+```bash
+$ s='Car Bat cod12 Map foo_bar'
+$ # check what happens if ?: is not used
+$ echo "$s" | perl -lne 'print join "\n", /(?:Bat|Map)(*SKIP)(*F)|\w+/gi'
+Car
+cod12
+foo_bar
+
+$ # using ?: helps to focus only on required capture groups
+$ echo 'cod1 foo_bar' | perl -pe 's/(?:co|fo)\K(\w)(\w)/$2$1/g'
+co1d fo_obar
+$ # without ?: you'd need to remember all the other groups as well
+$ echo 'cod1 foo_bar' | perl -pe 's/(co|fo)\K(\w)(\w)/$3$2/g'
+co1d fo_obar
+```
+
+* named capture groups `(?<name>`
+    * for backreference, use `\k<name>`
+    * accessible via `%+` hash in replacement section
+
+```bash
+$ s='baz 2008-03-24 and 2012-08-12 foo 2016-03-25'
+$ echo "$s" | perl -pe 's/(\d{4})-(\d{2})-(\d{2})/$3-$2-$1/g'
+baz 24-03-2008 and 12-08-2012 foo 25-03-2016
+
+$ # naming the capture groups might offer clarity
+$ echo "$s" | perl -pe 's/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/$+{d}-$+{m}-$+{y}/g'
+baz 24-03-2008 and 12-08-2012 foo 25-03-2016
+$ echo "$s" | perl -pe 's/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/$+{m}-$+{d}-$+{y}/g'
+baz 03-24-2008 and 08-12-2012 foo 03-25-2016
+
+$ # and useful to transform different capture groups
+$ s='"foo,bar",123,"x,y,z",42'
+$ echo "$s" | perl -lpe 's/"(?<a>[^"]+)",|(?<a>[^,]+),/$+{a}|/g'
+foo,bar|123|x,y,z|42
+```
+
+* See also [rexegg - all the (? usages](http://www.rexegg.com/regex-disambiguation.html)
 
 <br>
 
