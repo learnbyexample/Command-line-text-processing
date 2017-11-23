@@ -1301,9 +1301,32 @@ $ echo '"mango" and "guava"' | perl -pe 's/"[^"]+"/$&=~s|a|A|gr/ge'
 "mAngo" and "guAvA"
 ```
 
+* multiline modifiers
+
+```bash
+$ # m modifier to match beginning/end of each line within multiline string
+$ perl -00 -ne 'print if /^Believe/' sample.txt
+$ perl -00 -ne 'print if /^Believe/m' sample.txt
+Just do-it
+Believe it
+
+$ perl -00 -ne 'print if /funny$/' sample.txt
+$ perl -00 -ne 'print if /funny$/m' sample.txt
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+$ # s modifier to allow . meta character to match newlines as well
+$ perl -00 -ne 'print if /do.*he/' sample.txt
+$ perl -00 -ne 'print if /do.*he/s' sample.txt
+Much ado about nothing
+He he he
+```
+
 **Further Reading**
 
 * [perldoc - perlre Modifiers](https://perldoc.perl.org/perlre.html#Modifiers)
+* [stackoverflow - replacement within matched string](https://stackoverflow.com/questions/40458639/replacement-within-the-matched-string-with-sed)
 
 <br>
 
