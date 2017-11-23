@@ -26,6 +26,7 @@
     * [Modifiers](#modifiers)
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
+    * [Comparing specific fields](#comparing-specific-fields)
 
 <br>
 
@@ -1242,7 +1243,7 @@ I LIKE "mango" AND "guava"
 **Further Reading**
 
 * [perldoc - Special Backtracking Control Verbs](https://perldoc.perl.org/perlre.html#Special-Backtracking-Control-Verbs)
-* [Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail)
+* [rexegg - Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail)
 
 <br>
 
@@ -1399,7 +1400,7 @@ $ perl -lne 'print $#ARGV' <(seq 2) <(seq 3) <(seq 1)
 
 $ # creating hash variable
 $ # checking if a key is present using exists
-$ # or if value if known to evaluate to true
+$ # or if value is known to evaluate to true
 $ perl -le '$h{"a"}=5; $h{"b"}=0; $h{1}="abc";
             print "key:a value=", $h{"a"};
             print "key:b present" if exists $h{"b"};
@@ -1432,7 +1433,7 @@ Red
 White
 ```
 
-* For two files as input, `$#ARGV` will be '0' only when first file is being processed
+* For two files as input, `$#ARGV` will be `0` only when first file is being processed
 * Using `next` will skip rest of code
 * entire line is used as key
 
@@ -1445,6 +1446,12 @@ $ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
 Blue
 Red
 
+$ # can also use if-else instead of next
+$ perl -ne 'if(!$#ARGV){ $h{$_}=1 }
+            else{ print if $h{$_} }' colors_1.txt colors_2.txt
+Blue
+Red
+
 $ # lines from colors_2.txt not present in colors_1.txt
 $ # same as: grep -vFxf colors_1.txt colors_2.txt
 $ # same as: awk 'NR==FNR{a[$0]; next} !($0 in a)' colors_1.txt colors_2.txt
@@ -1454,6 +1461,91 @@ Black
 Green
 White
 ```
+
+<br>
+
+#### <a name="comparing-specific-fields"></a>Comparing specific fields
+
+Consider the sample input file
+
+```bash
+$ cat marks.txt
+Dept    Name    Marks
+ECE     Raj     53
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+EEE     Tia     59
+ECE     Om      92
+CSE     Amy     67
+```
+
+* single field
+* For ex: only first field comparison instead of entire line as key
+
+```bash
+$ cat list1
+ECE
+CSE
+
+$ # extract only lines matching first field specified in list1
+$ # same as: awk 'NR==FNR{a[$1]; next} $1 in a' list1 marks.txt
+$ perl -ane 'if(!$#ARGV){ $h{$F[0]}=1 }
+             else{ print if $h{$F[0]} }' list1 marks.txt
+ECE     Raj     53
+ECE     Joel    72
+CSE     Surya   81
+ECE     Om      92
+CSE     Amy     67
+
+$ # if header is needed as well
+$ # same as: awk 'NR==FNR{a[$1]; next} FNR==1 || $1 in a' list1 marks.txt
+$ perl -ane 'if(!$#ARGV){ $h{$F[0]}=1 }
+             else{ print if $h{$F[0]} || !$c++ }' list1 marks.txt
+Dept    Name    Marks
+ECE     Raj     53
+ECE     Joel    72
+CSE     Surya   81
+ECE     Om      92
+CSE     Amy     67
+```
+
+* for multiple field comparison, use multidimensional hash
+
+```bash
+$ cat list2
+EEE Moi
+CSE Amy
+ECE Raj
+
+$ # extract only lines matching both fields specified in list2
+$ # same as: awk 'NR==FNR{a[$1,$2]; next} ($1,$2) in a' list2 marks.txt
+$ perl -ane 'if(!$#ARGV){ $h{$F[0]}{$F[1]}=1 }
+             else{ print if $h{$F[0]}{$F[1]} }' list2 marks.txt
+ECE     Raj     53
+EEE     Moi     68
+CSE     Amy     67
+```
+
+* field and value comparison
+
+```bash
+$ cat list3
+ECE 70
+EEE 65
+CSE 80
+
+$ # extract line matching Dept and minimum marks specified in list3
+$ # same as: awk 'NR==FNR{d[$1]; m[$1]=$2; next} $1 in d && $3 >= m[$1]'
+$ perl -ane 'if(!$#ARGV){ $d{$F[0]}=1; $m{$F[0]}=$F[1] }
+             else{ print if $d{$F[0]} && $F[2]>=$m{$F[0]} }' list3 marks.txt
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+ECE     Om      92
+```
+
+
 
 
 <br>
