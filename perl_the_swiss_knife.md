@@ -24,6 +24,8 @@
     * [Ignoring specific matches](#ignoring-specific-matches)
     * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
+* [Two file processing](#two-file-processing)
+    * [Comparing whole lines](#comparing-whole-lines)
 
 <br>
 
@@ -937,6 +939,7 @@ a
 
 * examples to showcase some of the features not present in ERE and modifiers not available in `sed`'s substitute command
 * many features of Perl regular expressions will NOT be covered, but external links will be provided wherever relevant
+    * See [perldoc - perlre](https://perldoc.perl.org/perlre.html) for complete reference
 * examples/descriptions based only on ASCII encoding
 
 <br>
@@ -1110,7 +1113,7 @@ $ echo '123:42:789:good:5:bad' | perl -pe 's/:.*:[a-z]/:/'
 
 #### <a name="lookarounds"></a>Lookarounds
 
-* Ability to add conditions to match before/after required pattern
+* Ability to add if conditions to match before/after required pattern
 * There are four types
     * positive lookahead `(?=`
     * negative lookahead `(?!`
@@ -1118,7 +1121,7 @@ $ echo '123:42:789:good:5:bad' | perl -pe 's/:.*:[a-z]/:/'
     * negative lookbehind `(?<!`
 * One way to remember is that **behind** uses `<` and **negative** uses `!` instead of `=`
 
-The string matched by lookarounds are like word boundaries and anchors, do not constitute as part of matched string
+The string matched by lookarounds are like word boundaries and anchors, do not constitute as part of matched string. They are termed as **zero-width patterns**
 
 * positive lookbehind `(?<=`
 
@@ -1216,7 +1219,6 @@ NA,baz,NA,NA,xyz,NA,NA
 
 * A useful construct is `(*SKIP)(*F)` which allows to discard matches not needed
     * regular expression which should be discarded is written first, `(*SKIP)(*F)` is appended and then required regular expression is added after `|`
-* See also [Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail)
 
 ```bash
 $ s='Car Bat cod12 Map foo_bar'
@@ -1236,6 +1238,11 @@ $ # change words except those surrounded by double quotes
 $ echo "$s" | perl -pe 's/"[^"]+"(*SKIP)(*F)|\w+/\U$&/g'
 I LIKE "mango" AND "guava"
 ```
+
+**Further Reading**
+
+* [perldoc - Special Backtracking Control Verbs](https://perldoc.perl.org/perlre.html#Special-Backtracking-Control-Verbs)
+* [Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail)
 
 <br>
 
@@ -1295,7 +1302,11 @@ $ echo "$s" | perl -lpe 's/"(?<a>[^"]+)",|(?<a>[^,]+),/$+{a}|/g'
 foo,bar|123|x,y,z|42
 ```
 
-* See also [rexegg - all the (? usages](http://www.rexegg.com/regex-disambiguation.html)
+**Further Reading**
+
+* [perldoc - Extended Patterns](https://perldoc.perl.org/perlre.html#Extended-Patterns)
+* [rexegg - all the (? usages](http://www.rexegg.com/regex-disambiguation.html)
+* [regular-expressions - recursion](http://www.regular-expressions.info/recurse.html#balanced)
 
 <br>
 
@@ -1369,6 +1380,81 @@ He he he
 
 * [perldoc - perlre Modifiers](https://perldoc.perl.org/perlre.html#Modifiers)
 * [stackoverflow - replacement within matched string](https://stackoverflow.com/questions/40458639/replacement-within-the-matched-string-with-sed)
+
+<br>
+
+## <a name="two-file-processing"></a>Two file processing
+
+First, a bit about `$#ARGV` and hash variables
+
+```bash
+$ # $#ARGV can be used to know which file is being processed
+$ perl -lne 'print $#ARGV' <(seq 2) <(seq 3) <(seq 1)
+1
+1
+0
+0
+0
+-1
+
+$ # creating hash variable
+$ # checking if a key is present using exists
+$ # or if value if known to evaluate to true
+$ perl -le '$h{"a"}=5; $h{"b"}=0; $h{1}="abc";
+            print "key:a value=", $h{"a"};
+            print "key:b present" if exists $h{"b"};
+            print "key:1 present" if $h{1}'
+key:a value=5
+key:b present
+key:1 present
+```
+
+<br>
+
+#### <a name="comparing-whole-lines"></a>Comparing whole lines
+
+Consider the following test files
+
+```bash
+$ cat colors_1.txt
+Blue
+Brown
+Purple
+Red
+Teal
+Yellow
+
+$ cat colors_2.txt
+Black
+Blue
+Green
+Red
+White
+```
+
+* For two files as input, `$#ARGV` will be '0' only when first file is being processed
+* Using `next` will skip rest of code
+* entire line is used as key
+
+```bash
+$ # common lines
+$ # same as: grep -Fxf colors_1.txt colors_2.txt
+$ # same as: awk 'NR==FNR{a[$0]; next} $0 in a' colors_1.txt colors_2.txt
+$ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
+            print if $h{$_}' colors_1.txt colors_2.txt
+Blue
+Red
+
+$ # lines from colors_2.txt not present in colors_1.txt
+$ # same as: grep -vFxf colors_1.txt colors_2.txt
+$ # same as: awk 'NR==FNR{a[$0]; next} !($0 in a)' colors_1.txt colors_2.txt
+$ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
+            print if !$h{$_}' colors_1.txt colors_2.txt
+Black
+Green
+White
+```
+
 
 <br>
 
