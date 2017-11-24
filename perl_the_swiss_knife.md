@@ -27,6 +27,7 @@
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
+    * [Line number matching](#line-number-matching)
 
 <br>
 
@@ -62,6 +63,7 @@ SYNOPSIS
     * examples for non-greedy, lookarounds, etc will be covered here
 * this tutorial is primarily focussed on short programs that are easily usable from command line, similar to using `grep`, `sed`, `awk` etc
     * do NOT use style/syntax presented here when writing full fledged Perl programs which should use **strict, warnings** etc
+    * see [learnxinyminutes - perl](https://learnxinyminutes.com/docs/perl/) for quick intro to using Perl for full fledged programs
 * links to Perl documentation will be added as necessary
 * unless otherwise specified, consider input as ASCII encoded text only
 
@@ -1446,12 +1448,6 @@ $ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
 Blue
 Red
 
-$ # can also use if-else instead of next
-$ perl -ne 'if(!$#ARGV){ $h{$_}=1 }
-            else{ print if $h{$_} }' colors_1.txt colors_2.txt
-Blue
-Red
-
 $ # lines from colors_2.txt not present in colors_1.txt
 $ # same as: grep -vFxf colors_1.txt colors_2.txt
 $ # same as: awk 'NR==FNR{a[$0]; next} !($0 in a)' colors_1.txt colors_2.txt
@@ -1460,6 +1456,29 @@ $ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
 Black
 Green
 White
+```
+
+* alternatives constructs
+
+```bash
+$ # using if-else instead of next
+$ perl -ne 'if(!$#ARGV){ $h{$_}=1 }
+            else{ print if $h{$_} }' colors_1.txt colors_2.txt
+Blue
+Red
+
+$ # read all lines of first file in BEGIN block
+$ # <> reads a line from current file argument
+$ # eof will ensure only first file is read
+$ perl -ne 'BEGIN{ $h{<>}=1 while !eof; }
+            print if $h{$_}' colors_1.txt colors_2.txt
+Blue
+Red
+$ # this method also allows to easily reset line number
+$ perl -ne 'BEGIN{ $h{<>}=1 while !eof; $.=0}
+            print "$.\n" if $h{$_}' colors_1.txt colors_2.txt
+2
+4
 ```
 
 <br>
@@ -1545,7 +1564,30 @@ CSE     Surya   81
 ECE     Om      92
 ```
 
+* See also [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash)
 
+<br>
+
+#### <a name="line-number-matching"></a>Line number matching
+
+```bash
+$ # replace mth line in poem.txt with nth line from nums.txt
+$ # same as: awk -v m=3 -v n=2 'BEGIN{while(n-- > 0) getline s < "nums.txt"}
+$ #                             FNR==m{$0=s} 1' poem.txt
+$ m=3 n=2 perl -pe 'BEGIN{ $s=<> while $ENV{n}-- > 0; close ARGV}
+                    $_=$s if $.==$ENV{m}' nums.txt poem.txt
+Roses are red,
+Violets are blue,
+-2
+And so are you.
+
+$ # print line from fruits.txt if corresponding line from nums.txt is +ve number
+$ # same as: awk -v file='nums.txt' '{getline num < file; if(num>0) print}'
+$ file='nums.txt' perl -ne 'BEGIN{open($f,$ENV{file})}
+                            $num=<$f>; print if $num>0' fruits.txt
+fruit   qty
+banana  31
+```
 
 
 <br>
