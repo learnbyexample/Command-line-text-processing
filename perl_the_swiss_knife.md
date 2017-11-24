@@ -28,6 +28,7 @@
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
     * [Line number matching](#line-number-matching)
+* [Creating new fields](#creating-new-fields)
 
 <br>
 
@@ -1458,7 +1459,7 @@ Green
 White
 ```
 
-* alternatives constructs
+* alternative constructs
 
 ```bash
 $ # using if-else instead of next
@@ -1475,7 +1476,8 @@ $ perl -ne 'BEGIN{ $h{<>}=1 while !eof; }
 Blue
 Red
 $ # this method also allows to easily reset line number
-$ perl -ne 'BEGIN{ $h{<>}=1 while !eof; $.=0}
+$ # close ARGV is similar to calling nextfile in GNU awk
+$ perl -ne 'BEGIN{ $h{<>}=1 while !eof; close ARGV}
             print "$.\n" if $h{$_}' colors_1.txt colors_2.txt
 2
 4
@@ -1588,6 +1590,73 @@ $ file='nums.txt' perl -ne 'BEGIN{open($f,$ENV{file})}
 fruit   qty
 banana  31
 ```
+
+<br>
+
+## <a name="creating-new-fields"></a>Creating new fields
+
+* Number of fields in input record can be changed by simply manipulating `$#F`
+
+```bash
+$ s='foo,bar,123,baz'
+
+$ # reducing fields
+$ # same as: awk -F, -v OFS=, '{NF=2} 1'
+$ echo "$s" | perl -F, -lane '$,=","; $#F=1; print @F'
+foo,bar
+
+$ # creating new empty field(s)
+$ # same as: awk -F, -v OFS=, '{NF=5} 1'
+$ echo "$s" | perl -F, -lane '$,=","; $#F=4; print @F'
+foo,bar,123,baz,
+
+$ # assigning to field greater than $#F will create empty fields as needed
+$ # same as: awk -F, -v OFS=, '{$7=42} 1'
+$ echo "$s" | perl -F, -lane '$,=","; $F[6]=42; print @F'
+foo,bar,123,baz,,,42
+```
+
+* adding a field based on existing fields
+
+```bash
+$ # adding a new 'Grade' field, split will be covered later
+$ # same as: awk 'BEGIN{OFS="\t"; split("DCBAS",g,//)}
+$ #          {NF++; $NF = NR==1 ? "Grade" : g[int($(NF-1)/10)-4]} 1' marks.txt
+$ perl -lane 'BEGIN{$,="\t"; @g = split //, "DCBAS"} $#F++;
+              $F[-1] = $.==1 ? "Grade" : $g[$F[-2]/10 - 5]; print @F' marks.txt
+Dept    Name    Marks   Grade
+ECE     Raj     53      D
+ECE     Joel    72      B
+EEE     Moi     68      C
+CSE     Surya   81      A
+EEE     Tia     59      D
+ECE     Om      92      S
+CSE     Amy     67      C
+```
+
+* two file example
+
+```bash
+$ cat list4
+Raj class_rep
+Amy sports_rep
+Tia placement_rep
+
+$ # same as: awk -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
+$ #          {NF++; $NF = FNR==1 ? "Role" : $NF=r[$2]} 1' list4 marks.txt
+$ perl -lane 'if(!$#ARGV){ $r{$F[0]}=$F[1] }
+              else{ $#F++; $F[-1] = !$c++ ? "Role" : $r{$F[1]};
+                    print join "\t", @F }' list4 marks.txt
+Dept    Name    Marks   Role
+ECE     Raj     53      class_rep
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+EEE     Tia     59      placement_rep
+ECE     Om      92
+CSE     Amy     67      sports_rep
+```
+
 
 
 <br>
