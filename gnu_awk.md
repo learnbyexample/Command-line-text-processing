@@ -1527,7 +1527,6 @@ And so are you.
 * Another use case is if two files are to be processed exactly for same line numbers
 
 ```bash
-
 $ # print line from fruits.txt if corresponding line from nums.txt is +ve number
 $ awk -v file='nums.txt' '{getline num < file; if(num>0) print}' fruits.txt
 fruit   qty
@@ -1565,7 +1564,11 @@ foo,bar,123,baz,
 $ # assigning to field greater than NF will create empty fields as needed
 $ echo 'foo,bar,123,baz' | awk -F, -v OFS=, '{$7=42} 1'
 foo,bar,123,baz,,,42
+```
 
+* adding a field based on existing fields
+
+```bash
 $ # adding a new 'Grade' field
 $ awk 'BEGIN{OFS="\t"; g[9]="S"; g[8]="A"; g[7]="B"; g[6]="C"; g[5]="D"}
       {NF++; if(NR==1)$NF="Grade"; else $NF=g[int($(NF-1)/10)]} 1' marks.txt
@@ -1577,6 +1580,10 @@ CSE     Surya   81      A
 EEE     Tia     59      D
 ECE     Om      92      S
 CSE     Amy     67      C
+
+$ # can also use split (covered in a later section)
+$ # array assignment: split("DCBAS",g,//)
+$ # index adjustment: g[int($(NF-1)/10)-4]
 ```
 
 * two file example
@@ -1982,6 +1989,7 @@ END
 * [unix.stackexchange - print only blocks with lines > n](https://unix.stackexchange.com/questions/295600/deleting-lines-between-rows-in-a-text-file-using-awk-or-sed)
 * [unix.stackexchange - print a block only if it contains matching string](https://unix.stackexchange.com/a/335523/109046)
 * [unix.stackexchange - print a block matching two different strings](https://unix.stackexchange.com/questions/347368/grep-with-range-and-pass-three-filters)
+* [unix.stackexchange - extract block up to 2nd occurrence of ending REGEXP](https://unix.stackexchange.com/questions/404175/using-awk-to-print-lines-from-one-match-through-a-second-instance-of-a-separate)
 
 <br>
 
@@ -2227,6 +2235,7 @@ guava   6
 * [unix.stackexchange - Modify records in fixed-width files](https://unix.stackexchange.com/questions/368574/modify-records-in-fixed-width-files)
 * [unix.stackexchange - detecting empty fields in fixed width files](https://unix.stackexchange.com/questions/321559/extracting-data-with-awk-when-some-lines-have-empty-missing-values)
 * [stackoverflow - count number of times value is repeated each line](https://stackoverflow.com/questions/37450880/how-do-i-filter-tab-separated-input-by-the-count-of-fields-with-a-given-value)
+* [stackoverflow - skip characters with FIELDWIDTHS in GNU Awk 4.2](https://stackoverflow.com/questions/46932189/how-do-you-skip-characters-with-fieldwidths-in-gnu-awk-4-2)
 
 <br>
 
