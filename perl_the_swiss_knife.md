@@ -30,6 +30,8 @@
     * [Line number matching](#line-number-matching)
 * [Creating new fields](#creating-new-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
+* [Lines between two REGEXPs](#lines-between-two-regexps)
+    * [All unbroken blocks](#all-unbroken-blocks)
 
 <br>
 
@@ -1701,7 +1703,9 @@ food toy ****
 
 $ # use arbitrary-precision integers, limited only by available memory
 $ # same as: awk -M '!($2 in seen){c++} {seen[$2]} END{print +c}' duplicates.txt
-$ perl -Mbignum -lane '$c++ if !$seen{$F[1]}++; END{print $c+0}' duplicates.txt
+$ # -M option here enables the use of bignum module
+$ perl -Mbignum -lane '$c++ if !$seen{$F[1]}; $seen{$F[1]}=1;
+                       END{print $c+0}' duplicates.txt
 2
 ```
 
@@ -1762,6 +1766,92 @@ $ perl -ane 'if(!$#ARGV){ $a{$F[2]}++ }
              else{ print if $a{$F[2]}==1 }' duplicates.txt duplicates.txt
 test toy 123
 ```
+
+<br>
+
+## <a name="lines-between-two-regexps"></a>Lines between two REGEXPs
+
+* This section deals with filtering lines bound by two *REGEXP*s (referred to as blocks)
+* For simplicity the two *REGEXP*s usually used in below examples are the strings **BEGIN** and **END**
+
+<br>
+
+#### <a name="all-unbroken-blocks"></a>All unbroken blocks
+
+Consider the below sample input file, which doesn't have any unbroken blocks (i.e **BEGIN** and **END** are always present in pairs)
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+* Extracting lines between starting and ending *REGEXP*
+
+```bash
+$ # include both starting/ending REGEXP
+$ # same as: awk '/BEGIN/{f=1} f; /END/{f=0}' range.txt
+$ perl -ne '$f=1 if /BEGIN/; print if $f; $f=0 if /END/' range.txt
+BEGIN
+1234
+6789
+END
+BEGIN
+a
+b
+c
+END
+
+$ # can also use: perl -ne 'print if /BEGIN/../END/' range.txt
+$ # which is similar to sed -n '/BEGIN/,/END/p'
+$ # but not suitable to extend for other cases
+```
+
+* other variations
+
+```bash
+$ # same as: awk '/END/{f=0} f; /BEGIN/{f=1}' range.txt
+$ perl -ne '$f=0 if /END/; print if $f; $f=1 if /BEGIN/' range.txt
+1234
+6789
+a
+b
+c
+
+$ # check out what these do:
+$ perl -ne '$f=1 if /BEGIN/; $f=0 if /END/; print if $f' range.txt
+$ perl -ne 'print if $f; $f=0 if /END/; $f=1 if /BEGIN/' range.txt
+```
+
+* Extracting lines other than lines between the two *REGEXP*s
+
+```bash
+$ # same as: awk '/BEGIN/{f=1} !f; /END/{f=0}' range.txt
+$ perl -ne '$f=1 if /BEGIN/; print if !$f; $f=0 if /END/' range.txt
+foo
+bar
+baz
+
+$ # the other three cases would be
+$ perl -ne '$f=0 if /END/; print if !$f; $f=1 if /BEGIN/' range.txt
+$ perl -ne 'print if !$f; $f=1 if /BEGIN/; $f=0 if /END/' range.txt
+$ perl -ne '$f=1 if /BEGIN/; $f=0 if /END/; print if !$f' range.txt
+```
+
+
+
+
+
 
 
 <br>
