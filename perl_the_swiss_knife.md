@@ -29,6 +29,7 @@
     * [Comparing specific fields](#comparing-specific-fields)
     * [Line number matching](#line-number-matching)
 * [Creating new fields](#creating-new-fields)
+* [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
 
@@ -1657,6 +1658,110 @@ ECE     Om      92
 CSE     Amy     67      sports_rep
 ```
 
+<br>
+
+## <a name="dealing-with-duplicates"></a>Dealing with duplicates
+
+* retain only first copy of duplicates
+
+```bash
+$ cat duplicates.txt
+abc  7   4
+food toy ****
+abc  7   4
+test toy 123
+good toy ****
+
+$ # whole line, same as: awk '!seen[$0]++' duplicates.txt
+$ perl -ne 'print if !$seen{$_}++' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+good toy ****
+
+$ # particular column, same as: awk '!seen[$2]++' duplicates.txt
+$ perl -ane 'print if !$seen{$F[1]}++' duplicates.txt
+abc  7   4
+food toy ****
+
+$ # total count, same as: awk '!seen[$2]++{c++} END{print +c}' duplicates.txt
+$ perl -lane '$c++ if !$seen{$F[1]}++; END{print $c+0}' duplicates.txt
+2
+```
+
+* if input is so large that integer numbers can overflow
+* See also [perldoc - bignum](https://perldoc.perl.org/bignum.html)
+
+```bash
+$ # avoid unnecessary counting altogether
+$ # same as: awk '!($2 in seen); {seen[$2]}' duplicates.txt
+$ perl -ane 'print if !$seen{$F[1]}; $seen{$F[1]}=1' duplicates.txt
+abc  7   4
+food toy ****
+
+$ # use arbitrary-precision integers, limited only by available memory
+$ # same as: awk -M '!($2 in seen){c++} {seen[$2]} END{print +c}' duplicates.txt
+$ perl -Mbignum -lane '$c++ if !$seen{$F[1]}++; END{print $c+0}' duplicates.txt
+2
+```
+
+* multiple fields
+
+```bash
+$ # same as: awk '!seen[$2,$3]++' duplicates.txt
+$ perl -ane 'print if !$seen{$F[1]}{$F[2]}++' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+```
+
+* retaining specific copy
+
+```bash
+$ # second occurrence of duplicate
+$ # same as: awk '++seen[$2]==2' duplicates.txt
+$ perl -ane 'print if ++$seen{$F[1]}==2' duplicates.txt
+abc  7   4
+test toy 123
+
+$ # third occurrence of duplicate
+$ # same as: awk '++seen[$2]==3' duplicates.txt
+$ perl -ane 'print if ++$seen{$F[1]}==3' duplicates.txt
+good toy ****
+
+$ # retaining only last copy of duplicate
+$ # reverse the input line-wise, retain first copy and then reverse again
+$ # same as: tac duplicates.txt | awk '!seen[$2]++' | tac
+$ tac duplicates.txt | perl -ane 'print if !$seen{$F[1]}++' | tac
+abc  7   4
+good toy ****
+```
+
+* filtering based on duplicate count
+* allows to emulate [uniq](./sorting_stuff.md#uniq) command for specific fields
+
+```bash
+$ # all duplicates based on 1st column
+$ # same as: awk 'NR==FNR{a[$1]++; next} a[$1]>1' duplicates.txt duplicates.txt
+$ perl -ane 'if(!$#ARGV){ $a{$F[0]}++ }
+             else{ print if $a{$F[0]}>1 }' duplicates.txt duplicates.txt
+abc  7   4
+abc  7   4
+
+$ # more than 2 duplicates based on 2nd column
+$ # same as: awk 'NR==FNR{a[$2]++; next} a[$2]>2' duplicates.txt duplicates.txt
+$ perl -ane 'if(!$#ARGV){ $a{$F[1]}++ }
+             else{ print if $a{$F[1]}>2 }' duplicates.txt duplicates.txt
+food toy ****
+test toy 123
+good toy ****
+
+$ # only unique lines based on 3rd column
+$ # same as: awk 'NR==FNR{a[$3]++; next} a[$3]==1' duplicates.txt duplicates.txt
+$ perl -ane 'if(!$#ARGV){ $a{$F[2]}++ }
+             else{ print if $a{$F[2]}==1 }' duplicates.txt duplicates.txt
+test toy 123
+```
 
 
 <br>
