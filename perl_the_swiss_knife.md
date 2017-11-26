@@ -32,6 +32,7 @@
 * [Dealing with duplicates](#dealing-with-duplicates)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
+    * [Specific blocks](#specific-blocks)
 
 <br>
 
@@ -1848,6 +1849,84 @@ $ perl -ne 'print if !$f; $f=1 if /BEGIN/; $f=0 if /END/' range.txt
 $ perl -ne '$f=1 if /BEGIN/; $f=0 if /END/; print if !$f' range.txt
 ```
 
+<br>
+
+#### <a name="specific-blocks"></a>Specific blocks
+
+* Getting first block
+
+```bash
+$ # same as: awk '/BEGIN/{f=1} f; /END/{exit}' range.txt 
+$ perl -ne '$f=1 if /BEGIN/; print if $f; exit if /END/' range.txt
+BEGIN
+1234
+6789
+END
+
+$ # use other tricks discussed in previous section as needed
+$ # same as: awk '/END/{exit} f; /BEGIN/{f=1}' range.txt
+$ perl -ne 'exit if /END/; print if $f; $f=1 if /BEGIN/' range.txt
+1234
+6789
+```
+
+* Getting last block
+
+```bash
+$ # reverse input linewise, change the order of REGEXPs, finally reverse again
+$ # same as: tac range.txt | awk '/END/{f=1} f; /BEGIN/{exit}' | tac
+$ tac range.txt | perl -ne '$f=1 if /END/; print if $f; exit if /BEGIN/' | tac
+BEGIN
+a
+b
+c
+END
+
+$ # or, save the blocks in a buffer and print the last one alone
+$ # same as: awk '/4/{f=1; b=$0; next} f{b=b ORS $0} /6/{f=0} END{print b}'
+$ seq 30 | perl -ne 'if(/4/){$f=1; $b=$_; next}
+                     $b.=$_ if $f; $f=0 if /6/; END{print $b}'
+24
+25
+26
+```
+
+* Getting blocks based on a counter
+
+```bash
+$ # get only 2nd block
+$ # same as: seq 30 | awk -v b=2 '/4/{c++} c==b{print; if(/6/) exit}'
+$ seq 30 | b=2 perl -ne '$c++ if /4/; if($c==$ENV{b}){print; exit if /6/}'
+14
+15
+16
+
+$ # to get all blocks greater than 'b' blocks
+$ # same as: seq 30 | awk -v b=1 '/4/{f=1; c++} f && c>b; /6/{f=0}'
+$ seq 30 | b=1 perl -ne 'if(/4/){$f=1; $c++}
+                         print if $f && $c>$ENV{b}; $f=0 if /6/'
+14
+15
+16
+24
+25
+26
+```
+
+* excluding a particular block
+
+```bash
+$ # excludes 2nd block
+$ # same as: seq 30 | awk -v b=2 '/4/{f=1; c++} f && c!=b; /6/{f=0}'
+$ seq 30 | b=2 perl -ne 'if(/4/){$f=1; $c++}
+                         print if $f && $c!=$ENV{b}; $f=0 if /6/'
+4
+5
+6
+24
+25
+26
+```
 
 
 
