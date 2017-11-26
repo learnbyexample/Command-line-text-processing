@@ -33,6 +33,7 @@
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
+    * [Broken blocks](#broken-blocks)
 
 <br>
 
@@ -1928,7 +1929,97 @@ $ seq 30 | b=2 perl -ne 'if(/4/){$f=1; $c++}
 26
 ```
 
+* extract block only if matches another string as well
 
+```bash
+$ perl -ne 'if(/BEGIN/){$f=1; $m=0; $b=""}; $m=1 if $f && /23/;
+            $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt 
+BEGIN
+1234
+6789
+END
+
+$ seq 30 | perl -ne 'if(/4/){$f=1; $m=0; $b=""}; $m=1 if $f && /^(5|25)$/;
+                     $b.=$_ if $f; if(/6/){print $b if $m; $f=0}'
+4
+5
+6
+24
+25
+26
+```
+
+<br>
+
+#### <a name="broken-blocks"></a>Broken blocks
+
+* If there are blocks with ending *REGEXP* but without corresponding start, earlier techniques used will suffice
+* Consider the modified input file where starting *REGEXP* doesn't have corresponding ending
+
+```bash
+$ cat broken_range.txt
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+baz
+
+$ # the file reversing trick comes in handy here as well
+$ # same as: tac broken_range.txt | awk '/END/{f=1} f; /BEGIN/{f=0}' | tac
+$ tac broken_range.txt | perl -ne '$f=1 if /END/;
+                         print if $f; $f=0 if /BEGIN/' | tac
+BEGIN
+1234
+6789
+END
+```
+
+* But if both kinds of broken blocks are present, for ex:
+
+```bash
+$ cat multiple_broken.txt 
+qqqqqqq
+BEGIN
+foo
+BEGIN
+1234
+6789
+END
+bar
+END
+0-42-1
+BEGIN
+a
+BEGIN
+b
+END
+;as;s;sd;
+```
+
+then use buffers to accumulate the records and print accordingly
+
+```bash
+$ # same as: awk '/BEGIN/{f=1; buf=$0; next} f{buf=buf ORS $0}
+$ #          /END/{f=0; if(buf) print buf; buf=""}' multiple_broken.txt
+$ perl -ne 'if(/BEGIN/){$f=1; $b=$_; next} $b.=$_ if $f;
+            if(/END/){$f=0; print $b if $b; $b=""}' multiple_broken.txt
+BEGIN
+1234
+6789
+END
+BEGIN
+b
+END
+
+$ # note how buffer is initialized as well as cleared
+$ # on matching beginning/end REGEXPs respectively
+```
 
 
 
