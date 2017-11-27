@@ -24,6 +24,7 @@
     * [Ignoring specific matches](#ignoring-specific-matches)
     * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
+    * [Quoting metacharacters](#quoting-metacharacters)
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
@@ -258,6 +259,7 @@ $ perl -ne 'print if !m#/foo/a/#' paths.txt
 * See also
     * [perldoc - index function](https://perldoc.perl.org/functions/index.html)
     * [perldoc - Quote and Quote-like Operators](https://perldoc.perl.org/5.8.8/perlop.html#Quote-and-Quote-like-Operators)
+    * [Quoting metacharacters](#quoting-metacharacters) section
 
 ```bash
 $ # same as: grep -F 'a[5]' or awk 'index($0, "a[5]")'
@@ -1392,6 +1394,33 @@ He he he
 
 <br>
 
+#### <a name="quoting-metacharacters"></a>Quoting metacharacters
+
+* part of regular expression can be surrounded within `\Q` and `\E` to prevent matching meta characters within that portion
+    * however, `\` , `$` and `@` would still be interpolated
+    * `\E` is optional if applying `\Q` till end of search expression
+* typical use case is string to be protected is already present in a variable, for ex: user input or result of another command
+* See also [perldoc - Quoting metacharacters](https://perldoc.perl.org/perlre.html#Quoting-metacharacters)
+
+
+```bash
+$ # same as: s='a+b' perl -ne 'print if index($_, $ENV{s})==0' eqns.txt
+$ s='a+b' perl -ne 'print if /^\Q$ENV{s}/' eqns.txt
+a+b,pi=3.14,5e12
+
+$ s='a+b' perl -pe 's/^\Q$ENV{s}/ABC/' eqns.txt
+a=b,a-b=c,c*d
+ABC,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ s='a+b' perl -pe 's/\Q$ENV{s}\E.*,/ABC,/' eqns.txt
+a=b,a-b=c,c*d
+ABC,5e12
+i*(t+9-g)/8,4-a+b
+```
+
+<br>
+
 ## <a name="two-file-processing"></a>Two file processing
 
 First, a bit about `$#ARGV` and hash variables
@@ -1486,6 +1515,12 @@ $ perl -ne 'BEGIN{ $h{<>}=1 while !eof; close ARGV}
             print "$.\n" if $h{$_}' colors_1.txt colors_2.txt
 2
 4
+
+$ # or pass 1st file content as STDIN, $. will be automatically reset as well
+$ perl -ne 'BEGIN{ $h{$_}=1 while <STDIN> }
+            print if $h{$_}' <colors_1.txt colors_2.txt
+Blue
+Red
 ```
 
 <br>
