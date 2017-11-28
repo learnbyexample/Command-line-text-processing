@@ -1311,6 +1311,9 @@ $ # and useful to transform different capture groups
 $ s='"foo,bar",123,"x,y,z",42'
 $ echo "$s" | perl -lpe 's/"(?<a>[^"]+)",|(?<a>[^,]+),/$+{a}|/g'
 foo,bar|123|x,y,z|42
+$ # can also use (?| branch reset
+$ echo "$s" | perl -lpe 's/(?|"([^"]+)",|([^,]+),)/$1|/g'
+foo,bar|123|x,y,z|42
 ```
 
 **Further Reading**
@@ -1397,13 +1400,17 @@ He he he
 #### <a name="quoting-metacharacters"></a>Quoting metacharacters
 
 * part of regular expression can be surrounded within `\Q` and `\E` to prevent matching meta characters within that portion
-    * however, `\` , `$` and `@` would still be interpolated
+    * however, `$` and `@` would still be interpolated as long as delimiter isn't single quotes
     * `\E` is optional if applying `\Q` till end of search expression
 * typical use case is string to be protected is already present in a variable, for ex: user input or result of another command
+* quotemeta will add a backslash to all characters other than `\w` characters
 * See also [perldoc - Quoting metacharacters](https://perldoc.perl.org/perlre.html#Quoting-metacharacters)
 
-
 ```bash
+$ # quotemeta in action
+$ perl -le '$a="[a].b+c^"; print quotemeta $a'
+\[a\]\.b\+c\^
+
 $ # same as: s='a+b' perl -ne 'print if index($_, $ENV{s})==0' eqns.txt
 $ s='a+b' perl -ne 'print if /^\Q$ENV{s}/' eqns.txt
 a+b,pi=3.14,5e12
@@ -1417,6 +1424,33 @@ $ s='a+b' perl -pe 's/\Q$ENV{s}\E.*,/ABC,/' eqns.txt
 a=b,a-b=c,c*d
 ABC,5e12
 i*(t+9-g)/8,4-a+b
+```
+
+* use `q` operator for replacement section
+* it would treat contents as if they were placed inside single quotes and hence no interpolation
+* See also [perldoc - Quote and Quote-like Operators](https://perldoc.perl.org/5.8.8/perlop.html#Quote-and-Quote-like-Operators)
+
+```bash
+$ # q in action
+$ perl -le '$a="[a].b+c^$@123"; print $a'
+[a].b+c^123
+$ perl -le '$a=q([a].b+c^$@123); print $a'
+[a].b+c^$@123
+$ perl -le '$a=q([a].b+c^$@123); print quotemeta $a'
+\[a\]\.b\+c\^\$\@123
+
+$ echo 'foo 123' | perl -pe 's/foo/$foo/'
+ 123
+$ echo 'foo 123' | perl -pe 's/foo/q($foo)/e'
+$foo 123
+$ echo 'foo 123' | perl -pe 's/foo/q{$f)oo}/e'
+$f)oo 123
+
+$ # string saved in other variables do not need special attention
+$ echo 'foo 123' | s='a$b' perl -pe 's/foo/$ENV{s}/'
+a$b 123
+$ echo 'foo 123' | perl -pe 's/foo/a$b/'
+a 123
 ```
 
 <br>
