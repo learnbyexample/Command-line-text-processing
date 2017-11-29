@@ -25,6 +25,7 @@
     * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
     * [Quoting metacharacters](#quoting-metacharacters)
+* [Using modules](#using-modules)
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
@@ -73,6 +74,7 @@ SYNOPSIS
     * see [learnxinyminutes - perl](https://learnxinyminutes.com/docs/perl/) for quick intro to using Perl for full fledged programs
 * links to Perl documentation will be added as necessary
 * unless otherwise specified, consider input as ASCII encoded text only
+    * see also [stackoverflow - why UTF-8 is not default](https://stackoverflow.com/questions/6162484/why-does-modern-perl-avoid-utf-8-by-default)
 
 <br>
 
@@ -951,6 +953,7 @@ a
 * examples to showcase some of the features not present in ERE and modifiers not available in `sed`'s substitute command
 * many features of Perl regular expressions will NOT be covered, but external links will be provided wherever relevant
     * See [perldoc - perlre](https://perldoc.perl.org/perlre.html) for complete reference
+    * and [perldoc - regular expressions FAQ](https://perldoc.perl.org/perlfaq.html#the-perlfaq6-manpage%3a-Regular-Expressions)
 * examples/descriptions based only on ASCII encoding
 
 <br>
@@ -1455,6 +1458,48 @@ a 123
 
 <br>
 
+## <a name="using-modules"></a>Using modules
+
+* There are many standard modules available that come with Perl installation
+* and many more available from **Comprehensive Perl Archive Network** (CPAN)
+    * [stackoverflow - easiest way to install a missing module](https://stackoverflow.com/questions/65865/whats-the-easiest-way-to-install-a-missing-perl-module)
+
+```bash
+$ echo '34,17,6' | perl -F, -lane 'BEGIN{use List::Util qw(max)} print max @F'
+34
+$ # -M option provides a way to specify modules from command line
+$ echo '34,17,6' | perl -MList::Util=max -F, -lane 'print max @F'
+34
+$ echo '34,17,6' | perl -MList::Util=sum0 -F, -lane 'print sum0 @F'
+57
+$ echo '34,17,6' | perl -MList::Util=product -F, -lane 'print product @F'
+3468
+
+$ s='1,2,3,4,5'
+$ echo "$s" | perl -MList::Util=shuffle -F, -lane 'print join ",",shuffle(@F)'
+5,3,4,1,2
+
+$ s='3,b,a,c,d,1,d,c,2,3,1,b'
+$ echo "$s" | perl -MList::MoreUtils=uniq -F, -lane 'print join ",",uniq(@F)'
+3,b,a,c,d,1,2
+
+$ echo 'foo 123 baz' | base64
+Zm9vIDEyMyBiYXoK
+$ echo 'foo 123 baz' | perl -MMIME::Base64 -ne 'print encode_base64 $_'
+Zm9vIDEyMyBiYXoK
+$ echo 'Zm9vIDEyMyBiYXoK' | perl -MMIME::Base64 -ne 'print decode_base64 $_' 
+foo 123 baz
+```
+
+**Further Reading**
+
+* [unix.stackexchange - example for Algorithm::Combinatorics](https://unix.stackexchange.com/questions/310840/better-solution-for-finding-id-groups-permutations-combinations)
+* [perldoc - perlmodlib](https://perldoc.perl.org/perlmodlib.html)
+* [perldoc - Core modules](https://perldoc.perl.org/index-modules-L.html)
+* [stackoverflow - regular expression modules](https://stackoverflow.com/questions/3258847/what-are-good-perl-pattern-matching-regex-modules)
+
+<br>
+
 ## <a name="two-file-processing"></a>Two file processing
 
 First, a bit about `$#ARGV` and hash variables
@@ -1595,8 +1640,8 @@ CSE     Amy     67
 
 $ # if header is needed as well
 $ # same as: awk 'NR==FNR{a[$1]; next} FNR==1 || $1 in a' list1 marks.txt
-$ perl -ane 'if(!$#ARGV){ $h{$F[0]}=1 }
-             else{ print if $h{$F[0]} || !$c++ }' list1 marks.txt
+$ perl -ane 'if(!$#ARGV){ $h{$F[0]}=1; $.=0 }
+             else{ print if $h{$F[0]} || $.==1 }' list1 marks.txt
 Dept    Name    Marks
 ECE     Raj     53
 ECE     Joel    72
@@ -1718,8 +1763,8 @@ Tia placement_rep
 
 $ # same as: awk -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
 $ #          {NF++; $NF = FNR==1 ? "Role" : $NF=r[$2]} 1' list4 marks.txt
-$ perl -lane 'if(!$#ARGV){ $r{$F[0]}=$F[1] }
-              else{ $#F++; $F[-1] = !$c++ ? "Role" : $r{$F[1]};
+$ perl -lane 'if(!$#ARGV){ $r{$F[0]}=$F[1]; $.=0 }
+              else{ $#F++; $F[-1] = $.==1 ? "Role" : $r{$F[1]};
                     print join "\t", @F }' list4 marks.txt
 Dept    Name    Marks   Role
 ECE     Raj     53      class_rep
@@ -1908,6 +1953,7 @@ $ perl -ne 'print if $f; $f=0 if /END/; $f=1 if /BEGIN/' range.txt
 
 ```bash
 $ # same as: awk '/BEGIN/{f=1} !f; /END/{f=0}' range.txt
+$ # can also use: perl -ne 'print if !(/BEGIN/../END/)' range.txt
 $ perl -ne '$f=1 if /BEGIN/; print if !$f; $f=0 if /END/' range.txt
 foo
 bar
@@ -2089,9 +2135,6 @@ END
 $ # note how buffer is initialized as well as cleared
 $ # on matching beginning/end REGEXPs respectively
 ```
-
-
-
 
 <br>
 
