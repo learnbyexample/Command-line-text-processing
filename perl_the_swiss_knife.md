@@ -36,6 +36,7 @@
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
+* [Array operations](#array-operations)
 
 <br>
 
@@ -97,10 +98,14 @@ Hello Bash
 ```
 
 * For short programs, one can use `-e` commandline option to provide code from command line itself
+    * Use `-E` option to use newer features like `say`. See [perldoc - new features](https://perldoc.perl.org/feature.html)
 * This entire chapter is about using `perl` this way from commandline
 
 ```bash
 $ perl -e 'print "Hello Perl\n"'
+Hello Perl
+
+$ perl -E 'say "Hello Perl"'
 Hello Perl
 
 $ # similar to
@@ -113,10 +118,26 @@ $ perl -le '$a=25; $b=12; print $a**$b'
 59604644775390625
 ```
 
+* Perl is (in)famous for being able to things more than one way
+* examples here will mostly try to avoid typing `(){}`
+
+```bash
+$ perl -e 'if(2<3){print("2 is less than 3\n")}'
+2 is less than 3
+$ perl -E 'say "2 is less than 3" if 2<3'
+2 is less than 3
+
+$ perl -e 'if("a" lt "b"){$x=5; $y=10} print "x=$x; y=$y\n"'
+x=5; y=10
+$ perl -E 'say "x=$x; y=$y" if "a" lt "b" and $x=5,$y=10'
+x=5; y=10
+```
+
 **Further Reading**
 
 * `perl -h` for summary of options
 * [perldoc - Command Switches](https://perldoc.perl.org/perlrun.html#Command-Switches)
+* [perldoc - Perl operators and precedence](https://perldoc.perl.org/perlop.html)
 * [explainshell](https://explainshell.com/explain?cmd=perl+-F+-l+-anpeE+-i+-0+-M) - to quickly get information without having to traverse through the docs
 * See [Changing record separators](#changing-record-separators) section for more details on `-l` option
 
@@ -337,6 +358,7 @@ And so are you.
 * for large input, use `exit` to avoid unnecessary record processing
 
 ```bash
+$ # can also use: perl -ne 'print and exit if $.==234'
 $ seq 14323 14563435 | perl -ne 'if($.==234){print; exit}'
 14556
 
@@ -383,6 +405,7 @@ $ seq 14 25 | perl -ne 'print if $.>=10'
 
 * `-a` option will auto-split each input record based on one or more continuous white-space, similar to default behavior in `awk`
 * Special variable array `@F` will contain all the elements, index starting from `0`
+    * see [Array operations](#array-operations) section for examples on array usage
 * See also [perldoc - split function](https://perldoc.perl.org/functions/split.html)
 
 ```bash
@@ -864,6 +887,7 @@ $ seq 8 | perl -l054 -ne 'print if /[24]/; END{printf "\n"}'
 ## <a name="multiline-processing"></a>Multiline processing
 
 * Processing consecutive lines
+* See also [stackoverflow - multiline find and replace](https://stackoverflow.com/questions/39884112/perl-multiline-find-and-replace-with-regex)
 
 ```bash
 $ cat poem.txt 
@@ -993,6 +1017,13 @@ $ echo ',baz,,xyz,,,' | perl -lpe 's/[^,]*/A/g'
 A,AA,A,AA,A,A,A
 $ echo 'foo,baz,,xyz,,,123' | perl -lpe 's/[^,]*/A/g'
 AA,AA,A,AA,A,A,AA
+
+$ echo '42,789' | sed 's/[0-9]*/"&"/g'
+"42","789"
+$ echo '42,789' | perl -lpe 's/\d*/"$&"/g'
+"42""","789"""
+$ echo '42,789' | perl -lpe 's/\d+/"$&"/g'
+"42","789"
 ```
 
 * backslash sequences inside character classes
@@ -1277,7 +1308,9 @@ baz 2008-03-24 and 2012-08-12 foo 2016-03-25
 ```
 
 * use `(?:` to group regular expressions without capturing it, so this won't be counted for backreference
-* See also [stackoverflow - what is non-capturing group](https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-what-does-a-question-mark-followed-by-a-colon)
+* See also
+    * [stackoverflow - what is non-capturing group](https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-what-does-a-question-mark-followed-by-a-colon)
+    * [stackoverflow - extract specific fields and key-value pairs](https://stackoverflow.com/questions/46632397/parse-vcf-files-info-field)
 
 ```bash
 $ s='Car Bat cod12 Map foo_bar'
@@ -1476,11 +1509,11 @@ $ echo '34,17,6' | perl -MList::Util=product -F, -lane 'print product @F'
 3468
 
 $ s='1,2,3,4,5'
-$ echo "$s" | perl -MList::Util=shuffle -F, -lane 'print join ",",shuffle(@F)'
+$ echo "$s" | perl -MList::Util=shuffle -F, -lane 'print join ",",shuffle @F'
 5,3,4,1,2
 
 $ s='3,b,a,c,d,1,d,c,2,3,1,b'
-$ echo "$s" | perl -MList::MoreUtils=uniq -F, -lane 'print join ",",uniq(@F)'
+$ echo "$s" | perl -MList::MoreUtils=uniq -F, -lane 'print join ",",uniq @F'
 3,b,a,c,d,1,2
 
 $ echo 'foo 123 baz' | base64
@@ -1493,9 +1526,10 @@ foo 123 baz
 
 **Further Reading**
 
-* [unix.stackexchange - example for Algorithm::Combinatorics](https://unix.stackexchange.com/questions/310840/better-solution-for-finding-id-groups-permutations-combinations)
 * [perldoc - perlmodlib](https://perldoc.perl.org/perlmodlib.html)
 * [perldoc - Core modules](https://perldoc.perl.org/index-modules-L.html)
+* [unix.stackexchange - example for Algorithm::Combinatorics](https://unix.stackexchange.com/questions/310840/better-solution-for-finding-id-groups-permutations-combinations)
+* [unix.stackexchange - example for Text::ParseWords](https://unix.stackexchange.com/questions/319301/excluding-enclosed-delimiters-with-cut)
 * [stackoverflow - regular expression modules](https://stackoverflow.com/questions/3258847/what-are-good-perl-pattern-matching-regex-modules)
 
 <br>
@@ -1826,9 +1860,17 @@ $ perl -Mbignum -lane '$c++ if !$seen{$F[1]}; $seen{$F[1]}=1;
 ```
 
 * multiple fields
+* See also [unix.stackexchange - based on same fields that could be in different order](https://unix.stackexchange.com/questions/325619/delete-lines-that-contain-the-same-information-but-in-different-order)
 
 ```bash
 $ # same as: awk '!seen[$2,$3]++' duplicates.txt
+$ # default SUBSEP(stored in $;) is \034, same as GNU awk
+$ perl -ane 'print if !$seen{$F[1],$F[2]}++' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+
+$ # or use multidimensional key
 $ perl -ane 'print if !$seen{$F[1]}{$F[2]}++' duplicates.txt
 abc  7   4
 food toy ****
@@ -2019,7 +2061,7 @@ $ seq 30 | b=2 perl -ne '$c++ if /4/; if($c==$ENV{b}){print; exit if /6/}'
 
 $ # to get all blocks greater than 'b' blocks
 $ # same as: seq 30 | awk -v b=1 '/4/{f=1; c++} f && c>b; /6/{f=0}'
-$ seq 30 | b=1 perl -ne 'if(/4/){$f=1; $c++}
+$ seq 30 | b=1 perl -ne '$f=1, $c++ if /4/;
                          print if $f && $c>$ENV{b}; $f=0 if /6/'
 14
 15
@@ -2034,7 +2076,7 @@ $ seq 30 | b=1 perl -ne 'if(/4/){$f=1; $c++}
 ```bash
 $ # excludes 2nd block
 $ # same as: seq 30 | awk -v b=2 '/4/{f=1; c++} f && c!=b; /6/{f=0}'
-$ seq 30 | b=2 perl -ne 'if(/4/){$f=1; $c++}
+$ seq 30 | b=2 perl -ne '$f=1, $c++ if /4/;
                          print if $f && $c!=$ENV{b}; $f=0 if /6/'
 4
 5
@@ -2135,6 +2177,85 @@ END
 $ # note how buffer is initialized as well as cleared
 $ # on matching beginning/end REGEXPs respectively
 ```
+
+<br>
+
+## <a name="array-operations"></a>Array operations
+
+* initialization
+
+```bash
+$ # list example, each value is separated by comma
+$ perl -e '($x, $y) = (4, 5); print "$x:$y\n"'
+4:5
+
+$ # using list to initialize arrays, allows variable interpolation
+$ perl -e '@nums = (4, 5, 84); print "@nums\n"'
+4 5 84
+$ perl -e '@nums = (4, 5, 84, "foo"); print "@nums\n"'
+4 5 84 foo
+$ perl -e '$x=5; @y=(3, 2); @nums = ($x, "good", @y); print "@nums\n"'
+5 good 3 2
+
+$ # use qw to specify string elements separated by space, no interpolation
+$ perl -e '@nums = qw(4 5 84 "foo"); print "@nums\n"'
+4 5 84 "foo"
+$ perl -e '@nums = qw(a $x @y); print "@nums\n"'
+a $x @y
+$ # use different delimiter as needed
+$ perl -e '@nums = qw/baz 1)foo/; print "@nums\n"'
+baz 1)foo
+```
+
+* accessing individual elements
+
+```bash
+$ # index starts from 0
+$ perl -le '@nums = (4, "foo", 2, "x"); print $nums[0]'
+4
+$ # note the use of $ when accessing individual element
+$ perl -le '@nums = (4, "foo", 2, "x"); print $nums[2]'
+2
+$ # to access elements from end, use -ve index from -1
+$ perl -le '@nums = (4, "foo", 2, "x"); print $nums[-1]'
+x
+
+$ # index of last element in array
+$ perl -le '@nums = (4, "foo", 2, "x"); print $#nums'
+3
+$ # size of array, i.e total number of elements
+$ perl -le '@nums = (4, "foo", 2, "x"); $s=@nums; print $s'
+4
+$ perl -le '@nums = (4, "foo", 2, "x"); print scalar @nums'
+4
+```
+
+* array slices
+* See also [perldoc - Range Operators](https://perldoc.perl.org/perlop.html#Range-Operators)
+
+```bash
+$ # note the use of @ when accessing more than one element
+$ echo 'a b c d' | perl -lane 'print "@F[0,-1,2]"'
+a d c
+$ # range operator
+$ echo 'a b c d' | perl -lane 'print "@F[1..2]"'
+b c
+$ # rotating elements
+$ echo 'a b c d' | perl -lane 'print "@F[1..$#F,0]"'
+b c d a
+
+$ # index needed can be given from another array too
+$ echo 'a b c d' | perl -lane '@i=(3,1); print "@F[@i]"'
+d b
+```
+
+
+
+
+
+
+
+
 
 <br>
 
