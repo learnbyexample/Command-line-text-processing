@@ -37,6 +37,8 @@
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
 * [Array operations](#array-operations)
+    * [Iteration and filtering](#iteration-and-filtering)
+    * [sorting](#sorting)
 
 <br>
 
@@ -114,7 +116,7 @@ Hello Bash
 
 $ # multiple commands can be issued separated by ;
 $ # -l will be covered later, here used to append newline to print
-$ perl -le '$a=25; $b=12; print $a**$b'
+$ perl -le '$x=25; $y=12; print $x**$y'
 59604644775390625
 ```
 
@@ -298,9 +300,9 @@ $ echo 'int a[5]' | perl -ne 'print if index($_, "a[5]") != -1'
 int a[5]
 
 $ # however, string within double quotes gets interpolated, for ex
-$ a='123'; echo "$a"
+$ x='123'; echo "$x"
 123
-$ perl -e '$a=123; print "$a\n"'
+$ perl -e '$x=123; print "$x\n"'
 123
 
 $ # so, for commandline usage, better to pass string as environment variable
@@ -1061,23 +1063,23 @@ Execution of -e aborted due to compilation errors.
 * See also [perldoc - Quote and Quote-like Operators](https://perldoc.perl.org/5.8.8/perlop.html#Quote-and-Quote-like-Operators)
 
 ```bash
-$ seq 2 | sed 's/$a/xyz/'
+$ seq 2 | sed 's/$x/xyz/'
 1
 2
 
 $ # uninitialized variable, same applies for: perl -pe 's/@a/xyz/'
-$ seq 2 | perl -pe 's/$a/xyz/'
+$ seq 2 | perl -pe 's/$x/xyz/'
 xyz1
 xyz2
 $ # initialized variable
-$ seq 2 | perl -pe '$a=2; s/$a/xyz/'
+$ seq 2 | perl -pe '$x=2; s/$x/xyz/'
 1
 xyz
 
 $ # using single quotes as delimiter won't interpolate
 $ # not usable for one-liners given shell's own single/double quotes behavior
 $ cat sub_sq.pl
-s'$a'xyz'
+s'$x'xyz'
 $ seq 2 | perl -p sub_sq.pl
 1
 2
@@ -1451,7 +1453,7 @@ He he he
 
 ```bash
 $ # quotemeta in action
-$ perl -le '$a="[a].b+c^"; print quotemeta $a'
+$ perl -le '$x="[a].b+c^"; print quotemeta $x'
 \[a\]\.b\+c\^
 
 $ # same as: s='a+b' perl -ne 'print if index($_, $ENV{s})==0' eqns.txt
@@ -1475,11 +1477,11 @@ i*(t+9-g)/8,4-a+b
 
 ```bash
 $ # q in action
-$ perl -le '$a="[a].b+c^$@123"; print $a'
+$ perl -le '$x="[a].b+c^$@123"; print $x'
 [a].b+c^123
-$ perl -le '$a=q([a].b+c^$@123); print $a'
+$ perl -le '$x=q([a].b+c^$@123); print $x'
 [a].b+c^$@123
-$ perl -le '$a=q([a].b+c^$@123); print quotemeta $a'
+$ perl -le '$x=q([a].b+c^$@123); print quotemeta $x'
 \[a\]\.b\+c\^\$\@123
 
 $ echo 'foo 123' | perl -pe 's/foo/$foo/'
@@ -1935,23 +1937,23 @@ good toy ****
 ```bash
 $ # all duplicates based on 1st column
 $ # same as: awk 'NR==FNR{a[$1]++; next} a[$1]>1' duplicates.txt duplicates.txt
-$ perl -ane 'if(!$#ARGV){ $a{$F[0]}++ }
-             else{ print if $a{$F[0]}>1 }' duplicates.txt duplicates.txt
+$ perl -ane 'if(!$#ARGV){ $x{$F[0]}++ }
+             else{ print if $x{$F[0]}>1 }' duplicates.txt duplicates.txt
 abc  7   4
 abc  7   4
 
 $ # more than 2 duplicates based on 2nd column
 $ # same as: awk 'NR==FNR{a[$2]++; next} a[$2]>2' duplicates.txt duplicates.txt
-$ perl -ane 'if(!$#ARGV){ $a{$F[1]}++ }
-             else{ print if $a{$F[1]}>2 }' duplicates.txt duplicates.txt
+$ perl -ane 'if(!$#ARGV){ $x{$F[1]}++ }
+             else{ print if $x{$F[1]}>2 }' duplicates.txt duplicates.txt
 food toy ****
 test toy 123
 good toy ****
 
 $ # only unique lines based on 3rd column
 $ # same as: awk 'NR==FNR{a[$3]++; next} a[$3]==1' duplicates.txt duplicates.txt
-$ perl -ane 'if(!$#ARGV){ $a{$F[2]}++ }
-             else{ print if $a{$F[2]}==1 }' duplicates.txt duplicates.txt
+$ perl -ane 'if(!$#ARGV){ $x{$F[2]}++ }
+             else{ print if $x{$F[2]}==1 }' duplicates.txt duplicates.txt
 test toy 123
 ```
 
@@ -2264,7 +2266,6 @@ $ perl -le '@nums = (4, "foo", 2, "x"); print scalar @nums'
 
 * array slices
 * See also [perldoc - Range Operators](https://perldoc.perl.org/perlop.html#Range-Operators)
-* See also [unix.stackexchange - extract specific fields and use corresponding header text](https://unix.stackexchange.com/questions/397498/create-lists-of-words-according-to-binary-numbers/397504#397504)
 
 ```bash
 $ # note the use of @ when accessing more than one element
@@ -2288,6 +2289,103 @@ $ perl -le '@n = (l..ad); print "@n"'
 l m n o p q r s t u v w x y z aa ab ac ad
 ```
 
+<br>
+
+#### <a name="iteration-and-filtering"></a>Iteration and filtering
+
+```bash
+$ # foreach will return each value one by one
+$ perl -le 'print $_*2 foreach (12..14)'
+24
+26
+28
+
+$ # iterate using index
+$ perl -le '@x = (a..e); foreach (0..$#x){print $x[$_]}'
+a
+b
+c
+d
+e
+
+$ # C-style for loop can be used as well
+$ perl -le '@x = (a..c); for($i=0;$i<=$#x;$i++){print $x[$i]}'
+a
+b
+c
+```
+
+* use `grep` for filtering array elements based on a condition
+* See also [unix.stackexchange - extract specific fields and use corresponding header text](https://unix.stackexchange.com/questions/397498/create-lists-of-words-according-to-binary-numbers/397504#397504)
+
+```bash
+$ # as usual, $_ will get the value each iteration
+$ perl -le '$,=" "; print grep { /[35]/ } 2..26'
+3 5 13 15 23 25
+$ # alternate syntax
+$ perl -le '$,=" "; print grep /[35]/, 2..26'
+3 5 13 15 23 25
+
+$ # to get index instead of matches
+$ perl -le '$,=" "; @n=(2..26); print grep {$n[$_]=~/[35]/} 0..$#n'
+1 3 11 13 21 23
+
+$ # compare values
+$ s='23 756 -983 5'
+$ echo "$s" | perl -lane 'print join " ", grep $_<100, @F'
+23 -983 5
+
+$ # filters only those elements with successful substitution
+$ # note that it would modify array elements as well
+$ echo "$s" | perl -lane 'print join " ", grep s/3/E/, @F'
+2E -98E
+```
+
+<br>
+
+#### <a name="sorting"></a>sorting
+
+* See [perldoc - sort](https://perldoc.perl.org/functions/sort.html) for details
+* `$a` and `$b` are special variables used for sorting, avoid using them as user defined variables
+
+```bash
+$ # by default, sort does string comparison
+$ s='foo baz v22 aimed'
+$ echo "$s" | perl -lane 'print join " ", sort @F'
+aimed baz foo v22
+
+$ # same as default sort 
+$ echo "$s" | perl -lane 'print join " ", sort {$a cmp $b} @F'
+aimed baz foo v22
+$ # descending order, note how $a and $b are switched
+$ echo "$s" | perl -lane 'print join " ", sort {$b cmp $a} @F'
+v22 foo baz aimed
+
+$ # functions can be used for custom sorting
+$ # lc returns lowercases string, so this sorts case insensitively
+$ perl -lane 'print join " ", sort {lc $a cmp lc $b} @F' poem.txt
+are red, Roses
+are blue, Violets
+is Sugar sweet,
+And are so you.
+```
+
+* for numeric comparison, use `<=>` instead of `cmp`
+
+```bash
+$ s='23 756 -983 5'
+$ echo "$s" | perl -lane 'print join " ",sort {$a <=> $b} @F'
+-983 5 23 756
+$ echo "$s" | perl -lane 'print join " ",sort {$b <=> $a} @F'
+756 23 5 -983
+
+$ # sorting strings based on their length
+$ s='floor bat to dubious four'
+$ echo "$s" | perl -lane 'print join ":",sort {length $a <=> length $b} @F'
+to:bat:four:floor:dubious
+```
+
+* See also [perldoc - How do I sort a hash (optionally by value instead of key)?](https://perldoc.perl.org/perlfaq4.html#How-do-I-sort-a-hash-(optionally-by-value-instead-of-key)%3f)
 
 
 
