@@ -131,6 +131,13 @@ $ perl -e 'if("a" lt "b"){$x=5; $y=10} print "x=$x; y=$y\n"'
 x=5; y=10
 $ perl -E 'say "x=$x; y=$y" if "a" lt "b" and $x=5,$y=10'
 x=5; y=10
+
+$ # use q operator if single quoting is needed
+$ # as single quote is already being used to group perl code for -e option
+$ perl -le 'print "ab $x 123"'
+ab  123
+$ perl -le 'print q/ab $x 123/'
+ab $x 123
 ```
 
 **Further Reading**
@@ -1524,6 +1531,29 @@ $ echo 'Zm9vIDEyMyBiYXoK' | perl -MMIME::Base64 -ne 'print decode_base64 $_'
 foo 123 baz
 ```
 
+* a cool module [O](https://perldoc.perl.org/O.html) helps to convert one-liners to full fledged programs
+    * similar to `-o` option for GNU awk
+
+```bash
+$ perl -MO=Deparse -ne 'if(!$#ARGV){$h{$_}=1; next}
+            print if $h{$_}' colors_1.txt colors_2.txt
+LINE: while (defined($_ = <ARGV>)) {
+    unless ($#ARGV) {
+        $h{$_} = 1;
+        next;
+    }
+    print $_ if $h{$_};
+}
+-e syntax OK
+
+$ perl -MO=Deparse -00 -ne 'print if /it/' sample.txt
+BEGIN { $/ = ""; $\ = undef; }
+LINE: while (defined($_ = <ARGV>)) {
+    print $_ if /it/;
+}
+-e syntax OK
+```
+
 **Further Reading**
 
 * [perldoc - perlmodlib](https://perldoc.perl.org/perlmodlib.html)
@@ -2190,6 +2220,7 @@ $ perl -e '($x, $y) = (4, 5); print "$x:$y\n"'
 4:5
 
 $ # using list to initialize arrays, allows variable interpolation
+$ # ($x, $y) = ($y, $x) will swap variables :)
 $ perl -e '@nums = (4, 5, 84); print "@nums\n"'
 4 5 84
 $ perl -e '@nums = (4, 5, 84, "foo"); print "@nums\n"'
@@ -2208,6 +2239,7 @@ baz 1)foo
 ```
 
 * accessing individual elements
+* See also [perldoc - functions for arrays](https://perldoc.perl.org/index-functions-by-cat.html#Functions-for-real-@ARRAYs) for push,pop,shift,unshift functions
 
 ```bash
 $ # index starts from 0
@@ -2232,6 +2264,7 @@ $ perl -le '@nums = (4, "foo", 2, "x"); print scalar @nums'
 
 * array slices
 * See also [perldoc - Range Operators](https://perldoc.perl.org/perlop.html#Range-Operators)
+* See also [unix.stackexchange - extract specific fields and use corresponding header text](https://unix.stackexchange.com/questions/397498/create-lists-of-words-according-to-binary-numbers/397504#397504)
 
 ```bash
 $ # note the use of @ when accessing more than one element
@@ -2247,10 +2280,13 @@ b c d a
 $ # index needed can be given from another array too
 $ echo 'a b c d' | perl -lane '@i=(3,1); print "@F[@i]"'
 d b
+
+$ # range operator also allows handy initialization
+$ perl -le '@n = (12..17); print "@n"'
+12 13 14 15 16 17
+$ perl -le '@n = (l..ad); print "@n"'
+l m n o p q r s t u v w x y z aa ab ac ad
 ```
-
-
-
 
 
 
