@@ -2341,6 +2341,33 @@ $ echo "$s" | perl -lane 'print join " ", grep s/3/E/, @F'
 2E -98E
 ```
 
+* filtering a column using `grep`
+
+```bash
+$ # note the use of arrays even though it is single column
+$ perl -lane '@i = grep {$F[$_] eq "Name"} 0..$#F if $.==1;
+              print @F[@i]' marks.txt
+Name
+Raj
+Joel
+Moi
+Surya
+Tia
+Om
+Amy
+```
+
+* use `map` to transform every element
+
+```bash
+$ s='23 756 -983 5'
+$ echo "$s" | perl -lane 'print join " ", map {$_*$_} @F'
+529 571536 966289 25
+
+$ echo 'aAbBcC' | perl -F -lane 'print join " ", map ord, @F'
+97 65 98 66 99 67
+```
+
 <br>
 
 #### <a name="sorting"></a>sorting
@@ -2362,7 +2389,7 @@ $ echo "$s" | perl -lane 'print join " ", sort {$b cmp $a} @F'
 v22 foo baz aimed
 
 $ # functions can be used for custom sorting
-$ # lc returns lowercases string, so this sorts case insensitively
+$ # lc lowercases string, so this sorts case insensitively
 $ perl -lane 'print join " ", sort {lc $a cmp lc $b} @F' poem.txt
 are red, Roses
 are blue, Violets
@@ -2383,6 +2410,33 @@ $ # sorting strings based on their length
 $ s='floor bat to dubious four'
 $ echo "$s" | perl -lane 'print join ":",sort {length $a <=> length $b} @F'
 to:bat:four:floor:dubious
+```
+
+* sorting based on header
+
+```bash
+$ # need to get indexes of order required for header, then use it for all lines
+$ perl -lane '@i = sort {$F[$a] cmp $F[$b]} 0..$#F if $.==1;
+              print join "\t", @F[@i]' marks.txt
+Dept    Marks   Name
+ECE     53      Raj
+ECE     72      Joel
+EEE     68      Moi
+CSE     81      Surya
+EEE     59      Tia
+ECE     92      Om
+CSE     67      Amy
+
+$ perl -lane '@i = sort {$F[$b] cmp $F[$a]} 0..$#F if $.==1;
+              print join "\t", @F[@i]' marks.txt
+Name    Marks   Dept
+Raj     53      ECE
+Joel    72      ECE
+Moi     68      EEE
+Surya   81      CSE
+Tia     59      EEE
+Om      92      ECE
+Amy     67      CSE
 ```
 
 * See also [perldoc - How do I sort a hash (optionally by value instead of key)?](https://perldoc.perl.org/perlfaq4.html#How-do-I-sort-a-hash-(optionally-by-value-instead-of-key)%3f)
