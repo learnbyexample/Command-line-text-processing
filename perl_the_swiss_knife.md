@@ -38,7 +38,8 @@
     * [Broken blocks](#broken-blocks)
 * [Array operations](#array-operations)
     * [Iteration and filtering](#iteration-and-filtering)
-    * [sorting](#sorting)
+    * [Sorting](#sorting)
+    * [Transforming](#transforming)
 
 <br>
 
@@ -2357,20 +2358,25 @@ Om
 Amy
 ```
 
-* use `map` to transform every element
+* to get random element from array
 
 ```bash
-$ s='23 756 -983 5'
-$ echo "$s" | perl -lane 'print join " ", map {$_*$_} @F'
-529 571536 966289 25
+$ s='65 23 756 -983 5'
+$ echo "$s" | perl -lane 'print $F[rand @F]'
+5
+$ echo "$s" | perl -lane 'print $F[rand @F]'
+23
+$ echo "$s" | perl -lane 'print $F[rand @F]'
+-983
 
-$ echo 'aAbBcC' | perl -F -lane 'print join " ", map ord, @F'
-97 65 98 66 99 67
+$ # in scalar context, size of array gets passed to rand
+$ # rand actually returns a float
+$ # which then gets converted to int index
 ```
 
 <br>
 
-#### <a name="sorting"></a>sorting
+#### <a name="sorting"></a>Sorting
 
 * See [perldoc - sort](https://perldoc.perl.org/functions/sort.html) for details
 * `$a` and `$b` are special variables used for sorting, avoid using them as user defined variables
@@ -2439,9 +2445,84 @@ Om      92      ECE
 Amy     67      CSE
 ```
 
-* See also [perldoc - How do I sort a hash (optionally by value instead of key)?](https://perldoc.perl.org/perlfaq4.html#How-do-I-sort-a-hash-(optionally-by-value-instead-of-key)%3f)
+**Further Reading**
 
+* [perldoc - How do I sort a hash (optionally by value instead of key)?](https://perldoc.perl.org/perlfaq4.html#How-do-I-sort-a-hash-(optionally-by-value-instead-of-key)%3f)
+* [stackoverflow - sort the keys of a hash by value](https://stackoverflow.com/questions/10901084/how-to-sort-perl-hash-on-values-and-order-the-keys-correspondingly-in-two-array)
 
+<br>
+
+#### <a name="transforming"></a>Transforming
+
+* shuffling list elements
+
+```bash
+$ s='23 756 -983 5'
+$ # note that this doesn't change the input array
+$ echo "$s" | perl -MList::Util=shuffle -lane 'print join " ", shuffle @F'
+756 23 -983 5
+$ echo "$s" | perl -MList::Util=shuffle -lane 'print join " ", shuffle @F'
+5 756 23 -983
+```
+
+* use `map` to transform every element
+
+```bash
+$ s='23 756 -983 5'
+$ echo "$s" | perl -lane 'print join " ", map {$_*$_} @F'
+529 571536 966289 25
+
+$ # ASCII int values for each character
+$ echo 'AaBbCc' | perl -F -lane 'print join " ", map ord, @F'
+65 97 66 98 67 99
+
+$ s='this is a sample sentence'
+$ # shuffle each word, split here converts each element to character array
+$ # join the characters after shuffling with empty string
+$ # finally print each changed element with space as separator
+$ echo "$s" | perl -MList::Util=shuffle -lane '$,=" ";
+                    print map {join "", shuffle split//} @F;'
+tshi si a mleasp ncstneee
+```
+
+* fun little unreadable script...
+
+```bash
+$ cat para.txt
+Why cannot I go back to my ignorant days with wild imaginations and fantasies?
+Perhaps the answer lies in not being able to adapt to my freedom.
+Those little dreams, goal setting, anticipation of results, used to be my world.
+All joy within the soul and less dependent on outside world.
+But all these are absent for a long time now.
+Hope I can wake those dreams all over again.
+
+$ perl -MList::Util=shuffle -F'/([^a-zA-Z]+)/' -lane '
+        print map {@c=split//; $#c<3 || /[^a-zA-Z]/? $_ :
+              join "",$c[0],(shuffle @c[1..$#c-1]),$c[-1]} @F;' para.txt
+Why coannt I go back to my inoagrnt dyas wtih wild imiaintangos and fatenasis?
+Phearps the awsenr lies in not bieng albe to aadpt to my fedoerm.
+Toshe llttie draems, goal stetnig, aaioiciptntn of rtuelss, uesd to be my wrlod.
+All joy witihn the suol and less dnenepedt on oiduste world.
+But all tsehe are abenst for a lnog tmie now.
+Hpoe I can wkae toshe daemrs all over aiagn.
+```
+
+* reverse array
+* See also [stackoverflow - apply tr and reverse to particular column](https://stackoverflow.com/questions/45571828/execute-bash-command-inside-awk-and-print-command-output/45572038#45572038)
+
+```bash
+$ s='23 756 -983 5'
+$ echo "$s" | perl -lane 'print join " ", reverse @F'
+5 -983 756 23
+
+$ echo 'foobar' | perl -lne 'print reverse split//'
+raboof
+$ # can also use scalar context instead of using split
+$ echo 'foobar' | perl -lne '$x=reverse; print $x'
+raboof
+$ echo 'foobar' | perl -lne 'print scalar reverse'
+raboof
+```
 
 
 
