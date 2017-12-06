@@ -40,6 +40,8 @@
     * [Iteration and filtering](#iteration-and-filtering)
     * [Sorting](#sorting)
     * [Transforming](#transforming)
+* [Miscellaneous](#miscellaneous)
+    * [split](#split)
 
 <br>
 
@@ -2472,6 +2474,12 @@ $ s='23 756 -983 5'
 $ echo "$s" | perl -lane 'print join " ", map {$_*$_} @F'
 529 571536 966289 25
 
+$ # changing the array itself
+$ perl -le '@s=(4, 245, 12); map {$_*$_} @s; print join " ", @s'
+4 245 12
+$ perl -le '@s=(4, 245, 12); map {$_ = $_*$_} @s; print join " ", @s'
+16 60025 144
+
 $ # ASCII int values for each character
 $ echo 'AaBbCc' | perl -F -lane 'print join " ", map ord, @F'
 65 97 66 98 67 99
@@ -2524,7 +2532,65 @@ $ echo 'foobar' | perl -lne 'print scalar reverse'
 raboof
 ```
 
+## <a name="miscellaneous"></a>Miscellaneous
 
+<br>
+
+#### <a name="split"></a>split
+
+* the `-a` command line option uses `split` and automatically saves the results in `@F` array
+* default separator is `\s+`
+* by default acts on `$_`
+* and by default all splits are performed
+
+```bash
+$ echo 'a 1 b 2 c' | perl -lane 'print $F[2]'
+b
+$ echo 'a 1 b 2 c' | perl -lne '@x=split; print $x[2]'
+b
+
+$ # using digits as separator
+$ echo 'a 1 b 2 c' | perl -lne '@x=split /\d+/; print ":$x[1]:"'
+: b :
+
+$ # specifying maximum number of splits
+$ echo 'a 1 b 2 c' | perl -lne '@x=split /\h+/,$_,2; print "$x[0]:$x[1]:"'
+a:1 b 2 c:
+$ # specifying limit using -F option
+$ echo 'a 1 b 2 c' | perl -F'/\h+/,$_,2' -lane 'print "$F[0]:$F[1]:"'
+a:1 b 2 c:
+```
+
+* to save the separators as well, use capture groups
+
+```bash
+$ echo 'a 1 b 2 c' | perl -lne '@x=split /(\d+)/; print "$x[1],$x[3]"'
+1,2
+
+$ # same can be done for -F option
+$ echo 'a 1 b 2 c' | perl -F'(\d+)' -lane 'print "$F[1],$F[3]"'
+1,2
+```
+
+* weird behavior if literal space character is used with `-F` option
+
+```bash
+$ # only one element in @F array
+$ echo 'a 1 b 2 c' | perl -F'/b /' -lane 'print $F[1]'
+
+$ # space not being used by separator
+$ echo 'a 1 b 2 c' | perl -F'b ' -lane 'print $F[1]'
+ 2 c
+$ # correct behavior
+$ echo 'a 1 b 2 c' | perl -F'b\x20' -lane 'print $F[1]'
+2 c
+
+$ # errors out if space used inside character class
+$ echo 'a 1 b 2 c' | perl -F'/b[ ]/' -lane 'print $F[1]'
+Unmatched [ in regex; marked by <-- HERE in m//b[ <-- HERE /.
+$ echo 'a 1 b 2 c' | perl -lne '@x=split /b[ ]/; print $x[1]'
+2 c
+```
 
 <br>
 
