@@ -42,6 +42,8 @@
     * [Transforming](#transforming)
 * [Miscellaneous](#miscellaneous)
     * [split](#split)
+    * [Fixed width processing](#fixed-width-processing)
+    * [String and file replication](#string-and-file-replication)
 
 <br>
 
@@ -416,9 +418,9 @@ $ seq 14 25 | perl -ne 'print if $.>=10'
 ## <a name="field-processing"></a>Field processing
 
 * `-a` option will auto-split each input record based on one or more continuous white-space, similar to default behavior in `awk`
+    * See also [split](#split) section
 * Special variable array `@F` will contain all the elements, index starting from `0`
     * see [Array operations](#array-operations) section for examples on array usage
-* See also [perldoc - split function](https://perldoc.perl.org/functions/split.html)
 
 ```bash
 $ cat fruits.txt
@@ -452,7 +454,7 @@ qty
 
 ```bash
 $ printf ' a    ate b\tc   \n'
- a    ate b	c   
+ a    ate b     c
 $ printf ' a    ate b\tc   \n' | perl -lane 'print $F[0]'
 a
 $ printf ' a    ate b\tc   \n' | perl -lane 'print $F[-1]'
@@ -1805,9 +1807,10 @@ foo,bar,123,baz,,,42
 ```
 
 * adding a field based on existing fields
+    * See also [split](#split) section
 
 ```bash
-$ # adding a new 'Grade' field, split will be covered later
+$ # adding a new 'Grade' field
 $ # same as: awk 'BEGIN{OFS="\t"; split("DCBAS",g,//)}
 $ #          {NF++; $NF = NR==1 ? "Grade" : g[int($(NF-1)/10)-4]} 1' marks.txt
 $ perl -lane 'BEGIN{$,="\t"; @g = split //, "DCBAS"} $#F++;
@@ -2296,8 +2299,11 @@ l m n o p q r s t u v w x y z aa ab ac ad
 
 #### <a name="iteration-and-filtering"></a>Iteration and filtering
 
+* See also [stackoverflow - extracting multiline text and performing substitution](https://stackoverflow.com/questions/47653826/awk-extracting-a-data-which-is-on-several-lines/47654406#47654406)
+
 ```bash
 $ # foreach will return each value one by one
+$ # can also use 'for' keyword instead of 'foreach'
 $ perl -le 'print $_*2 foreach (12..14)'
 24
 26
@@ -2542,6 +2548,7 @@ raboof
 * default separator is `\s+`
 * by default acts on `$_`
 * and by default all splits are performed
+* See also [perldoc - split function](https://perldoc.perl.org/functions/split.html)
 
 ```bash
 $ echo 'a 1 b 2 c' | perl -lane 'print $F[2]'
@@ -2590,6 +2597,68 @@ $ echo 'a 1 b 2 c' | perl -F'/b[ ]/' -lane 'print $F[1]'
 Unmatched [ in regex; marked by <-- HERE in m//b[ <-- HERE /.
 $ echo 'a 1 b 2 c' | perl -lne '@x=split /b[ ]/; print $x[1]'
 2 c
+```
+
+<br>
+
+#### <a name="fixed-width-processing"></a>Fixed width processing
+
+```bash
+$ # here 'a' indicates arbitrary binary data
+$ # the number that follows indicates length
+$ # the 'x' indicates characters to ignore, use length after 'x' if needed
+$ # and there are many other formats, see perldoc for details
+$ echo 'b 123 good' | perl -lne '@x = unpack("a1xa3xa4", $_); print $x[0]'
+b
+$ echo 'b 123 good' | perl -lne '@x = unpack("a1xa3xa4", $_); print $x[1]'
+123
+$ echo 'b 123 good' | perl -lne '@x = unpack("a1xa3xa4", $_); print $x[2]'
+good
+
+$ # unpack not always needed, can simply capture characters needed
+$ echo 'b 123 good' | perl -lne 'print /.{2}(.{3})/'
+123
+$ # or use substr to specify offset (starts from 0) and length
+$ echo 'b 123 good' | perl -lne 'print substr $_, 6, 4'
+good
+
+$ # substr can also be used for replacing
+$ echo 'b 123 good' | perl -lpe 'substr $_, 2, 3, "gleam"'
+b gleam good
+```
+
+**Further Reading**
+
+* [perldoc - tutorial on pack and unpack](https://perldoc.perl.org/perlpacktut.html)
+* [perldoc - substr](https://perldoc.perl.org/functions/substr.html)
+* [stackoverflow - extract columns from a fixed-width format](https://stackoverflow.com/questions/1494611/how-can-i-extract-columns-from-a-fixed-width-format-in-perl)
+* [stackoverflow - build fixed-width template from header](https://stackoverflow.com/questions/4911044/parse-fixed-width-files)
+
+<br>
+
+#### <a name="string-and-file-replication"></a>String and file replication
+
+```bash
+$ # replicate each line
+$ seq 2 | perl -ne 'print $_ x 2'
+1
+1
+2
+2
+
+$ # replicate a string
+$ perl -le 'print "abc" x 5'
+abcabcabcabcabc
+
+$ # works for lists too
+$ perl -le '@x = (3, 2, 1) x 2; print join " ",@x'
+3 2 1 3 2 1
+
+$ # replicating file
+$ wc -c poem.txt
+65 poem.txt
+$ perl -0777 -ne 'print $_ x 100' poem.txt | wc -c
+6500
 ```
 
 <br>
