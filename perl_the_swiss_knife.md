@@ -44,6 +44,7 @@
     * [split](#split)
     * [Fixed width processing](#fixed-width-processing)
     * [String and file replication](#string-and-file-replication)
+    * [Executing external commands](#executing-external-commands)
 
 <br>
 
@@ -1267,6 +1268,17 @@ $ echo ',baz,,,xyz,,' | perl -pe 's/(^|,)\K(?=,|$)/NA/g'
 NA,baz,NA,NA,xyz,NA,NA
 ```
 
+* lookarounds are useful for field splitting as well
+
+```bash
+$ # helps to avoid , within fields
+$ # note how the quotes are still part of field value
+$ echo '"foo","12,34","good"' | perl -F'/"\K,(?=")/' -lane 'print $F[1]'
+"12,34"
+$ echo '"foo","12,34","good"' | perl -F'/"\K,(?=")/' -lane 'print $F[2]'
+"good"
+```
+
 **Further Reading**
 
 * [stackoverflow - reverse four letter words](https://stackoverflow.com/questions/46870285/reverse-four-length-of-letters-with-sed-in-unix)
@@ -1406,8 +1418,8 @@ $ echo '4 and 10 foo 57' | c=100 perl -pe 's/\d+/$ENV{c}++/ge'
 100 and 101 foo 102
 
 $ # formatting string
-$ echo '104 and 10 foo 57' | perl -pe 's/\d+/sprintf "%03d", $&/ge'
-104 and 010 foo 057
+$ echo 'a1-2-deed' | perl -lpe 's/[^-]+/sprintf "%04s", $&/ge'
+00a1-0002-deed
 
 $ # calling a function
 $ echo 'food:12:explain:789' | perl -pe 's/\w+/length($&)/ge'
@@ -2660,6 +2672,60 @@ $ wc -c poem.txt
 $ perl -0777 -ne 'print $_ x 100' poem.txt | wc -c
 6500
 ```
+
+<br>
+
+#### <a name="executing-external-commands"></a>Executing external commands
+
+* External commands can be issued using `system` function
+* Output would be as usual on `stdout` unless redirected while calling the command
+
+```bash
+$ perl -e 'system("echo Hello World")'
+Hello World
+$ # use q operator to avoid interpolation
+$ perl -e 'system q/echo $HOME/'
+/home/learnbyexample
+
+$ perl -e 'system q/wc poem.txt/'
+ 4 13 65 poem.txt
+
+$ perl -e 'system q/seq 10 | paste -sd, > out.txt/'
+$ cat out.txt
+1,2,3,4,5,6,7,8,9,10
+
+$ cat f2
+I bought two bananas and three mangoes
+$ echo 'f1,f2,odd.txt' | perl -F, -lane 'system "cat $F[1]"'
+I bought two bananas and three mangoes
+```
+
+* output of `system` will have exit status information or `$?` can be used
+* see [perldoc - system](https://perldoc.perl.org/functions/system.html) for details
+
+```bash
+$ perl -le 'system q/ls poem.txt/; print "exit status: $?"'
+poem.txt
+exit status: 0
+
+$ perl -le 'system q/ls xyz.txt/; print "exit status: $?"'
+ls: cannot access 'xyz.txt': No such file or directory
+exit status: 512
+```
+
+* to save result of external command, use backticks or `qx` operator
+* newline gets saved too, use `chomp` if needed
+
+```bash
+$ perl -e '$lines = `wc -l < poem.txt`; print $lines'
+4
+$ perl -e '$nums = qx/seq 3/; print $nums'
+1
+2
+3
+```
+
+* See also [stackoverflow - difference between backticks, system, exec and open](https://stackoverflow.com/questions/799968/whats-the-difference-between-perls-backticks-system-and-exec)
 
 <br>
 
