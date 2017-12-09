@@ -1580,6 +1580,8 @@ LINE: while (defined($_ = <ARGV>)) {
 * [unix.stackexchange - example for Algorithm::Combinatorics](https://unix.stackexchange.com/questions/310840/better-solution-for-finding-id-groups-permutations-combinations)
 * [unix.stackexchange - example for Text::ParseWords](https://unix.stackexchange.com/questions/319301/excluding-enclosed-delimiters-with-cut)
 * [stackoverflow - regular expression modules](https://stackoverflow.com/questions/3258847/what-are-good-perl-pattern-matching-regex-modules)
+* [metacpan - String::Approx](https://metacpan.org/pod/String::Approx) - Perl extension for approximate matching (fuzzy matching)
+* [metacpan - Tie::IxHash](https://metacpan.org/pod/Tie::IxHash) - ordered associative arrays for Perl
 
 <br>
 
@@ -2300,9 +2302,21 @@ $ # index needed can be given from another array too
 $ echo 'a b c d' | perl -lane '@i=(3,1); print "@F[@i]"'
 d b
 
-$ # range operator also allows handy initialization
+$ # easy swapping of columns
+$ perl -lane 'print join "\t", @F[1,0]' fruits.txt
+qty     fruit
+42      apple
+31      banana
+90      fig
+6       guava
+```
+
+* range operator also allows handy initialization
+
+```bash
 $ perl -le '@n = (12..17); print "@n"'
 12 13 14 15 16 17
+
 $ perl -le '@n = (l..ad); print "@n"'
 l m n o p q r s t u v w x y z aa ab ac ad
 ```
@@ -2483,14 +2497,32 @@ $ echo "$s" | perl -MList::Util=shuffle -lane 'print join " ", shuffle @F'
 756 23 -983 5
 $ echo "$s" | perl -MList::Util=shuffle -lane 'print join " ", shuffle @F'
 5 756 23 -983
+
+$ # randomizing file contents
+$ perl -MList::Util=shuffle -e 'print shuffle <>' poem.txt
+Sugar is sweet,
+And so are you.
+Violets are blue,
+Roses are red,
+
+$ # or if shuffle order is known
+$ seq 5 | perl -e '@lines=<>; print @lines[3,1,0,2,4]'
+4
+2
+1
+3
+5
 ```
 
 * use `map` to transform every element
 
 ```bash
-$ s='23 756 -983 5'
-$ echo "$s" | perl -lane 'print join " ", map {$_*$_} @F'
+$ echo '23 756 -983 5' | perl -lane 'print join " ", map {$_*$_} @F'
 529 571536 966289 25
+$ echo 'a b c' | perl -lane 'print join ",", map {"\"$_\""} @F'
+"a","b","c"
+$ echo 'a b c' | perl -lane 'print join ",", map {uc "\"$_\""} @F'
+"A","B","C"
 
 $ # changing the array itself
 $ perl -le '@s=(4, 245, 12); map {$_*$_} @s; print join " ", @s'
@@ -2591,6 +2623,23 @@ $ echo 'a 1 b 2 c' | perl -F'(\d+)' -lane 'print "$F[1],$F[3]"'
 1,2
 ```
 
+* single line to multiple line by splitting a column
+
+```bash
+$ cat split.txt
+foo,1:2:5,baz
+wry,4,look
+free,3:8,oh
+
+$ perl -F, -ane 'print join ",", $F[0],$_,$F[2] for split /:/,$F[1]' split.txt
+foo,1,baz
+foo,2,baz
+foo,5,baz
+wry,4,look
+free,3,oh
+free,8,oh
+```
+
 * weird behavior if literal space character is used with `-F` option
 
 ```bash
@@ -2673,6 +2722,26 @@ $ perl -0777 -ne 'print $_ x 100' poem.txt | wc -c
 6500
 ```
 
+* the [perldoc - glob](https://perldoc.perl.org/functions/glob.html) function can be hacked to generate combinations of strings
+
+```bash
+$ # typical use case
+$ # same as: echo *.log
+$ perl -le '@x=glob q/*.log/; print "@x"'
+report.log
+$ # same as: echo *.{log,pl}
+$ perl -le '@x=glob q/*.{log,pl}/; print "@x"'
+report.log code.pl sub_sq.pl
+
+$ # hacking
+$ # same as: echo {1,3}{a,b}
+$ perl -le '@x=glob q/{1,3}{a,b}/; print "@x"'
+1a 1b 3a 3b
+$ # same as: echo {1,3}{1,3}{1,3}
+$ perl -le '@x=glob "{1,3}" x 3; print "@x"'
+111 113 131 133 311 313 331 333
+```
+
 <br>
 
 #### <a name="executing-external-commands"></a>Executing external commands
@@ -2700,7 +2769,7 @@ $ echo 'f1,f2,odd.txt' | perl -F, -lane 'system "cat $F[1]"'
 I bought two bananas and three mangoes
 ```
 
-* output of `system` will have exit status information or `$?` can be used
+* return value of `system` will have exit status information or `$?` can be used
 * see [perldoc - system](https://perldoc.perl.org/functions/system.html) for details
 
 ```bash
