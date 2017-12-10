@@ -25,6 +25,7 @@
     * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
     * [Quoting metacharacters](#quoting-metacharacters)
+    * [Matching position](#matching-position)
 * [Using modules](#using-modules)
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
@@ -1268,15 +1269,30 @@ $ echo ',baz,,,xyz,,' | perl -pe 's/(^|,)\K(?=,|$)/NA/g'
 NA,baz,NA,NA,xyz,NA,NA
 ```
 
-* lookarounds are useful for field splitting as well
+* some more examples
 
 ```bash
-$ # helps to avoid , within fields
+$ # helps to avoid , within fields for field splitting
 $ # note how the quotes are still part of field value
 $ echo '"foo","12,34","good"' | perl -F'/"\K,(?=")/' -lane 'print $F[1]'
 "12,34"
 $ echo '"foo","12,34","good"' | perl -F'/"\K,(?=")/' -lane 'print $F[2]'
 "good"
+
+$ # capture groups inside lookarounds
+$ echo 'a b c d e' | perl -pe 's/(\H+\h+)(?=(\H+)\h)/$1$2\n/g'
+a b
+b c
+c d
+d e
+$ # generic formula :)
+$ echo 'a b c d e' | perl -pe 's/(\H+\h+)(?=(\H+(\h+\H+){1})\h)/$1$2\n/g'
+a b c
+b c d
+c d e
+$ echo 'a b c d e' | perl -pe 's/(\H+\h+)(?=(\H+(\h+\H+){2})\h)/$1$2\n/g'
+a b c d
+b c d e
 ```
 
 **Further Reading**
@@ -1513,6 +1529,52 @@ $ echo 'foo 123' | s='a$b' perl -pe 's/foo/$ENV{s}/'
 a$b 123
 $ echo 'foo 123' | perl -pe 's/foo/a$b/'
 a 123
+```
+
+<br>
+
+#### <a name="matching-position"></a>Matching position
+
+* From [perldoc - perlvar](https://perldoc.perl.org/perlvar.html#SPECIAL-VARIABLES)
+
+>$-[0] is the offset of the start of the last successful match
+
+>$+[0] is the offset into the string of the end of the entire match
+
+```bash
+$ cat poem.txt
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # starting position of match
+$ perl -lne 'print "line: $., offset: $-[0]" if /are/' poem.txt
+line: 1, offset: 6
+line: 2, offset: 8
+line: 4, offset: 7
+$ # if offset is needed starting from 1 instead of 0
+$ perl -lne 'print "line: $., offset: ",$-[0]+1 if /are/' poem.txt
+line: 1, offset: 7
+line: 2, offset: 9
+line: 4, offset: 8
+
+$ # ending position of match
+$ perl -lne 'print "line: $., offset: $+[0]" if /are/' poem.txt
+line: 1, offset: 9
+line: 2, offset: 11
+line: 4, offset: 10
+```
+
+* for multiple matches, use `while` loop to go over all the matches
+
+```bash
+$ perl -lne 'print "$.:$&:$-[0]" while /is|so|are/g' poem.txt
+1:are:6
+2:are:8
+3:is:6
+4:so:4
+4:are:7
 ```
 
 <br>
@@ -2694,6 +2756,7 @@ b gleam good
 * [perldoc - substr](https://perldoc.perl.org/functions/substr.html)
 * [stackoverflow - extract columns from a fixed-width format](https://stackoverflow.com/questions/1494611/how-can-i-extract-columns-from-a-fixed-width-format-in-perl)
 * [stackoverflow - build fixed-width template from header](https://stackoverflow.com/questions/4911044/parse-fixed-width-files)
+* [stackoverflow - convert fixed-width to delimited format](https://stackoverflow.com/questions/43734981/display-column-from-empty-column-delimited-space-in-bash)
 
 <br>
 
