@@ -81,7 +81,7 @@ SYNOPSIS
     * examples for non-greedy, lookarounds, etc will be covered here
 * this tutorial is primarily focussed on short programs that are easily usable from command line, similar to using `grep`, `sed`, `awk` etc
     * do NOT use style/syntax presented here when writing full fledged Perl programs which should use **strict, warnings** etc
-    * see [learnxinyminutes - perl](https://learnxinyminutes.com/docs/perl/) for quick intro to using Perl for full fledged programs
+    * see [perldoc - perlintro](https://perldoc.perl.org/perlintro.html) and [learnxinyminutes - perl](https://learnxinyminutes.com/docs/perl/) for quick intro to using Perl for full fledged programs
 * links to Perl documentation will be added as necessary
 * unless otherwise specified, consider input as ASCII encoded text only
     * see also [stackoverflow - why UTF-8 is not default](https://stackoverflow.com/questions/6162484/why-does-modern-perl-avoid-utf-8-by-default)
@@ -170,6 +170,7 @@ ab $x 123
     * `-p` will print the record, including any changes made
     * newline character being default record separator
     * `$_` will contain the input record content, including the record separator (unlike `sed` and `awk`)
+    * any directory name appearing in file arguments passed will be automatically ignored
 * and similar to other commands, `perl` will work with both stdin and file input
 
 ```bash
@@ -1064,6 +1065,18 @@ foo:123-bar:baz
 $ echo 'foo:123:bar:baz' | perl -pe 's/:/-/2'
 Unknown regexp modifier "/2" at -e line 1, at end of line
 Execution of -e aborted due to compilation errors.
+$ echo 'foo:123:bar:baz' | perl -pe '$c=0; s/:/++$c==2 ? "-" : $&/ge'
+foo:123-bar:baz
+
+$ # emulating GNU sed's number+g modifier
+$ a='456:foo:123:bar:789:baz
+x:y:z:a:v:xc:gf'
+$ echo "$a" | sed -E 's/:/-/3g'
+456:foo:123-bar-789-baz
+x:y:z-a-v-xc-gf
+$ echo "$a" | perl -pe '$c=0; s/:/++$c<3 ? $& : "-"/ge'
+456:foo:123-bar-789-baz
+x:y:z-a-v-xc-gf
 ```
 
 * variable interpolation when `$` or `@` is used
@@ -1324,6 +1337,26 @@ and
 $ # change words except those surrounded by double quotes
 $ echo "$s" | perl -pe 's/"[^"]+"(*SKIP)(*F)|\w+/\U$&/g'
 I LIKE "mango" AND "guava"
+```
+
+* for line based decisions, simple if-else might help
+
+```bash
+$ cat nums.txt
+42
+-2
+10101
+-3.14
+-75
+
+$ # change +ve number to -ve and vice versa
+$ # note that empty regexp will reuse last successfully matched regexp
+$ perl -pe '/^-/ ? s/// : s/^/-/' nums.txt
+-42
+2
+-10101
+3.14
+75
 ```
 
 **Further Reading**
@@ -2438,10 +2471,10 @@ $ echo "$s" | perl -lane 'print join " ", grep s/3/E/, @F'
 2E -98E
 ```
 
-* filtering a column using `grep`
+* more examples
 
 ```bash
-$ # note the use of arrays even though it is single column
+$ # filtering column(s) based on header
 $ perl -lane '@i = grep {$F[$_] eq "Name"} 0..$#F if $.==1;
               print @F[@i]' marks.txt
 Name
@@ -2452,6 +2485,15 @@ Surya
 Tia
 Om
 Amy
+
+$ cat split.txt
+foo,1:2:5,baz
+wry,4,look
+free,3:8,oh
+$ # print line if more than one column has a digit
+$ perl -F: -lane 'print if (grep /\d/, @F) > 1' split.txt
+foo,1:2:5,baz
+free,3:8,oh
 ```
 
 * to get random element from array
