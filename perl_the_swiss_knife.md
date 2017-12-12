@@ -46,6 +46,7 @@
     * [Fixed width processing](#fixed-width-processing)
     * [String and file replication](#string-and-file-replication)
     * [Executing external commands](#executing-external-commands)
+* [Further Reading](#further-reading)
 
 <br>
 
@@ -1888,6 +1889,10 @@ $ file='nums.txt' perl -ne 'BEGIN{open($f,$ENV{file})}
                             $num=<$f>; print if $num>0' fruits.txt
 fruit   qty
 banana  31
+$ # or pass contents of nums.txt as standard input
+$ <nums.txt perl -ne '$num=<STDIN>; print if $num>0' fruits.txt
+fruit   qty
+banana  31
 ```
 
 <br>
@@ -2541,6 +2546,32 @@ is Sugar sweet,
 And are so you.
 ```
 
+* sorting characters within word
+
+```bash
+$ echo 'foobar' | perl -F -lane 'print sort @F'
+abfoor
+
+$ cat words.txt
+bot
+art
+are
+boat
+toe
+flee
+reed
+
+$ # words with characters in ascending order
+$ perl -F -lane 'print if (join "", sort @F) eq $_' words.txt 
+bot
+art
+
+$ # words with characters in descending order
+$ perl -F -lane 'print if (join "", sort {$b cmp $a} @F) eq $_' words.txt
+toe
+reed
+```
+
 * for numeric comparison, use `<=>` instead of `cmp`
 
 ```bash
@@ -2903,8 +2934,22 @@ $ perl -e '$nums = qx/seq 3/; print $nums'
 
 <br>
 
-<br>
+## <a name="further-reading"></a>Further Reading
 
-<br>
+* Manual and related
+    * [perldoc - overview](https://perldoc.perl.org/index-overview.html)
+    * [perldoc - faqs](https://perldoc.perl.org/index-faq.html)
+    * [perldoc - tutorials](https://perldoc.perl.org/index-tutorials.html)
+    * [perldoc - functions](https://perldoc.perl.org/index-functions.html)
+    * [perldoc - special variables](https://perldoc.perl.org/perlvar.html)
+    * [perldoc - perlretut](https://perldoc.perl.org/perlretut.html)
+* Tutorials and Q&A
+    * [Perl one-liners explained](http://www.catonmat.net/series/perl-one-liners-explained) 
+    * [perl Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/perl?sort=votes&pageSize=15)
+    * [regex FAQ on SO](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
+    * [regexone](https://regexone.com/) - interative tutorial
+    * [regexcrossword](https://regexcrossword.com/) - practice by solving crosswords, read 'How to play' section before you start
+* Alternatives
+    * [bioperl](http://bioperl.org/howtos/index.html)
+    * [ruby](https://www.ruby-lang.org/en/)
 
-*More to follow*
