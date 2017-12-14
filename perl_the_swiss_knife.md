@@ -205,7 +205,9 @@ $ cat greeting.txt
 Hello there
 Have a nice day
 
-$ # use this with caution, changes made cannot be undone
+$ # using -i'bkp.*' will save backup file as 'bkp.greeting.txt'
+
+$ # use empty argument to -i with caution, changes made cannot be undone
 $ perl -i -pe 's/nice day/safe journey/' greeting.txt
 $ cat greeting.txt
 Hello there
@@ -220,8 +222,7 @@ I ate 3 apples
 $ cat f2
 I bought two bananas and 3 mangoes
 
-$ # -i can be used with or without backup
-$ perl -i -pe 's/3/three/' f1 f2
+$ perl -i.bkp -pe 's/3/three/' f1 f2
 $ cat f1
 I ate three apples
 $ cat f2
@@ -469,6 +470,9 @@ $ echo '1 a 7' | perl -lane 'print $#F+1'
 3
 $ printf ' a    ate b\tc   \n' | perl -lane 'print $#F+1'
 4
+$ # or use scalar context
+$ echo '1 a 7' | perl -lane 'print scalar @F'
+3
 ```
 
 <br>
@@ -1066,6 +1070,7 @@ foo:123-bar:baz
 $ echo 'foo:123:bar:baz' | perl -pe 's/:/-/2'
 Unknown regexp modifier "/2" at -e line 1, at end of line
 Execution of -e aborted due to compilation errors.
+$ # e modifier covered later, allows Perl code in replacement section
 $ echo 'foo:123:bar:baz' | perl -pe '$c=0; s/:/++$c==2 ? "-" : $&/ge'
 foo:123-bar:baz
 
