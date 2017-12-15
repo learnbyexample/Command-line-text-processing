@@ -577,6 +577,7 @@ $ seq 3 | awk -v ORS='\n\n' '{print $0}'
 3
 
 $ # dynamically changing ORS
+$ # ?: ternary operator to select between two expressions based on a condition
 $ # can also use: seq 6 | awk '{ORS = NR%2 ? " " : RS} 1'
 $ seq 6 | awk '{ORS = NR%2 ? " " : "\n"} 1'
 1 2
@@ -1136,7 +1137,7 @@ fruit   qty
 -guava   6
 ```
 
-* conditional operator
+* ternary operator
 * See also [stackoverflow - finding min and max value of a column](https://stackoverflow.com/a/29784278/4082052)
 
 ```bash
@@ -1571,7 +1572,7 @@ foo,bar,123,baz,,,42
 ```bash
 $ # adding a new 'Grade' field
 $ awk 'BEGIN{OFS="\t"; g[9]="S"; g[8]="A"; g[7]="B"; g[6]="C"; g[5]="D"}
-      {NF++; if(NR==1)$NF="Grade"; else $NF=g[int($(NF-1)/10)]} 1' marks.txt
+      {NF++; $NF = NR==1 ? "Grade" : g[int($(NF-1)/10)]} 1' marks.txt
 Dept    Name    Marks   Grade
 ECE     Raj     53      D
 ECE     Joel    72      B
@@ -1595,7 +1596,7 @@ Amy sports_rep
 Tia placement_rep
 
 $ awk -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
-         {NF++; if(FNR==1)$NF="Role"; else $NF=r[$2]} 1' list4 marks.txt
+         {NF++; $NF = NR==1 ? "Role" : $NF=r[$2]} 1' list4 marks.txt
 Dept    Name    Marks   Role
 ECE     Raj     53      class_rep
 ECE     Joel    72
@@ -1637,6 +1638,7 @@ dam
 ```
 
 * first, examples that retain only first copy of duplicates
+* See also [stackoverflow - add a letter to duplicate entries](https://stackoverflow.com/questions/47774779/add-letter-to-second-third-fourth-occurrence-of-a-string)
 
 ```bash
 $ cat duplicates.txt
@@ -2662,5 +2664,7 @@ real    0m0.045s
     * [unix.stackexchange - strftime](https://unix.stackexchange.com/questions/224969/current-date-in-awk)
     * [unix.stackexchange - ARGC and ARGV](https://unix.stackexchange.com/questions/222146/awk-does-not-end/222150#222150)
     * [stackoverflow - arbitrary precision integer extension](https://stackoverflow.com/questions/46904447/strange-output-while-comparing-engineering-numbers-in-awk)
+    * [stackoverflow - recognizing hexadecimal numbers](https://stackoverflow.com/questions/3683110/how-to-make-calculations-on-hexadecimal-numbers-with-awk)
     * [unix.stackexchange - sprintf and close](https://unix.stackexchange.com/questions/223727/splitting-file-for-every-10000-numbers-not-lines/223739#223739)
     * [unix.stackexchange - user defined functions and array passing](https://unix.stackexchange.com/questions/72469/gawk-passing-arrays-to-functions)
+    * [unix.stackexchange - rename csv files based on number of fields in header row](https://unix.stackexchange.com/questions/408742/count-number-of-columns-in-csv-files-and-rename-if-less-than-11-columns)
