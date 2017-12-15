@@ -895,7 +895,7 @@ $ # null separator, note how -l also chomps input record separator
 $ seq 8 | perl -l0 -ne 'print if /[24]/' | cat -A
 2^@4^@
 
-$ # comma separator
+$ # comma separator, won't have a newline at end
 $ seq 8 | perl -l054 -ne 'print if /[24]/'
 2,4, 
 
@@ -1759,6 +1759,11 @@ White
 ```
 
 * alternative constructs
+* `<FILEHANDLE>` reads line(s) from the specified file
+    * defaults to current file argument(includes stdin as well), so `<>` can be used as shortcut
+    * `<STDIN>` will read only from stdin, there are also predefined handles for stdout/stderr
+    * in list context, all the lines would be read
+    * See [perldoc - I/O Operators](https://perldoc.perl.org/perlop.html#I%2fO-Operators) for details
 
 ```bash
 $ # using if-else instead of next
@@ -1836,7 +1841,7 @@ ECE     Om      92
 CSE     Amy     67
 ```
 
-* for multiple field comparison, use multidimensional hash
+* multiple field comparison
 
 ```bash
 $ cat list2
@@ -1846,6 +1851,14 @@ ECE Raj
 
 $ # extract only lines matching both fields specified in list2
 $ # same as: awk 'NR==FNR{a[$1,$2]; next} ($1,$2) in a' list2 marks.txt
+$ # default SUBSEP(stored in $;) is \034, same as GNU awk
+$ perl -ane 'if(!$#ARGV){ $h{$F[0],$F[1]}=1 }
+             else{ print if $h{$F[0],$F[1]} }' list2 marks.txt
+ECE     Raj     53
+EEE     Moi     68
+CSE     Amy     67
+
+$ # or use multidimensional hash
 $ perl -ane 'if(!$#ARGV){ $h{$F[0]}{$F[1]}=1 }
              else{ print if $h{$F[0]}{$F[1]} }' list2 marks.txt
 ECE     Raj     53
@@ -2002,15 +2015,20 @@ $ perl -lane '$c++ if !$seen{$F[1]}++; END{print $c+0}' duplicates.txt
 * See also [perldoc - bignum](https://perldoc.perl.org/bignum.html)
 
 ```bash
+$ perl -le 'print "equal" if
+   102**33==1922231403943151831696327756255167543169267432774552016351387451392'
+$ # -M option here enables the use of bignum module
+$ perl -Mbignum -le 'print "equal" if
+   102**33==1922231403943151831696327756255167543169267432774552016351387451392'
+equal
+
 $ # avoid unnecessary counting altogether
 $ # same as: awk '!($2 in seen); {seen[$2]}' duplicates.txt
 $ perl -ane 'print if !$seen{$F[1]}; $seen{$F[1]}=1' duplicates.txt
 abc  7   4
 food toy ****
 
-$ # use arbitrary-precision integers, limited only by available memory
 $ # same as: awk -M '!($2 in seen){c++} {seen[$2]} END{print +c}' duplicates.txt
-$ # -M option here enables the use of bignum module
 $ perl -Mbignum -lane '$c++ if !$seen{$F[1]}; $seen{$F[1]}=1;
                        END{print $c+0}' duplicates.txt
 2
@@ -2333,6 +2351,7 @@ END
 
 $ # note how buffer is initialized as well as cleared
 $ # on matching beginning/end REGEXPs respectively
+$ # 'undef $b' can also be used here instead of $b=""
 ```
 
 <br>
@@ -2721,6 +2740,8 @@ raboof
 $ echo 'foobar' | perl -lne 'print scalar reverse'
 raboof
 ```
+
+<br>
 
 ## <a name="miscellaneous"></a>Miscellaneous
 
