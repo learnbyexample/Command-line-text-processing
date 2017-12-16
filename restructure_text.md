@@ -84,6 +84,17 @@ $ paste -d'|' <(seq 3) <(seq 4 6) <(seq 7 10)
 ||10
 ```
 
+* to paste without any character in between, use `\0` as delimiter
+    * note that `\0` here doesn't mean the ASCII NUL character
+    * can also use `-d ''` with `GNU paste`
+    
+```bash
+$ paste -d'\0' <(seq 3) <(seq 6 8)
+16
+27
+38
+```
+
 <br>
 
 #### <a name="interleaving-lines"></a>Interleaving lines
