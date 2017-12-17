@@ -2470,6 +2470,12 @@ Violets are blue,
 Sugar is sweet,
 And so are you.
 3
+$ # to replace matching line
+$ seq 3 | sed -e '/are/{R /dev/stdin' -e 'd}' poem.txt
+1
+2
+Sugar is sweet,
+3
 
 $ sed '2,3R 5.txt' poem.txt 
 Roses are red,
