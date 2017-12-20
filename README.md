@@ -15,6 +15,7 @@ Work still in progress, stay tuned :)
 * [GNU grep](./gnu_grep.md)
 * [GNU sed](./gnu_sed.md)
 * [GNU awk](./gnu_awk.md)
+* [Perl the swiss knife](./perl_the_swiss_knife.md)
 * [Sorting stuff](./sorting_stuff.md)
     * sort, uniq, comm, shuf
 * [Restructure text](./restructure_text.md)
@@ -28,7 +29,6 @@ Rough drafts
 
 * [Wheres my file](./wheres_my_file.md)
 * [Whats the difference](./whats_the_difference.md)
-* [Perl the swiss knife](./perl_the_swiss_knife.md)
 
 Possible additions
 
@@ -40,7 +40,7 @@ Possible additions
 
 ## <a name="webinar-recordings"></a>Webinar recordings
 
-Am new to video recording and there are few bumps. But I hope it would be helpful
+Recorded couple of videos based on content in the chapters, not sure if I'll do more
 
 * [Using the sort command](https://www.youtube.com/watch?v=qLfAwwb5vGs)
 * [Using uniq and comm](https://www.youtube.com/watch?v=uAb2kxA2TyQ)
@@ -49,9 +49,9 @@ Am new to video recording and there are few bumps. But I hope it would be helpfu
 
 ## <a name="exercises"></a>exercises
 
-Check out [exercises](./exercises) directory to test yourself, right from the command line itself
+Check out [exercises](./exercises) directory to solve practice questions, right from the command line itself
 
-As of now, only a few `grep` exercises has been added. Stay tuned for more
+As of now, only `grep` exercises has been added. Stay tuned for more
 
 <br>
 
