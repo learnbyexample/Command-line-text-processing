@@ -1073,6 +1073,9 @@ Execution of -e aborted due to compilation errors.
 $ # e modifier covered later, allows Perl code in replacement section
 $ echo 'foo:123:bar:baz' | perl -pe '$c=0; s/:/++$c==2 ? "-" : $&/ge'
 foo:123-bar:baz
+$ # or use non-greedy and lookbehind(covered later), same as: sed 's/and/-/3'
+$ echo 'foo and bar and baz land good' | perl -pe 's/(and.*?){2}\Kand/-/'
+foo and bar and baz l- good
 
 $ # emulating GNU sed's number+g modifier
 $ a='456:foo:123:bar:789:baz
@@ -2978,4 +2981,5 @@ $ perl -e '$nums = qx/seq 3/; print $nums'
 * Alternatives
     * [bioperl](http://bioperl.org/howtos/index.html)
     * [ruby](https://www.ruby-lang.org/en/)
+    * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
 
