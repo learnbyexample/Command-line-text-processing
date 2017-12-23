@@ -3061,7 +3061,7 @@ sed: -e expression #1, char 15: unknown option to `s'
 $ printf 'user\nhome\n' | sed '/home/ s#$#: '"$HOME"'#'
 user
 home: /home/learnbyexample
-/b
+
 $ # use r command for robust insertion from file/command-output
 $ sed '1a'"$(seq 2)" 5.txt
 sed: -e expression #1, char 5: missing command
