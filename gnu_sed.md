@@ -2533,7 +2533,7 @@ $ sed -n '/blue/{n;n;s/e/E/pg}' poem.txt
 And so arE you.
 ```
 
-* `N` will fetch the next line and append to pattern space
+* `N` will fetch the current matched line and next line after and append to pattern space
 * See [this Q&A](https://stackoverflow.com/questions/40229578/how-to-insert-a-line-feed-into-a-sed-line-concatenation) for an interesting case of applying substitution every 4 lines but excluding the 4th line
 
 ```bash
