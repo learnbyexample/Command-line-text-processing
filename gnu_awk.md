@@ -179,19 +179,19 @@ $ printf ' a    ate b\tc   \n'
  a    ate b     c
 $ printf ' a    ate b\tc   \n' | awk '{print $1}'
 a
-$ printf ' a    ate b\tc   \n' | awk '{print NF}'
-4
+$ printf ' a    ate b\tc   \n' | awk '{print $NF}'
+c
 $ # same behavior if FS is assigned to single space character
 $ printf ' a    ate b\tc   \n' | awk -F' ' '{print $1}'
 a
-$ printf ' a    ate b\tc   \n' | awk -F' ' '{print NF}'
-4
+$ printf ' a    ate b\tc   \n' | awk -F' ' '{print $NF}'
+c
 
 $ # for anything else, leading/trailing whitespaces will be considered
 $ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print $2}'
 a
-$ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print NF}'
-6
+$ printf ' a    ate b\tc   \n' | awk -F'[ \t]+' '{print $NF}'
+
 ```
 
 * assigning empty string to FS will split the input record character wise
