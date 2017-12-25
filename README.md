@@ -38,6 +38,13 @@ Possible additions
 
 <br>
 
+## <a name="contributing"></a>Contributing
+
+* Please open an issue for typos/bugs/suggestions/etc
+* Even for pull requests, open an issue for discussion before submitting PRs
+
+<br>
+
 ## <a name="webinar-recordings"></a>Webinar recordings
 
 Recorded couple of videos based on content in the chapters, not sure if I'll do more
