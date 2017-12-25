@@ -2514,7 +2514,10 @@ And so are you.
 ## <a name="n-and-n-commands"></a>n and N commands
 
 * These two commands will fetch next line (newline or NUL character separated, depending on options)
-* `n` will fetch the next line and replace whatever is already there in pattern space
+
+Quoting from [sed manual - common commands](https://www.gnu.org/software/sed/manual/sed.html#Common-Commands) for `n` command
+
+>If auto-print is not disabled, print the pattern space, then, regardless, replace the pattern space with the next line of input. If there is no more input then sed exits without processing any more commands.
 
 ```bash
 $ # if line contains 'blue', replace 'e' with 'E' only for following line
@@ -2533,7 +2536,12 @@ $ sed -n '/blue/{n;n;s/e/E/pg}' poem.txt
 And so arE you.
 ```
 
-* `N` will fetch the next line and append to pattern space
+Quoting from [sed manual - other commands](https://www.gnu.org/software/sed/manual/sed.html#Other-Commands) for `N` command
+
+>Add a newline to the pattern space, then append the next line of input to the pattern space. If there is no more input then sed exits without processing any more commands
+
+>When -z is used, a zero byte (the ascii ‘NUL’ character) is added between the lines (instead of a new line)
+
 * See [this Q&A](https://stackoverflow.com/questions/40229578/how-to-insert-a-line-feed-into-a-sed-line-concatenation) for an interesting case of applying substitution every 4 lines but excluding the 4th line
 
 ```bash
