@@ -115,6 +115,7 @@ Hello Bash
 $ perl -e 'print "Hello Perl\n"'
 Hello Perl
 
+$ # say automatically adds newline character
 $ perl -E 'say "Hello Perl"'
 Hello Perl
 
@@ -129,20 +130,24 @@ $ perl -le '$x=25; $y=12; print $x**$y'
 ```
 
 * Perl is (in)famous for being able to things more than one way
-* examples here will mostly try to avoid typing `(){}`
+* examples in this chapter will mostly try to use the syntax that avoids `(){}`
 
 ```bash
+$ # shows different syntax usage of if/say/print
 $ perl -e 'if(2<3){print("2 is less than 3\n")}'
 2 is less than 3
 $ perl -E 'say "2 is less than 3" if 2<3'
 2 is less than 3
 
+$ # string comparison uses eq for ==, lt for < and so on
 $ perl -e 'if("a" lt "b"){$x=5; $y=10} print "x=$x; y=$y\n"'
 x=5; y=10
+$ # x/y assignment will happen only if condition evaluates to true
 $ perl -E 'say "x=$x; y=$y" if "a" lt "b" and $x=5,$y=10'
 x=5; y=10
 
-$ # use q operator if single quoting is needed
+$ # variables will be interpolated within double quotes
+$ # so, use q operator if single quoting is needed
 $ # as single quote is already being used to group perl code for -e option
 $ perl -le 'print "ab $x 123"'
 ab  123
@@ -173,6 +178,7 @@ ab $x 123
     * `$_` will contain the input record content, including the record separator (unlike `sed` and `awk`)
     * any directory name appearing in file arguments passed will be automatically ignored
 * and similar to other commands, `perl` will work with both stdin and file input
+    * See other chapters for examples of [seq](./miscellaneous.md#seq), [paste](./restructure_text.md#paste), etc
 
 ```bash
 $ # change only first ',' to ' : '
@@ -909,7 +915,6 @@ $ seq 8 | perl -l054 -ne 'print if /[24]/; END{printf "\n"}'
 ## <a name="multiline-processing"></a>Multiline processing
 
 * Processing consecutive lines
-* See also [stackoverflow - multiline find and replace](https://stackoverflow.com/questions/39884112/perl-multiline-find-and-replace-with-regex)
 
 ```bash
 $ cat poem.txt 
@@ -991,6 +996,12 @@ $ tac range.txt | perl -ne 'print if $n && !--$n; $n=3 if /END/' | tac
 BEGIN
 a
 ```
+
+**Further Reading**
+
+* [stackoverflow - multiline find and replace](https://stackoverflow.com/questions/39884112/perl-multiline-find-and-replace-with-regex)
+* [softwareengineering - FSM examples](https://softwareengineering.stackexchange.com/questions/47806/examples-of-finite-state-machines)
+* [wikipedia - FSM](https://en.wikipedia.org/wiki/Finite-state_machine)
 
 <br>
 
