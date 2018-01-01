@@ -27,6 +27,7 @@ Work still in progress, stay tuned :)
 
 Rough drafts
 
+* [Ruby one liners](./ruby_one_liners.md)
 * [Wheres my file](./wheres_my_file.md)
 * [Whats the difference](./whats_the_difference.md)
 
