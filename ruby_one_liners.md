@@ -5,6 +5,8 @@
 * [Executing Ruby code](#executing-ruby-code)
 * [Simple search and replace](#simple-search-and-replace)
     * [inplace editing](#inplace-editing)
+* [Line filtering](#line-filtering)
+    * [Regular expressions based filtering](#regular-expressions-based-filtering)
 
 <br>
 
@@ -151,7 +153,85 @@ I bought two bananas and three mangoes
 
 * [ruby-doc Pre-defined variables](https://ruby-doc.org/core-2.5.0/doc/globals_rdoc.html#label-Pre-defined+variables) for explanation on `$_` and other such special variables
 * [ruby-doc gsub](https://ruby-doc.org/core-2.5.0/String.html#method-i-gsub) for `gsub` syntax details
-* [ruby-doc Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for regular expression details
+
+<br>
+
+## <a name="line-filtering"></a>Line filtering
+
+<br>
+
+#### <a name="regular-expressions-based-filtering"></a>Regular expressions based filtering
+
+* one way is to use `variable =~ /REGEXP/FLAGS` to check for a match
+    * `variable !~ /REGEXP/FLAGS` for negated match
+    * by default acts on `$_` if variable is not specified
+    * see [ruby-doc Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for regular expression details
+* as we need to print only selective lines, use `-n` option
+    * by default, contents of `$_` will be printed if no argument is passed to `print`
+
+```bash
+$ cat poem.txt
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # same as: perl -ne 'print if /^[RS]/' poem.txt
+$ # /^[RS]/ is shortcut for $_ =~ /^[RS]/
+$ ruby -ne 'print if /^[RS]/' poem.txt
+Roses are red,
+Sugar is sweet,
+
+$ # same as: perl -ne 'print if /and/i' poem.txt
+$ ruby -ne 'print if /and/i' poem.txt
+And so are you.
+
+$ # same as: perl -ne 'print if !/are/' poem.txt
+$ # !/are/ is shortcut for $_ !~ /are/
+$ ruby -ne 'print if !/are/' poem.txt
+Sugar is sweet,
+
+$ # same as: perl -ne 'print if /are/ && !/so/' poem.txt
+$ ruby -ne 'print if /are/ && !/so/' poem.txt
+Roses are red,
+Violets are blue,
+```
+
+* using different delimiter
+* quoting from [ruby-doc Percent Strings](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Percent+Strings)
+
+> If you are using “(”, “[”, “{”, “<” you must close it with “)”, “]”, “}”, “>” respectively. You may use most other non-alphanumeric characters for percent string delimiters such as “%”, “|”, “^”, etc.
+
+```bash
+$ cat paths.txt
+/foo/a/report.log
+/foo/y/power.log
+/foo/abc/errors.log
+
+$ # same as: perl -ne 'print if /\/foo\/a\//' paths.txt
+$ ruby -ne 'print if /\/foo\/a\//' paths.txt
+/foo/a/report.log
+
+$ # same as: perl -ne 'print if m#/foo/a/#' paths.txt
+$ ruby -ne 'print if %r#/foo/a/#' paths.txt
+/foo/a/report.log
+
+$ # same as: perl -ne 'print if !m#/foo/a/#' paths.txt
+$ ruby -ne 'print if !%r#/foo/a/#' paths.txt
+/foo/y/power.log
+/foo/abc/errors.log
+```
+
+
+
+
+
+
+
+
+
+
+
 
 <br>
 
