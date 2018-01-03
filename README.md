@@ -42,7 +42,17 @@ Possible additions
 ## <a name="contributing"></a>Contributing
 
 * Please open an issue for typos/bugs/suggestions/etc
-* Even for pull requests, open an issue for discussion before submitting PRs
+    * Even for pull requests, open an issue for discussion before submitting PRs
+    * or [gitter group chat](https://gitter.im/learnbyexample/scripting_course) for discussion as well as for help/mentorship
+* Share the repo with friends/colleagues, on social media, etc to help reach other learners
+
+<br>
+
+#### <a name="financial-support"></a>Financial support
+
+* Please contribute to [my fundraiser](https://milaap.org/fundraisers/learnbyexample) to help cover my living expenses for 2018
+* In case you need to reach me, use [gitter private chat](https://gitter.im/learnbyexample)
+    * or mail me at `echo 'yrneaolrknzcyr.arg@tznvy.pbz' | tr 'a-z' 'n-za-m'`
 
 <br>
 
