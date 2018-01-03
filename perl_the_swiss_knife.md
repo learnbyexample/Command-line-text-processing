@@ -4,6 +4,7 @@
 
 * [Executing Perl code](#executing-perl-code)
 * [Simple search and replace](#simple-search-and-replace)
+    * [inplace editing](#inplace-editing)
 * [Line filtering](#line-filtering)
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Fixed string matching](#fixed-string-matching)
@@ -181,6 +182,10 @@ ab $x 123
     * See other chapters for examples of [seq](./miscellaneous.md#seq), [paste](./restructure_text.md#paste), etc
 
 ```bash
+$ # sample stdin data
+$ seq 10 | paste -sd,
+1,2,3,4,5,6,7,8,9,10
+
 $ # change only first ',' to ' : '
 $ # same as: sed 's/,/ : /'
 $ seq 10 | paste -sd, | perl -pe 's/,/ : /'
@@ -200,8 +205,12 @@ Hi there
 Have a safe journey
 ```
 
-* inplace editing
+<br>
+
+#### <a name="inplace-editing"></a>inplace editing
+
 * similar to [GNU sed - using * with inplace option](./gnu_sed.md#prefix-backup-name), one can also use `*` to either prefix the backup name or place the backup files in another existing directory
+* See also [effectiveperlprogramming - caveats of using -i option](https://www.effectiveperlprogramming.com/2017/12/in-place-editing-gets-safer-in-v5-28/)
 
 ```bash
 $ # same as: sed -i.bkp 's/Hi/Hello/' greeting.txt
@@ -1953,7 +1962,7 @@ foo,bar,123,baz,,,42
 ```
 
 * adding a field based on existing fields
-    * See also [split](#split) section
+    * See also [split](#split) and [Array operations](#array-operations) sections
 
 ```bash
 $ # adding a new 'Grade' field
@@ -1969,6 +1978,10 @@ CSE     Surya   81      A
 EEE     Tia     59      D
 ECE     Om      92      S
 CSE     Amy     67      C
+
+$ # alternate syntax: array initialization and appending array element
+$ perl -lane 'BEGIN{$,="\t"; @g = qw(D C B A S)}
+              push @F, $.==1 ? "Grade" : $g[$F[-1]/10 - 5]; print @F' marks.txt
 ```
 
 * two file example
@@ -1982,7 +1995,7 @@ Tia placement_rep
 $ # same as: awk -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
 $ #          {NF++; $NF = FNR==1 ? "Role" : $NF=r[$2]} 1' list4 marks.txt
 $ perl -lane 'if(!$#ARGV){ $r{$F[0]}=$F[1]; $.=0 }
-              else{ $#F++; $F[-1] = $.==1 ? "Role" : $r{$F[1]};
+              else{ push @F, $.==1 ? "Role" : $r{$F[1]};
                     print join "\t", @F }' list4 marks.txt
 Dept    Name    Marks   Role
 ECE     Raj     53      class_rep
