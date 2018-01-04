@@ -7,6 +7,7 @@
     * [inplace editing](#inplace-editing)
 * [Line filtering](#line-filtering)
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
+    * [Fixed string matching](#fixed-string-matching)
 
 <br>
 
@@ -220,6 +221,78 @@ $ # same as: perl -ne 'print if !m#/foo/a/#' paths.txt
 $ ruby -ne 'print if !%r#/foo/a/#' paths.txt
 /foo/y/power.log
 /foo/abc/errors.log
+```
+
+<br>
+
+#### <a name="fixed-string-matching"></a>Fixed string matching
+
+* To match strings literally, use `index`
+* See [ruby-doc index](https://ruby-doc.org/core-2.5.0/String.html#method-i-index) for details
+
+```bash
+$ # index returns matching position(starts at 0) and nil if not found
+$ # same as: perl -ne 'print if index($_, "a[5]") != -1'
+$ echo 'int a[5]' | ruby -ne 'print if /a[5]/'
+$ echo 'int a[5]' | ruby -ne 'print if $_.index("a[5]")'
+int a[5]
+
+$ # however, string within double quotes gets interpolated, for ex
+$ ruby -e 'a=5; puts "value of a: #{a}"'
+value of a: 5
+
+$ # so, for commandline usage, better to pass string as environment variable
+$ # they are accessible via the ENV hash variable
+$ # same as: perl -le 'print $ENV{SHELL}'
+$ ruby -e 'puts ENV["SHELL"]'
+/bin/bash
+
+$ echo 'int #{a}' | ruby -ne 'print if $_.index("#{a}")'
+-e:1:in `<main>': undefined local variable or method `a' for main:Object (NameError)
+$ echo 'int #{a}' | s='#{a}' ruby -ne 'print if $_.index(ENV["s"])'
+int #{a}
+```
+
+* `index` allows to use regex as well
+
+```bash
+$ # passing string
+$ ruby -ne 'print if $_.index("a+b")' eqns.txt
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ # passing regex
+$ ruby -ne 'print if $_.index(/a+b/)' eqns.txt
+$ ruby -ne 'print if $_.index(/a\+b/)' eqns.txt
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+```
+
+* return value is useful to match at specific position
+* for ex: at start/end of line
+
+```bash
+$ cat eqns.txt
+a=b,a-b=c,c*d
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ # start of line
+$ # same as: s='a+b' perl -ne 'print if index($_, $ENV{s})==0' eqns.txt
+$ s='a+b' ruby -ne 'print if $_.index(ENV["s"])==0' eqns.txt
+a+b,pi=3.14,5e12
+
+$ # optional 2nd argument allows to specify offset to start searching
+$ # similar to: s='a+b' perl -ne 'print if index($_, $ENV{s})>0' eqns.txt
+$ s='a+b' ruby -ne 'print if $_.index(ENV["s"], 1)' eqns.txt
+i*(t+9-g)/8,4-a+b
+
+$ # end of line
+$ # same as: s='a+b' perl -ne '$pos = length() - length($ENV{s}) - 1;
+$ #                  print if index($_, $ENV{s}) == $pos' eqns.txt
+$ s='a+b' ruby -ne 'pos = $_.length() - ENV["s"].length() - 1;
+                    print if $_.index(ENV["s"]) == pos' eqns.txt
+i*(t+9-g)/8,4-a+b
 ```
 
 
