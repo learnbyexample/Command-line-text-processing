@@ -8,6 +8,7 @@
 * [Line filtering](#line-filtering)
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Fixed string matching](#fixed-string-matching)
+    * [Line number based filtering](#line-number-based-filtering)
 
 <br>
 
@@ -295,6 +296,73 @@ $ s='a+b' ruby -ne 'pos = $_.length() - ENV["s"].length() - 1;
 i*(t+9-g)/8,4-a+b
 ```
 
+<br>
+
+#### <a name="line-number-based-filtering"></a>Line number based filtering
+
+* special variable `$.` contains total records read so far, similar to `NR` in `awk`
+    * as far as I've checked the docs, there's no equivalent of awk's `FNR`
+* See also [ruby-doc eof](https://ruby-doc.org/core-2.5.0/IO.html#method-i-eof)
+
+```bash
+$ # print 2nd line
+$ # same as: perl -ne 'print if $.==2' poem.txt
+$ ruby -ne 'print if $.==2' poem.txt
+Violets are blue,
+
+$ # print 2nd and 4th line
+$ # same as: perl -ne 'print if $.==2 || $.==4' poem.txt
+$ # can also use: ruby -ne 'print if [2, 4].include?($.)' poem.txt
+$ ruby -ne 'print if $.==2 || $.==4' poem.txt
+Violets are blue,
+And so are you.
+
+$ # print last line
+$ # same as: perl -ne 'print if eof' poem.txt
+$ # $< is like filehandle for input files/stdin given from commandline
+$ ruby -ne 'print if $<.eof' poem.txt
+And so are you.
+```
+
+* for large input, use `exit` to avoid unnecessary record processing
+* See [ruby-doc Control Expressions](https://ruby-doc.org/core-2.5.0/doc/syntax/control_expressions_rdoc.html) for syntax details
+
+```bash
+$ # same as: perl -ne 'if($.==234){print; exit}'
+$ seq 14323 14563435 | ruby -ne 'if $.==234 then print; exit end'
+14556
+
+$ # mimicking head command
+$ # same as: head -n3 or sed '3q' or perl -pe 'exit if $.>3'
+$ seq 14 25 | ruby -pe 'exit if $.>3'
+14
+15
+16
+
+$ # same as: sed '3Q' or perl -pe 'exit if $.==3'
+$ seq 14 25 | ruby -pe 'exit if $.==3'
+14
+15
+```
+
+* selecting range of lines
+* See [ruby-doc Range](https://ruby-doc.org/core-2.5.0/Range.html) for syntax details
+
+```bash
+$ # in this context, the range is compared against $.
+$ # same as: perl -ne 'print if 3..5'
+$ seq 14 25 | ruby -ne 'print if 3..5'
+16
+17
+18
+
+$ # selecting from particular line number to end of input
+$ # same as: perl -ne 'print if $.>=10'
+$ seq 14 25 | ruby -ne 'print if $.>=10'
+23
+24
+25
+```
 
 
 
