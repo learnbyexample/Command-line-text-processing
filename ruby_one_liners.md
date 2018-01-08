@@ -9,6 +9,8 @@
     * [Regular expressions based filtering](#regular-expressions-based-filtering)
     * [Fixed string matching](#fixed-string-matching)
     * [Line number based filtering](#line-number-based-filtering)
+* [Field processing](#field-processing)
+    * [Field comparison](#field-comparison)
 
 <br>
 
@@ -291,7 +293,7 @@ i*(t+9-g)/8,4-a+b
 $ # end of line
 $ # same as: s='a+b' perl -ne '$pos = length() - length($ENV{s}) - 1;
 $ #                  print if index($_, $ENV{s}) == $pos' eqns.txt
-$ s='a+b' ruby -ne 'pos = $_.length() - ENV["s"].length() - 1;
+$ s='a+b' ruby -ne 'pos = $_.length - ENV["s"].length - 1;
                     print if $_.index(ENV["s"]) == pos' eqns.txt
 i*(t+9-g)/8,4-a+b
 ```
@@ -364,10 +366,91 @@ $ seq 14 25 | ruby -ne 'print if $.>=10'
 25
 ```
 
+<br>
 
+## <a name="field-processing"></a>Field processing
 
+* `-a` option will auto-split each input record based on one or more continuous white-space
+    * similar to default behavior in `awk` and same as `perl -a`
+* Special variable array `$F` will contain all the elements, indexing starts from 0
+    * negative indexing is also supported, `-1` gives last element, `-2` gives last-but-one and so on
 
+```bash
+$ cat fruits.txt
+fruit   qty
+apple   42
+banana  31
+fig     90
+guava   6
 
+$ # print only first field, indexing starts from 0
+$ # same as: perl -lane 'print $F[0]' fruits.txt
+$ ruby -ane 'puts $F[0]' fruits.txt
+fruit
+apple
+banana
+fig
+guava
+
+$ # print only second field
+$ # same as: perl -lane 'print $F[1]' fruits.txt
+$ ruby -ane 'puts $F[1]' fruits.txt
+qty
+42
+31
+90
+6
+```
+
+* by default, leading and trailing whitespaces won't be considered when splitting the input record
+    * same as `awk`'s default behavior and `perl -a`
+
+```bash
+$ printf ' a    ate b\tc   \n'
+ a    ate b     c
+$ printf ' a    ate b\tc   \n' | ruby -ane 'puts $F[0]'
+a
+$ printf ' a    ate b\tc   \n' | ruby -ane 'puts $F[-1]'
+c
+
+$ # number of elements
+$ printf ' a    ate b\tc   \n' | ruby -ane 'puts $F.length'
+4
+```
+
+<br>
+
+#### <a name="field-comparison"></a>Field comparison
+
+* operator `=`, `!=`, `<`, etc will work for both string/numeric comparison
+* unlike `perl`, numeric comparison for text requires convert to appropriate numeric format first
+    * See [ruby-doc string methods](https://ruby-doc.org/core-2.5.0/String.html#method-i-to_c) for details
+
+```bash
+$ # if first field exactly matches the string 'apple'
+$ # same as: perl -lane 'print $F[1] if $F[0] eq "apple"' fruits.txt
+$ ruby -ane 'puts $F[1] if $F[0] == "apple"' fruits.txt
+42
+
+$ # print first field if second field > 35 (excluding header)
+$ # same as: perl -lane 'print $F[0] if $F[1]>35 && $.>1' fruits.txt
+$ ruby -ane 'puts $F[0] if $F[1].to_i > 35 && $.>1' fruits.txt
+apple
+fig
+
+$ # print header and lines with qty < 35
+$ # same as: perl -ane 'print if $F[1]<35 || $.==1' fruits.txt
+$ ruby -ane 'print if $F[1].to_i < 35 || $.==1' fruits.txt
+fruit   qty
+banana  31
+guava   6
+
+$ # if first field does NOT contain 'a'
+$ # same as: perl -ane 'print if $F[0] !~ /a/' fruits.txt
+$ ruby -ane 'print if $F[0] !~ /a/' fruits.txt
+fruit   qty
+fig     90
+```
 
 
 
