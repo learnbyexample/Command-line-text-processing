@@ -12,6 +12,7 @@
 * [Field processing](#field-processing)
     * [Field comparison](#field-comparison)
     * [Specifying different input field separator](#specifying-different-input-field-separator)
+    * [Specifying different output field separator](#specifying-different-output-field-separator)
 
 <br>
 
@@ -72,8 +73,8 @@ $ ruby -e 'print "Hello Ruby\n"'
 Hello Ruby
 
 $ # multiple commands can be issued separated by ;
-$ # use puts instead of print to automatically add newline character
-$ # same as: perl -E '$x=25; $y=12; say $x**$y'
+$ # puts adds newline character if input doesn't end with a newline
+$ # similar to: perl -E '$x=25; $y=12; say $x**$y'
 $ ruby -e 'x=25; y=12; puts x**y'
 59604644775390625
 ```
@@ -481,6 +482,22 @@ $ echo 'one;two;three;four' | ruby -F';' -ane 'puts $F[2]'
 three
 ```
 
+* last element of `$F` array will contain the record separator as well
+    * note that default `-a` option without `-F` won't have this issue as whitespaces at start/end are stripped
+* it doesn't make visual difference when `puts` is used as it adds newline only if not already present
+* if the record separator is not desired, use `-l` option to remove the record separator from input
+
+```bash
+$ echo 'foo 123' | ruby -ane 'puts "#{$F[-1]}xyz"'
+123xyz
+
+$ echo 'foo:123:bar:789' | ruby -F: -ane 'puts "#{$F[-1]}a"'
+789
+a
+$ echo 'foo:123:bar:789' | ruby -F: -lane 'puts "#{$F[-1]}a"'
+789a
+```
+
 * Regular expressions based input field separator
 
 ```bash
@@ -507,7 +524,7 @@ $ # same as: perl -F -lane 'print $F[0]'
 $ echo 'apple' | ruby -ne 'puts $_[0]'
 a
 
-$ # to get last character, chomp the record separator using -l
+$ # if needed, chomp the record separator using -l
 $ # same as: perl -F -lane 'print $F[-1]'
 $ echo 'apple' | ruby -lne 'puts $_[-1]'
 e
@@ -521,7 +538,50 @@ $ printf 'hi👍 how are you?' | ruby -E UTF-8:UTF-8 -ne 'puts $_[2]'
 👍
 ```
 
+<br>
 
+#### <a name="specifying-different-output-field-separator"></a>Specifying different output field separator
+
+* use `$,` to change separator between `print` arguments
+    * could be remembered easily by noting that `,` is used to separate `print` arguments
+    * note that `$,` doesn't affect `puts` which always uses newline as separator
+* the `-l` option is useful here in more than one way
+    * it removes input record separator
+    * and appends the record separator to `print` output
+
+```bash
+$ # by default, the various arguments are concatenated
+$ echo 'foo:123:bar:789' | ruby -F: -lane 'print $F[1], $F[-1]'
+123789
+
+$ # change $, if different separator is needed
+$ # same as: perl -F: -lane '$,=" "; print $F[1], $F[-1]'
+$ echo 'foo:123:bar:789' | ruby -F: -lane '$,=" "; print $F[1], $F[-1]'
+123 789
+$ echo 'foo:123:bar:789' | ruby -F: -lane '$,="-"; print $F[1], $F[-1]'
+123-789
+
+$ # array's join method also uses $,
+$ # same as: perl -F: -lane '$,=" - "; print @F'
+$ echo 'foo:123:bar:789' | ruby -F: -lane '$,=" - "; print $F.join'
+foo - 123 - bar - 789
+$ # or pass the separator as argument to join method
+$ echo 'foo:123:bar:789' | ruby -F: -lane 'print $F.join(" - ")'
+foo - 123 - bar - 789
+```
+
+* use `BEGIN` if same separator is to be used for all lines
+    * statements inside `BEGIN` are executed before processing any input text
+
+```bash
+$ # same as: perl -lane 'BEGIN{$,=","} print @F' fruits.txt
+$ ruby -lane 'BEGIN{$,=","}; print $F.join' fruits.txt
+fruit,qty
+apple,42
+banana,31
+fig,90
+guava,6
+```
 
 
 <br>
