@@ -11,6 +11,7 @@
     * [Line number based filtering](#line-number-based-filtering)
 * [Field processing](#field-processing)
     * [Field comparison](#field-comparison)
+    * [Specifying different input field separator](#specifying-different-input-field-separator)
 
 <br>
 
@@ -422,8 +423,8 @@ $ printf ' a    ate b\tc   \n' | ruby -ane 'puts $F.length'
 
 #### <a name="field-comparison"></a>Field comparison
 
-* operator `=`, `!=`, `<`, etc will work for both string/numeric comparison
-* unlike `perl`, numeric comparison for text requires convert to appropriate numeric format first
+* operators `=`, `!=`, `<`, etc will work for both string/numeric comparison
+* unlike `perl`, numeric comparison for text requires converting to appropriate numeric format
     * See [ruby-doc string methods](https://ruby-doc.org/core-2.5.0/String.html#method-i-to_c) for details
 
 ```bash
@@ -452,7 +453,73 @@ fruit   qty
 fig     90
 ```
 
+<br>
 
+#### <a name="specifying-different-input-field-separator"></a>Specifying different input field separator
+
+* by using `-F` command line option
+
+```bash
+$ # second field where input field separator is :
+$ # same as: perl -F: -lane 'print $F[1]'
+$ echo 'foo:123:bar:789' | ruby -F: -ane 'puts $F[1]'
+123
+
+$ # last field, same as: perl -F: -lane 'print $F[-1]'
+$ echo 'foo:123:bar:789' | ruby -F: -ane 'puts $F[-1]'
+789
+$ # second last field, perl -F: -lane 'print $F[-2]'
+$ echo 'foo:123:bar:789' | ruby -F: -ane 'puts $F[-2]'
+bar
+
+$ # second and last field, same as: perl -F: -lane 'print "$F[1] $F[-1]"'
+$ echo 'foo:123:bar:789' | ruby -F: -ane 'puts "#{$F[1]} #{$F[-1]}"'
+123 789
+
+$ # use quotes to avoid clashes with shell special characters
+$ echo 'one;two;three;four' | ruby -F';' -ane 'puts $F[2]'
+three
+```
+
+* Regular expressions based input field separator
+
+```bash
+$ # same as: perl -F'\d+' -lane 'print $F[1]'
+$ echo 'Sample123string54with908numbers' | ruby -F'\d+' -ane 'puts $F[1]'
+string
+
+$ # first field will be empty as there is nothing before '{'
+$ echo '{foo}   bar=baz' | ruby -F'[{}= ]+' -ane 'puts $F[0]'
+
+$ echo '{foo}   bar=baz' | ruby -F'[{}= ]+' -ane 'puts $F[1]'
+foo
+$ echo '{foo}   bar=baz' | ruby -F'[{}= ]+' -ane 'puts $F[2]'
+bar
+$ echo '{foo}   bar=baz' | ruby -F'[{}= ]+' -ane 'puts $F[-1]'
+baz
+```
+
+* to process individual characters, simply use indexing on input string
+* See [ruby-doc Encoding](https://ruby-doc.org/core-2.5.0/Encoding.html) for details on handling different string encodings
+
+```bash
+$ # same as: perl -F -lane 'print $F[0]'
+$ echo 'apple' | ruby -ne 'puts $_[0]'
+a
+
+$ # to get last character, chomp the record separator using -l
+$ # same as: perl -F -lane 'print $F[-1]'
+$ echo 'apple' | ruby -lne 'puts $_[-1]'
+e
+
+$ ruby -e 'puts Encoding.default_external'
+UTF-8
+$ printf 'hi👍 how are you?' | ruby -ne 'puts $_[2]'
+👍
+$ # use -E option to explicitly specify external/internal encodings
+$ printf 'hi👍 how are you?' | ruby -E UTF-8:UTF-8 -ne 'puts $_[2]'
+👍
+```
 
 
 
