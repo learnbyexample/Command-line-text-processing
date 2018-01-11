@@ -13,12 +13,14 @@
     * [Field comparison](#field-comparison)
     * [Specifying different input field separator](#specifying-different-input-field-separator)
     * [Specifying different output field separator](#specifying-different-output-field-separator)
+* [Changing record separators](#changing-record-separators)
+    * [Input record separator](#input-record-separator)
 
 <br>
 
 ```
 $ ruby --version
-ruby 2.3.1p112 (2016-04-26) [x86_64-linux-gnu]
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
 
 $ man ruby
 RUBY(1)                Ruby Programmers Reference Guide                RUBY(1)
@@ -582,6 +584,73 @@ banana,31
 fig,90
 guava,6
 ```
+
+<br>
+
+## <a name="changing-record-separators"></a>Changing record separators
+
+<br>
+
+#### <a name="input-record-separator"></a>Input record separator
+
+* by default, newline character is used as input record separator
+* use `$/` to specify a different input record separator
+    * unlike `gawk`, only string can be used, no regular expressions
+* for single character separator, can also use `-0` command line option which accepts octal value as argument
+* if `-l` option is also used
+    * input record separator will be chomped from input record
+        * earlier versions used `chop` instead of `chomp`. See [bugs.ruby-lang.org 12926](https://bugs.ruby-lang.org/issues/12926)
+    * in addition, output record separator(ORS) will get whatever is current value of input record separator
+    * so, order of `-l`, `-0` and/or `$/` usage becomes important
+
+```bash
+$ s='this is a sample string'
+
+$ # space as input record separator, printing all records
+$ # ORS is newline as -l is used before $/ gets changed
+$ # same as: perl -lne 'BEGIN{$/=" "} print "$. $_"'
+$ printf "$s" | ruby -lne 'BEGIN{$/=" "}; print "#{$.} #{$_}"'
+1 this
+2 is
+3 a
+4 sample
+5 string
+
+$ # print all records containing 'a'
+$ # same as: perl -l -0040 -ne 'print if /a/'
+$ printf "$s" | ruby -l -0040 -ne 'print if /a/'
+a
+sample
+
+$ # if the order is changed, ORS will be space, not newline
+$ printf "$s" | ruby -0040 -l -ne 'print if /a/'
+a sample 
+```
+
+* `-0` option used without argument will use the ASCII NUL character as input record separator 
+* `-0777` will cause entire file to be slurped
+
+```bash
+$ printf 'foo\0bar\0' | cat -A
+foo^@bar^@$ 
+$ # same as: perl -l -0 -ne 'print'
+$ # could be golfed to: ruby -l0pe ''
+$ printf 'foo\0bar\0' | ruby -l -0 -ne 'print'
+foo
+bar
+
+$ # replace first newline with '. '
+$ # same as: perl -0777 -pe 's/\n/. /' greeting.txt
+$ ruby -0777 -pe 'sub(/\n/, ". ")' greeting.txt
+Hello there. Have a safe journey
+```
+
+
+
+
+
+
+
 
 
 <br>
