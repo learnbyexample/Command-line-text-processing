@@ -645,6 +645,109 @@ $ ruby -0777 -pe 'sub(/\n/, ". ")' greeting.txt
 Hello there. Have a safe journey
 ```
 
+* for paragraph mode (two more more consecutive newline characters), use `-00` or assign empty string to `$/`
+
+Consider the below sample file
+
+```bash
+$ cat sample.txt
+Hello World
+
+Good day
+How are you
+
+Just do-it
+Believe it
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+Much ado about nothing
+He he he
+```
+
+* again, input record will have the separator too and using `-l` will chomp it
+* however, if more than two consecutive newline characters separate the paragraphs, only two newlines will be preserved and the rest discarded
+    * use `$/="\n\n"` to avoid this behavior
+
+```bash
+$ # print all paragraphs containing 'it'
+$ # same as: perl -00 -ne 'print if /it/' sample.txt
+$ ruby -00 -ne 'print if /it/' sample.txt
+Just do-it
+Believe it
+
+Today is sunny
+Not a bit funny
+No doubt you like it too
+
+$ # based on number of lines in each paragraph
+$ # same as: perl -F'\n' -00 -ane 'print if $#F==0' sample.txt
+$ ruby -F'\n' -00 -ane 'print if $F.length==1' sample.txt
+Hello World
+
+```
+
+* Re-structuring paragraphs
+
+```bash
+$ # same as: perl -F'\n' -l -00 -ane 'print join ". ", @F' sample.txt
+$ ruby -F'\n' -l -00 -ane 'print $F.join(". ")' sample.txt
+Hello World
+Good day. How are you
+Just do-it. Believe it
+Today is sunny. Not a bit funny. No doubt you like it too
+Much ado about nothing. He he he
+```
+
+* multi-character separator
+
+```bash
+$ cat report.log 
+blah blah
+Error: something went wrong
+more blah
+whatever
+Error: something surely went wrong
+some text
+some more text
+blah blah blah
+
+$ # number of records, same as: perl -lne 'BEGIN{$/="Error:"} print $. if eof'
+$ ruby -ne 'BEGIN{$/="Error:"}; puts $. if $<.eof' report.log
+3
+$ # print first record, same as: perl -lne 'BEGIN{$/="Error:"} print if $.==1'
+$ ruby -lne 'BEGIN{$/="Error:"}; print if $.==1' report.log
+blah blah
+
+$ # print a record if it contains given string
+$ # same as: perl -lne 'BEGIN{$/="Error:"} print "$/$_" if /surely/'
+$ ruby -lne 'BEGIN{$/="Error:"}; print "#{$/}#{$_}" if /surely/' report.log
+Error: something surely went wrong
+some text
+some more text
+blah blah blah
+
+```
+
+* Joining lines based on specific end of line condition
+
+```bash
+$ cat msg.txt
+Hello there.
+It will rain to-
+day. Have a safe
+and pleasant jou-
+rney.
+
+$ # same as: perl -pe 'BEGIN{$/="-\n"} chomp' msg.txt
+$ ruby -pe 'BEGIN{$/="-\n"}; chomp' msg.txt
+Hello there.
+It will rain today. Have a safe
+and pleasant journey.
+```
+
 
 
 
