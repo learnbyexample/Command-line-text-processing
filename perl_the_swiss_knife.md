@@ -439,7 +439,8 @@ $ seq 14 25 | perl -ne 'print if $.>=10'
 
 * `-a` option will auto-split each input record based on one or more continuous white-space, similar to default behavior in `awk`
     * See also [split](#split) section
-* Special variable array `@F` will contain all the elements, index starting from `0`
+* Special variable array `@F` will contain all the elements, indexing starts from 0
+    * negative indexing is also supported, `-1` gives last element, `-2` gives last-but-one and so on
     * see [Array operations](#array-operations) section for examples on array usage
 
 ```bash
@@ -450,7 +451,7 @@ banana  31
 fig     90
 guava   6
 
-$ # print only first field, index starting from 0
+$ # print only first field, indexing starts from 0
 $ # same as: awk '{print $1}' fruits.txt 
 $ perl -lane 'print $F[0]' fruits.txt
 fruit
@@ -832,8 +833,8 @@ $ # print first record
 $ perl -lne 'BEGIN{$/="Error:"} print if $.==1' report.log
 blah blah
 
-$ # same as: awk -F'\n' -v RS='Error:' '/surely/{print RS $0}' report.log
-$ perl -F'\n' -lane 'BEGIN{$/="Error:"} print "$/$_" if /surely/' report.log
+$ # same as: awk -v RS='Error:' '/surely/{print RS $0}' report.log
+$ perl -lne 'BEGIN{$/="Error:"} print "$/$_" if /surely/' report.log
 Error: something surely went wrong
 some text
 some more text
