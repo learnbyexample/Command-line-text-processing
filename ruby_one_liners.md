@@ -15,6 +15,7 @@
     * [Specifying different output field separator](#specifying-different-output-field-separator)
 * [Changing record separators](#changing-record-separators)
     * [Input record separator](#input-record-separator)
+    * [Output record separator](#output-record-separator)
 
 <br>
 
@@ -748,6 +749,51 @@ It will rain today. Have a safe
 and pleasant journey.
 ```
 
+<br>
+
+#### <a name="output-record-separator"></a>Output record separator
+
+* use `$\` to specify a different output record separator
+
+```bash
+$ # note that despite not setting $\, output has newlines
+$ # because the input record still has the input record separator
+$ seq 3 | ruby -ne 'print'
+1
+2
+3
+$ # same as: perl -ne 'BEGIN{$\="\n"} print'
+$ seq 3 | ruby -ne 'BEGIN{$\="\n"}; print'
+1
+
+2
+
+3
+
+$ seq 2 | ruby -ne 'BEGIN{$\="---\n"}; print'
+1
+---
+2
+---
+```
+
+* dynamically changing output record separator
+
+```bash
+$ # note the use of -l to chomp the input record separator
+$ # same as: perl -lpe '$\ = $.%2 ? " " : "\n"'
+$ seq 6 | ruby -lpe '$\ = $.%2!=0 ? " " : "\n"'
+1 2
+3 4
+5 6
+
+$ # -l also sets the output record separator
+$ # but gets overridden by $\
+$ # same as: perl -lpe '$\ = $.%3 ? "-" : "\n"'
+$ seq 6 | ruby -lpe '$\ = $.%3!=0 ? "-" : "\n"'
+1-2-3
+4-5-6
+```
 
 
 
