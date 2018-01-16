@@ -16,6 +16,7 @@
 * [Changing record separators](#changing-record-separators)
     * [Input record separator](#input-record-separator)
     * [Output record separator](#output-record-separator)
+* [Multiline processing](#multiline-processing)
 
 <br>
 
@@ -724,7 +725,7 @@ blah blah
 
 $ # print a record if it contains given string
 $ # same as: perl -lne 'BEGIN{$/="Error:"} print "$/$_" if /surely/'
-$ ruby -lne 'BEGIN{$/="Error:"}; print "#{$/}#{$_}" if /surely/' report.log
+$ ruby -lne 'BEGIN{$/="Error:"}; print $/,$_ if /surely/' report.log
 Error: something surely went wrong
 some text
 some more text
@@ -754,6 +755,7 @@ and pleasant journey.
 #### <a name="output-record-separator"></a>Output record separator
 
 * use `$\` to specify a different output record separator
+    * applies to `print` but not `puts`
 
 ```bash
 $ # note that despite not setting $\, output has newlines
@@ -778,6 +780,8 @@ $ seq 2 | ruby -ne 'BEGIN{$\="---\n"}; print'
 ```
 
 * dynamically changing output record separator
+* **Note:** except `nil` and `false`, all other values evaluate to `true`
+    * `0`, empty string/array/etc evaluate to `true`
 
 ```bash
 $ # note the use of -l to chomp the input record separator
@@ -794,6 +798,92 @@ $ seq 6 | ruby -lpe '$\ = $.%3!=0 ? "-" : "\n"'
 1-2-3
 4-5-6
 ```
+
+<br>
+
+## <a name="multiline-processing"></a>Multiline processing
+
+* Processing consecutive lines
+* to keep the one-liner short, global variables(`$` prefix) are used here
+    * See [ruby-doc Global variables](https://ruby-doc.org/core-2.5.0/doc/syntax/assignment_rdoc.html#label-Global+Variables) for syntax details
+
+```bash
+$ cat poem.txt 
+Roses are red,
+Violets are blue,
+Sugar is sweet,
+And so are you.
+
+$ # match two consecutive lines
+$ # same as: perl -ne 'print $p,$_ if /is/ && $p=~/are/; $p=$_' poem.txt
+$ ruby -ne 'print $p,$_ if /is/ && $p=~/are/; $p=$_' poem.txt
+Violets are blue,
+Sugar is sweet,
+$ # if only the second line is needed
+$ ruby -ne 'print if /is/ && $p=~/are/; $p=$_' poem.txt
+Sugar is sweet,
+
+$ # print if line matches a condition as well as condition for next 2 lines
+$ ruby -ne 'print $p2 if /is/ && $p1=~/blue/ && $p2=~/red/;
+            $p2=$p1; $p1=$_' poem.txt
+Roses are red,
+```
+
+Consider this sample input file
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+* extracting lines around matching line
+* **Note**
+    * default uninitialized value is `nil`, has to be explicitly converted for comparison
+    * no auto increment/decrement operators, can use `+=1` and `-=1`
+
+
+```bash
+$ ruby -le 'print $a'
+
+$ ruby -le 'print $a.to_i'
+0
+
+$ # print matching line and n-1 lines following the matched line
+$ # same as: perl -ne '$n=2 if /BEGIN/; print if $n && $n--' range.txt
+$ # can also use: ruby -ne 'BEGIN{n=0}; n=2 if /BEGIN/; print if n>0 && n-=1'
+$ ruby -ne '$n=2 if /BEGIN/; print if $n.to_i>0 && $n-=1' range.txt
+BEGIN
+1234
+BEGIN
+a
+
+$ # print nth line after match
+$ # same as: perl -ne 'print if $n && !--$n; $n=3 if /BEGIN/' range.txt
+$ ruby -ne '$n.to_i>0 && (print if $n==1; $n-=1); $n=3 if /BEGIN/' range.txt
+END
+c
+
+$ # use reversing trick for nth line before match
+$ tac range.txt | ruby -ne '$n.to_i>0 && (print if $n==1; $n-=1); $n=3 if /END/' | tac
+BEGIN
+a
+```
+
+**Further Reading**
+
+* [softwareengineering - FSM examples](https://softwareengineering.stackexchange.com/questions/47806/examples-of-finite-state-machines)
+* [wikipedia - FSM](https://en.wikipedia.org/wiki/Finite-state_machine)
 
 
 
