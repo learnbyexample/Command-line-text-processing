@@ -50,8 +50,8 @@ Possible additions
 
 #### <a name="financial-support"></a>Financial support
 
-* Please contribute to my fundraiser to help cover my living expenses for 2018
-    * oops, my campaign got rejected :-/ stay tuned
+* Please contribute to [my fundraiser](https://www.instamojo.com/learnbyexample/learnbyexample-a6b8f/) to help cover my living expenses for 2018
+    * second attempt, hope this one works :)
 * In case you need to reach me, use [gitter private chat](https://gitter.im/learnbyexample)
     * or mail me at `echo 'yrneaolrknzcyr.arg@tznvy.pbz' | tr 'a-z' 'n-za-m'`
 
