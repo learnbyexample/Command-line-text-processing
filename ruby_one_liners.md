@@ -17,6 +17,8 @@
     * [Input record separator](#input-record-separator)
     * [Output record separator](#output-record-separator)
 * [Multiline processing](#multiline-processing)
+* [Ruby regular expressions](#ruby-regular-expressions)
+    * [gotchas and tricks](#gotchas-and-tricks)
 
 <br>
 
@@ -885,12 +887,80 @@ a
 * [softwareengineering - FSM examples](https://softwareengineering.stackexchange.com/questions/47806/examples-of-finite-state-machines)
 * [wikipedia - FSM](https://en.wikipedia.org/wiki/Finite-state_machine)
 
+<br>
 
+## <a name="ruby-regular-expressions"></a>Ruby regular expressions
 
+* assuming that you are already familiar with basic [ERE features](./gnu_sed.md#regular-expressions)
+* examples/descriptions based only on ASCII encoding
+* See [ruby-doc Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for syntax and feature details
 
+<br>
 
+#### <a name="gotchas-and-tricks"></a>gotchas and tricks
 
+* input record separator being part of input record
 
+```bash
+$ # newline character gets replaced too as shown by shell prompt
+$ echo 'foo:123:bar:789' | ruby -pe 'sub(/[^:]+$/, "xyz")'
+foo:123:bar:xyz$ 
+$ # simple workaround is to use -l option
+$ echo 'foo:123:bar:789' | ruby -lpe 'sub(/[^:]+$/, "xyz")'
+foo:123:bar:xyz
+
+$ # of course it is useful too
+$ # same as: perl -pe 's/\n/ : / if !eof'
+$ seq 10 | ruby -pe 'sub(/\n/, " : ") if !$<.eof'
+1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
+```
+
+* how much does `*` match?
+
+```bash
+$ # both empty and non-empty strings are matched
+$ # even though * is a greedy quantifier
+$ echo ',baz,,xyz,,,' | ruby -lpe 'gsub(/[^,]*/, "A")'
+A,AA,A,AA,A,A,A
+$ echo 'foo,baz,,xyz,,,123' | ruby -lpe 'gsub(/[^,]*/, "A")'
+AA,AA,A,AA,A,A,AA
+
+$ # one workaround is to use lookarounds(covered later)
+$ echo ',baz,,xyz,,,' | ruby -lpe 'gsub(/(?<=^|,)[^,]*(?=,|$)/, "A")'
+A,A,A,A,A,A,A
+$ echo 'foo,baz,,xyz,,,123' | ruby -lpe 'gsub(/(?<=^|,)[^,]*(?=,|$)/, "A")'
+A,A,A,A,A,A,A
+```
+
+* delimiters and quoting
+* quoting from [ruby-doc Percent Strings](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Percent+Strings)
+
+> If you are using “(”, “[”, “{”, “<” you must close it with “)”, “]”, “}”, “>” respectively. You may use most other non-alphanumeric characters for percent string delimiters such as “%”, “|”, “^”, etc.
+
+```bash
+$ # %r allows to use delimiter other than /
+$ echo 'a/b' | ruby -pe 'sub(/a\/b/, "foo")'
+foo
+$ echo 'a/b' | ruby -pe 'sub(%r{a/b}, "foo")'
+foo
+
+$ # use %q (single quoting) to avoid variable interpolation
+$ echo 'foo123' | ruby -pe 'a="huh?"; sub(/12/, "#{a}")'
+foohuh?3
+$ echo 'foo123' | ruby -pe 'a="huh?"; sub(/12/, %q/#{a}/)'
+foo#{a}3
+
+$ # %q also useful for backreferences, as \ is special inside double quotes
+$ echo 'a a a 2 be be' | ruby -pe 'gsub(/\b(\w+)( \1)+\b/, "\\1")'
+a 2 be
+$ echo 'a a a 2 be be' | ruby -pe 'gsub(/\b(\w+)( \1)+\b/, %q/\1/)'
+a 2 be
+$ # and when double quotes is part of replacement string
+$ echo '42,789' | ruby -lpe 'gsub(/\d+/, "\"\\0\"")'
+"42","789"
+$ echo '42,789' | ruby -lpe 'gsub(/\d+/, %q/"\0"/)'
+"42","789"
+```
 
 <br>
 
