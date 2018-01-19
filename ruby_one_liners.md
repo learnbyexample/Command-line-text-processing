@@ -19,6 +19,8 @@
 * [Multiline processing](#multiline-processing)
 * [Ruby regular expressions](#ruby-regular-expressions)
     * [gotchas and tricks](#gotchas-and-tricks)
+    * [Backslash sequences](#backslash-sequences)
+    * [Non-greedy quantifier](#non-greedy-quantifier)
 
 <br>
 
@@ -961,6 +963,67 @@ $ echo '42,789' | ruby -lpe 'gsub(/\d+/, "\"\\0\"")'
 $ echo '42,789' | ruby -lpe 'gsub(/\d+/, %q/"\0"/)'
 "42","789"
 ```
+
+<br>
+
+#### <a name="backslash-sequences"></a>Backslash sequences
+
+* `\d` for `[0-9]`
+* `\s` for `[ \t\r\n\f\v]`
+* `\h` for `[0-9a-fA-F]` or `[[:xdigit:]]`
+* `\D`, `\S`, `\H`, respectively for their opposites
+
+```bash
+$ # same as: perl -ne 'print if /^[[:xdigit:]]+$/'
+$ printf '128A\n34\nfe32\nfoo1\nbar\n' | ruby -ne 'print if /^\h+$/'
+128A
+34
+fe32
+
+$ # same as: perl -pe 's/\d+/xxx/g'
+$ echo 'like 42 and 37' | ruby -pe 'gsub(/\d+/, "xxx")'
+like xxx and xxx
+
+$ # note again the use of -l because of newline in input record
+$ # same as: perl -lpe 's/\D+/xxx/g'
+$ echo 'like 42 and 37' | ruby -lpe 'gsub(/\D+/, "xxx")'
+xxx42xxx37
+```
+
+<br>
+
+#### <a name="non-greedy-quantifier"></a>Non-greedy quantifier
+
+* adding a `?` to `?` or `*` or `+` or `{}` quantifiers will change matching from greedy to non-greedy. In other words, to match as minimally as possible
+    * also known as lazy quantifier
+
+```bash
+$ # greedy matching
+$ echo 'foo and bar and baz land good' | ruby -pe 'sub(/foo.*and/, "")'
+ good
+$ # non-greedy matching
+$ echo 'foo and bar and baz land good' | ruby -pe 'sub(/foo.*?and/, "")'
+ bar and baz land good
+
+$ echo '12342789' | ruby -pe 'sub(/\d{2,5}/, "")'
+789
+$ echo '12342789' | ruby -pe 'sub(/\d{2,5}?/, "")'
+342789
+
+$ # for single character, non-greedy is not always needed
+$ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:.*?:/, ":")'
+123:789:good:5:bad
+$ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:[^:]*:/, ":")'
+123:789:good:5:bad
+
+$ # just like greedy, overall matching is considered, as minimal as possible
+$ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:.*?:[a-z]/, ":")'
+123:ood:5:bad
+$ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:.*:[a-z]/, ":")'
+123:ad
+```
+
+
 
 <br>
 
