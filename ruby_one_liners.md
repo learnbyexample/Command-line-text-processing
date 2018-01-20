@@ -21,6 +21,7 @@
     * [gotchas and tricks](#gotchas-and-tricks)
     * [Backslash sequences](#backslash-sequences)
     * [Non-greedy quantifier](#non-greedy-quantifier)
+    * [Lookarounds](#lookarounds)
 
 <br>
 
@@ -896,6 +897,7 @@ a
 * assuming that you are already familiar with basic [ERE features](./gnu_sed.md#regular-expressions)
 * examples/descriptions based only on ASCII encoding
 * See [ruby-doc Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for syntax and feature details
+* See [rexegg ruby](http://www.rexegg.com/regex-ruby.html) for a bit of ruby regex history and differences with other regex engines
 
 <br>
 
@@ -1021,6 +1023,91 @@ $ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:.*?:[a-z]/, ":")'
 123:ood:5:bad
 $ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:.*:[a-z]/, ":")'
 123:ad
+```
+
+<br>
+
+#### <a name="lookarounds"></a>Lookarounds
+
+* Ability to add if conditions to match before/after required pattern
+* There are four types
+    * positive lookahead `(?=`
+    * negative lookahead `(?!`
+    * positive lookbehind `(?<=`
+    * negative lookbehind `(?<!`
+* One way to remember is that **behind** uses `<` and **negative** uses `!` instead of `=`
+
+The string matched by lookarounds are like word boundaries and anchors, do not constitute as part of matched string. They are termed as **zero-width patterns**
+
+* positive lookbehind `(?<=`
+* See also [ruby-doc scan](https://ruby-doc.org/core-2.5.0/String.html#method-i-scan)
+
+```bash
+$ s='foo=5, bar=3; x=83, y=120'
+
+$ # extract all digit sequences, same as: perl -lne 'print join " ", /\d+/g'
+$ echo "$s" | ruby -lne 'print $_.scan(/\d+/).join(" ")'
+5 3 83 120
+
+$ # extract digits only if preceded by two lowercase alphabets and =
+$ # note how the characters matched by lookbehind isn't part of output
+$ # same as: perl -lne 'print join " ", /(?<=[a-z]{2}=)\d+/g'
+$ echo "$s" | ruby -lne 'print $_.scan(/(?<=[a-z]{2}=)\d+/).join(" ")'
+5 3
+$ # this can be done without lookbehind too
+$ echo "$s" | ruby -lne 'print $_.scan(/[a-z]{2}=(\d+)/).join(" ")'
+5 3
+
+$ # change all digits preceded by single lowercase alphabet and =
+$ # same as: perl -pe 's/(?<=\b[a-z]=)\d+/42/g'
+$ echo "$s" | ruby -pe 'gsub(/(?<=\b[a-z]=)\d+/, "42")'
+foo=5, bar=3; x=42, y=42
+```
+
+* positive lookahead `(?=`
+
+```bash
+$ s='foo=5, bar=3; x=83, y=120'
+
+$ # extract digits that end with ,
+$ # same as: perl -lne 'print join ":", /\d+(?=,)/g'
+$ echo "$s" | ruby -lne 'print $_.scan(/\d+(?=,)/).join(":")'
+5:83
+
+$ # change all digits ending with ,
+$ # same as: perl -pe 's/\d+(?=,)/42/g'
+$ echo "$s" | ruby -pe 'gsub(/\d+(?=,)/, "42")'
+foo=42, bar=3; x=42, y=120
+
+$ # both lookbehind and lookahead
+$ echo 'foo,,baz,,,xyz' | ruby -pe 'gsub(/,,/, ",NA,")'
+foo,NA,baz,NA,,xyz
+$ echo 'foo,,baz,,,xyz' | ruby -pe 'gsub(/(?<=,)(?=,)/, "NA")'
+foo,NA,baz,NA,NA,xyz
+```
+
+* negative lookbehind `(?<!` and negative lookahead `(?!`
+
+```bash
+$ # change foo if not preceded by _
+$ # note how 'foo' at start of line is matched as well
+$ # same as: perl -pe 's/(?<!_)foo/baz/g'
+$ echo 'foo _foo 1foo' | ruby -pe 'gsub(/(?<!_)foo/, "baz")'
+baz _foo 1baz
+
+$ # join each line in paragraph by replacing newline character
+$ # except the one at end of paragraph
+$ # same as: perl -00 -pe 's/\n(?!$)/. /g' sample.txt
+$ ruby -00 -pe 'gsub(/\n(?!$)/, ". ")' sample.txt
+Hello World
+
+Good day. How are you
+
+Just do-it. Believe it
+
+Today is sunny. Not a bit funny. No doubt you like it too
+
+Much ado about nothing. He he he
 ```
 
 
