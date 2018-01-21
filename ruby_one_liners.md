@@ -1110,6 +1110,21 @@ Today is sunny. Not a bit funny. No doubt you like it too
 Much ado about nothing. He he he
 ```
 
+* variable lookbehind with `\K`
+* useful when positive lookbehind is not a constant length of characters to look up
+    * for ex: quantifiers that can match different number of characters
+
+```bash
+$ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(?<=(and.*?){2})and/, "-")'
+-e:1: invalid pattern in look-behind: /(?<=(and.*?){2})and/
+
+$ # \K helps in such cases
+$ # same as: sed 's/and/-/3' and perl -pe 's/(and.*?){2}\Kand/-/'
+$ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(and.*?){2}\Kand/, "-")'
+1 and 2 and 3 l- 4
+```
+
+
 
 
 <br>
