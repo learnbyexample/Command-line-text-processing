@@ -529,6 +529,7 @@ fig     90
 #### <a name="specifying-different-input-field-separator"></a>Specifying different input field separator
 
 * by using `-F` command line option
+    * See also [split](#split) section, which covers details about trailing empty fields
 
 ```bash
 $ # second field where input field separator is :
@@ -882,6 +883,11 @@ $ seq 3 | perl -ne 'BEGIN{$\="\n"} print'
 
 3
 
+$ seq 2 | perl -ne 'BEGIN{$\="---\n"} print'
+1
+---
+2
+---
 ```
 
 * dynamically changing output record separator
@@ -893,6 +899,7 @@ $ seq 6 | perl -lpe '$\ = $.%2 ? " " : "\n"'
 1 2
 3 4
 5 6
+
 $ # -l also sets the output record separator
 $ # but gets overridden by $\
 $ seq 6 | perl -lpe '$\ = $.%3 ? "-" : "\n"'
@@ -1158,7 +1165,7 @@ a walking for a cause
 #### <a name="backslash-sequences"></a>Backslash sequences
 
 * `\d` for `[0-9]`
-* `\s` for `[ \t\r\n\f]`
+* `\s` for `[ \t\r\n\f\v]`
 * `\h` for `[ \t]`
 * `\n` for newline character
 * `\D`, `\S`, `\H`, `\N` respectively for their opposites
@@ -1285,7 +1292,7 @@ $ echo 'foo _foo 1foo' | perl -pe 's/(?<!_)foo/baz/g'
 baz _foo 1baz
 
 $ # join each line in paragraph by replacing newline character
-$ # expect the one at end of paragraph
+$ # except the one at end of paragraph
 $ perl -00 -pe 's/\n(?!$)/. /g' sample.txt
 Hello World
 
@@ -2799,6 +2806,21 @@ a:1 b 2 c:
 $ # specifying limit using -F option
 $ echo 'a 1 b 2 c' | perl -F'/\h+/,$_,2' -lane 'print "$F[0]:$F[1]:"'
 a:1 b 2 c:
+```
+
+* by default, trailing empty fields are stripped
+* specify a negative value to preserve trailing empty fields
+
+```bash
+$ echo ':123::' | perl -lne 'print scalar split /:/'
+2
+$ echo ':123::' | perl -lne 'print scalar split /:/,$_,-1'
+4
+
+$ echo ':123::' | perl -F: -lane 'print scalar @F'
+2
+$ echo ':123::' | perl -F'/:/,$_,-1' -lane 'print scalar @F'
+4
 ```
 
 * to save the separators as well, use capture groups
