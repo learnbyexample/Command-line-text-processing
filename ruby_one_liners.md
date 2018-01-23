@@ -1124,6 +1124,26 @@ $ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(and.*?){2}\Kand/, "-")'
 1 and 2 and 3 l- 4
 ```
 
+* note that `\K` behaves differently than `perl` or `vim`'s `\zs` when it comes to consecutive matches with empty string in between
+    * `\K` is not mentioned in documentation, so not sure if this is intended behavior or a bug
+
+```bash
+$ echo ',,' | perl -pe 's/,\K/foo/g'
+,foo,foo
+
+$ echo ',,' | ruby -pe 'gsub(/,\K/, "foo")'
+,foo,
+$ echo ',,' | ruby -pe 'gsub(/(?<=,)/, "foo")'
+,foo,foo
+
+$ # another example
+$ echo '"foo","12,34","good"' | perl -F'/"\K,(?=")/' -lane 'print $F[1]'
+"12,34"
+$ echo '"foo","12,34","good"' | ruby -F'"\K,(?=")' -lane 'print $F[1]'
+"12,34
+$ echo '"foo","12,34","good"' | ruby -F'(?<="),(?=")' -lane 'print $F[1]'
+"12,34"
+```
 
 
 
