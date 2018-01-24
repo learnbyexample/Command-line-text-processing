@@ -618,7 +618,7 @@ test_files/vibgyor.txt
 
 * using file input to specify search terms
 * `-F` option will force matching strings literally(no regular expressions)
-* See also [Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash) - read all answers
+* See also [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash) - read all answers
 
 ```bash
 $ grep -if test_files/colors.txt poem.txt 
@@ -833,7 +833,7 @@ apparent
 * The `|` meta character is similar to using multiple `-e` option
 * Each side of `|` is complete regular expression with their own start/end anchors
 * How each part of alternation is handled and order of evaluation/output is beyond the scope of this tutorial
-    * See [this](http://www.regular-expressions.info/alternation.html) for more info on this topic.
+    * See [this](https://www.regular-expressions.info/alternation.html) for more info on this topic.
 * `|` is one of meta characters that requires different syntax between BRE/ERE
 
 ```bash
@@ -1063,10 +1063,10 @@ $ printf 'cat\nfoo\n123\nbaz\n42\n' | grep -xE '[0123456789]+'
 * Character ranges
 * Matching any alphabet, number, hexadecimal number etc becomes cumbersome if every character has to be individually specified
 * So, there's a shortcut, using `-` to construct a range (has to be specified in ascending order)
-* See [ascii codes table](http://ascii.cl/) for reference
+* See [ascii codes table](https://ascii.cl/) for reference
     * Note that behavior of range will differ for other character encodings
     * See **Character Classes and Bracket Expressions** as well as **LC_COLLATE under Environment Variables** sections in `info grep` for more detail
-* [Matching Numeric Ranges with a Regular Expression](http://www.regular-expressions.info/numericranges.html)
+* [Matching Numeric Ranges with a Regular Expression](https://www.regular-expressions.info/numericranges.html)
 
 ```bash
 $ printf 'cat\nfoo\n123\nbaz\n42\n' | grep -xE '[0-9]+'
@@ -1161,7 +1161,7 @@ b^2
 
 * Named character classes
 * Equivalent class shown is for C locale and ASCII character encoding
-    * See [ascii codes table](http://ascii.cl/) for reference
+    * See [ascii codes table](https://ascii.cl/) for reference
 * See **Character Classes and Bracket Expressions** section in `info grep` for more detail
 
 | Character classes | Description |
@@ -1258,6 +1258,8 @@ $ # can be used to match specific columns in well defined tables
 $ echo 'foo:123:bar:baz' | grep -E '^([^:]+:){2}bar'
 foo:123:bar:baz
 ```
+
+* See also [stackoverflow - matching character exactly n times in a line](https://stackoverflow.com/questions/40187643/grep-search-with-regex)
 
 <br>
 
@@ -1365,7 +1367,7 @@ green
 ```
 
 * `\n` is not defined in BRE/ERE
-    * see [this](http://unix.stackexchange.com/questions/19491/how-to-specify-characters-using-hexadecimal-codes-in-grep) for a workaround
+    * see [unix.stackexchange - How to specify characters using hexadecimal codes](https://unix.stackexchange.com/questions/19491/how-to-specify-characters-using-hexadecimal-codes-in-grep) for a workaround
 * if some characteristics of input is known, `[[:space:]]` can be used as workaround, which matches all white-space characters
 
 ```bash
@@ -1391,9 +1393,9 @@ $ man grep | sed -n '/^\s*-P/,/^$/p'
 * The man page informs that `-P` is *highly experimental*. So far, haven't faced any issues. But do keep this in mind.
 * Only a few highlights is presented here
 * For more info
-    * `man pcrepattern` or [read it online](http://www.pcre.org/original/doc/html/pcrepattern.html)
-    * [perldoc - re](http://perldoc.perl.org/perlre.html) - Perl regular expression syntax, also links to other related tutorials
-    * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
+    * `man pcrepattern` or [read it online](https://www.pcre.org/original/doc/html/pcrepattern.html)
+    * [perldoc - re](https://perldoc.perl.org/perlre.html) - Perl regular expression syntax, also links to other related tutorials
+    * [stackoverflow - What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
 
 <br>
 
@@ -1402,7 +1404,7 @@ $ man grep | sed -n '/^\s*-P/,/^$/p'
 Some of the backslash constructs available in PCRE over already seen ones in ERE
 
 * `\d` for `[0-9]`
-* `\s` for `[\ \t\r\n\f]`
+* `\s` for `[ \t\r\n\f\v]`
 * `\h` for `[ \t]`
 * `\n` for newline character
 * `\D`, `\S`, `\H`, `\N` etc for their opposites
@@ -1427,7 +1429,7 @@ Violets are blue,
 ```
 
 * See **INTERNAL OPTION SETTING** in `man pcrepattern` for more info on `(?s)`, `(?m)` etc
-* [Specifying Modes Inside The Regular Expression](http://www.regular-expressions.info/modifiers.html) also has some detail on such options
+* [Specifying Modes Inside The Regular Expression](https://www.regular-expressions.info/modifiers.html) also has some detail on such options
 
 <br>
 
@@ -1437,7 +1439,7 @@ Violets are blue,
     * match as much as possible
 * PCRE supports non-greedy version by adding `?` after quantifiers
     * match as minimal as possible
-* See [this Python notebook](http://nbviewer.jupyter.org/url/norvig.com/ipython/pal3.ipynb) for an interesting project on palindrome sentences
+* See [this Python notebook](https://nbviewer.jupyter.org/url/norvig.com/ipython/pal3.ipynb) for an interesting project on palindrome sentences
 
 ```bash
 $ echo 'foo and bar and baz went shopping bytes' | grep -oi '\w.*and'
@@ -1527,7 +1529,7 @@ cod
 
 * A useful construct is `(*SKIP)(*F)` which allows to discard matches not needed
 * Simple way to use is that regular expression which should be discarded is written first, `(*SKIP)(*F)` is appended and then whichever is required by added after `|`
-* See [Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail) for more info
+* See [Excluding Unwanted Matches](https://www.rexegg.com/backtracking-control-verbs.html#skipfail) for more info
 
 ```bash
 $ # all words except bat and map
@@ -1562,12 +1564,19 @@ $ echo '2008-03-24 and 2012-08-12 foo' | grep -oP '(\d{4}-\d{2}-\d{2})\D+(?1)'
 * Always quote the search string (unless you know what you are doing :P)
 
 ```bash
+$ # spaces are special
 $ grep so are poem.txt 
 grep: are: No such file or directory
 poem.txt:And so are you.
-
 $ grep 'so are' poem.txt 
 And so are you.
+
+$ # use of # indicates start of comment
+$ printf 'foo\na#2\nb#3\n' | grep #2
+Usage: grep [OPTION]... PATTERN [FILE]...
+Try 'grep --help' for more information.
+$ printf 'foo\na#2\nb#3\n' | grep '#2'
+a#2
 ```
 
 * Another common problem is unquoted search string will be open to shell's own globbing rules
@@ -1580,7 +1589,7 @@ $ echo '*.txt' | grep -F '*.txt'
 ```
 
 * Use double quotes for variable expansion, command substitution, etc (Note: could vary based on shell used)
-* See [mywiki.wooledge Quotes](http://mywiki.wooledge.org/Quotes) for detailed discussion of quoting in `bash` shell
+* See [mywiki.wooledge Quotes](https://mywiki.wooledge.org/Quotes) for detailed discussion of quoting in `bash` shell
 
 ```bash
 $ # sample output on bash shell, might vary for different shells
@@ -1631,6 +1640,7 @@ $ grep 'are' poem.txt -n
 ```
 
 * Speed boost if input file is ASCII
+* See also [unix.stackexchange - Counting the number of lines having a number > 100](https://unix.stackexchange.com/questions/312297/counting-the-number-of-lines-having-a-number-greater-than-100/312330#312330) - where `grep` is blazing fast compared to other solutions
 
 ```bash
 $ time grep -xE '([a-d][r-z]){3}' /usr/share/dict/words
@@ -1747,19 +1757,19 @@ Paraphrasing from `info grep`
 * A bit of history
     * [how grep command was born](https://medium.com/@rualthanzauva/grep-was-a-private-command-of-mine-for-quite-a-while-before-i-made-it-public-ken-thompson-a40e24a5ef48)
     * [why GNU grep is fast](https://lists.freebsd.org/pipermail/freebsd-current/2010-August/019310.html)
-    * [Difference between grep, egrep and fgrep](https://unix.stackexchange.com/questions/17949/what-is-the-difference-between-grep-egrep-and-fgrep)
+    * [unix.stackexchange - Difference between grep, egrep and fgrep](https://unix.stackexchange.com/questions/17949/what-is-the-difference-between-grep-egrep-and-fgrep)
 * Tutorials and Q&A
-    * [grep tutorial](http://www.panix.com/~elflord/unix/grep.html)
+    * [grep tutorial](https://www.panix.com/~elflord/unix/grep.html)
     * [grep examples](https://alvinalexander.com/unix/edu/examples/grep.shtml)
     * [grep Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/grep?sort=votes&pageSize=15)
     * [grep Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/grep?sort=votes&pageSize=15)
 * Learn Regular Expressions (has information on flavors other than BRE/ERE/PCRE too)
-    * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
+    * [Regular Expressions Tutorial](https://www.regular-expressions.info/tutorial.html)
     * [regexcrossword](https://regexcrossword.com/)
-    * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
+    * [stackoverflow - What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
     * [online regex tester and debugger](https://regex101.com/) - by default `pcre` flavor
 * Alternatives
-    * [pcregrep](http://www.pcre.org/original/doc/html/pcregrep.html)
+    * [pcregrep](https://www.pcre.org/original/doc/html/pcregrep.html)
     * [ag - silver searcher](https://github.com/ggreer/the_silver_searcher)
     * [ripgrep](https://github.com/BurntSushi/ripgrep)
 * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
