@@ -1,4 +1,4 @@
-Use [![Join the chat at https://gitter.im/learnbyexample/scripting_course](https://badges.gitter.im/learnbyexample/scripting_course.svg)](https://gitter.im/learnbyexample/scripting_course) if you need help, have suggestions, etc
+[![Join the chat at https://gitter.im/learnbyexample/scripting_course](https://badges.gitter.im/learnbyexample/scripting_course.svg)](https://gitter.im/learnbyexample/scripting_course) [![fundme](https://img.shields.io/badge/fund-me-brightgreen.svg)](https://www.instamojo.com/learnbyexample/learnbyexample-a6b8f/)
 
 <br>
 
@@ -86,8 +86,9 @@ Includes only completed chapters
 ## <a name="acknowledgements"></a>Acknowledgements
 
 * [unix.stackexchange](https://unix.stackexchange.com/) and [stackoverflow](https://stackoverflow.com/) - for getting answers to pertinent questions as well as sharpening skills by understanding and answering questions
-* Forums like [Linux users](https://www.linkedin.com/groups/65688), [/r/commandline/](https://www.reddit.com/r/commandline/), [/r/linux/](https://www.reddit.com/r/linux/), [news.ycombinator](https://news.ycombinator.com/news), [devup](http://devup.in/) and others for valuable feedback (especially spotting mistakes) and encouragement
+* Forums like [Linux users](https://www.linkedin.com/groups/65688), [/r/commandline/](https://www.reddit.com/r/commandline/), [/r/linux/](https://www.reddit.com/r/linux/), [/r/ruby/](https://www.reddit.com/r/ruby/), [news.ycombinator](https://news.ycombinator.com/news), [devup](http://devup.in/) and others for valuable feedback (especially spotting mistakes) and encouragement
 * See [wikipedia entry 'Roses Are Red'](https://en.wikipedia.org/wiki/Roses_Are_Red) for `poem.txt` used as sample text input file
+* [shields.io](https://shields.io/) for the fundme logo
 
 <br>
 
