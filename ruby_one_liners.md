@@ -22,6 +22,7 @@
     * [Backslash sequences](#backslash-sequences)
     * [Non-greedy quantifier](#non-greedy-quantifier)
     * [Lookarounds](#lookarounds)
+    * [Special capture groups](#special-capture-groups)
 
 <br>
 
@@ -897,7 +898,7 @@ a
 * assuming that you are already familiar with basic [ERE features](./gnu_sed.md#regular-expressions)
 * examples/descriptions based only on ASCII encoding
 * See [ruby-doc Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for syntax and feature details
-* See [rexegg ruby](http://www.rexegg.com/regex-ruby.html) for a bit of ruby regex history and differences with other regex engines
+* See [rexegg ruby](https://www.rexegg.com/regex-ruby.html) for a bit of ruby regex history and differences with other regex engines
 
 <br>
 
@@ -1110,9 +1111,8 @@ Today is sunny. Not a bit funny. No doubt you like it too
 Much ado about nothing. He he he
 ```
 
-* variable lookbehind with `\K`
-* useful when positive lookbehind is not a constant length of characters to look up
-    * for ex: quantifiers that can match different number of characters
+* `\K` helps as a workaround for some of the variable-length lookbehind cases
+* See also [stackoverflow - Variable-length lookbehind-assertion alternatives](https://stackoverflow.com/questions/11640447/variable-length-lookbehind-assertion-alternatives-for-regular-expressions)
 
 ```bash
 $ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(?<=(and.*?){2})and/, "-")'
@@ -1130,7 +1130,6 @@ $ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(and.*?){2}\Kand/, "-")'
 ```bash
 $ echo ',,' | perl -pe 's/,\K/foo/g'
 ,foo,foo
-
 $ echo ',,' | ruby -pe 'gsub(/,\K/, "foo")'
 ,foo,
 $ echo ',,' | ruby -pe 'gsub(/(?<=,)/, "foo")'
@@ -1144,6 +1143,62 @@ $ echo '"foo","12,34","good"' | ruby -F'"\K,(?=")' -lane 'print $F[1]'
 $ echo '"foo","12,34","good"' | ruby -F'(?<="),(?=")' -lane 'print $F[1]'
 "12,34"
 ```
+
+<br>
+
+#### <a name="special-capture-groups"></a>Special capture groups
+
+* `\1`, `\2` etc only matches exact string
+* `\g<1>`, `\g<2>` etc re-uses the regular expression itself
+
+```bash
+$ s='baz 2008-03-24 and 2012-08-12 foo 2016-03-25'
+$ # same as: perl -pe 's/(\d{4}-\d{2}-\d{2}) and (?1)//'
+$ echo "$s" | ruby -pe 'sub(/(\d{4}-\d{2}-\d{2}) and \g<1>/, "")'
+baz  foo 2016-03-25
+
+$ # using \1 won't work as the two dates are different
+$ echo "$s" | ruby -pe 'sub(/(\d{4}-\d{2}-\d{2}) and \1/, "")'
+baz 2008-03-24 and 2012-08-12 foo 2016-03-25
+```
+
+* use `(?:` to group regular expressions without capturing it, so this won't be counted for backreference
+* See also [stackoverflow - what is non-capturing group](https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-what-does-do)
+
+```bash
+$ # using ?: helps to focus only on required capture groups
+$ # same as: perl -pe 's/(?:co|fo)\K(\w)(\w)/$2$1/g'
+$ echo 'cod1 foo_bar' | ruby -pe 'gsub(/(?:co|fo)\K(\w)(\w)/, %q/\2\1/)'
+co1d fo_obar
+
+$ # without ?: you'd need to remember all the other groups as well
+$ echo 'cod1 foo_bar' | ruby -pe 'gsub(/(co|fo)\K(\w)(\w)/, %q/\3\2/)'
+co1d fo_obar
+```
+
+* named capture groups `(?<name>` or `(?'name'`
+* for backreference, use `\k<name>`
+
+```bash
+$ # same as: perl -pe 's/(?<fw>\w+) (?<sw>\w+)/$+{sw} $+{fw}/'
+$ echo 'foo 123' | ruby -pe 'sub(/(?<fw>\w+) (?<sw>\w+)/, %q/\k<sw> \k<fw>/)'
+123 foo
+
+$ # also useful to transform different capture groups
+$ s='"foo,bar",123,"x,y,z",42'
+$ # same as: perl -lpe 's/"(?<a>[^"]+)",|(?<a>[^,]+),/$+{a}|/g'
+$ echo "$s" | ruby -lpe 'gsub(/"(?<a>[^"]+)",|(?<a>[^,]+),/, %q/\k<a>|/)'
+foo,bar|123|x,y,z|42
+```
+
+**Further Reading**
+
+* [rexegg - all the (? usages](https://www.rexegg.com/regex-disambiguation.html)
+* [regular-expressions - recursion](https://www.regular-expressions.info/recurse.html#balanced)
+* [stackoverflow - Recursive nested matching pairs of curly braces](https://stackoverflow.com/questions/19486686/recursive-nested-matching-pairs-of-curly-braces-in-ruby-regex)
+
+
+
 
 
 
