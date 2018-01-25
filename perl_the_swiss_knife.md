@@ -1192,7 +1192,7 @@ a b c
 
 * adding a `?` to `?` or `*` or `+` or `{}` quantifiers will change matching from greedy to non-greedy. In other words, to match as minimally as possible
     * also known as lazy quantifier
-* See also [regular-expressions.info - Possessive Quantifiers](http://www.regular-expressions.info/possessive.html)
+* See also [regular-expressions.info - Possessive Quantifiers](https://www.regular-expressions.info/possessive.html)
 
 ```bash
 $ # greedy matching
@@ -1399,7 +1399,7 @@ $ perl -pe '/^-/ ? s/// : s/^/-/' nums.txt
 **Further Reading**
 
 * [perldoc - Special Backtracking Control Verbs](https://perldoc.perl.org/perlre.html#Special-Backtracking-Control-Verbs)
-* [rexegg - Excluding Unwanted Matches](http://www.rexegg.com/backtracking-control-verbs.html#skipfail)
+* [rexegg - Excluding Unwanted Matches](https://www.rexegg.com/backtracking-control-verbs.html#skipfail)
 
 <br>
 
@@ -1467,8 +1467,8 @@ foo,bar|123|x,y,z|42
 **Further Reading**
 
 * [perldoc - Extended Patterns](https://perldoc.perl.org/perlre.html#Extended-Patterns)
-* [rexegg - all the (? usages](http://www.rexegg.com/regex-disambiguation.html)
-* [regular-expressions - recursion](http://www.regular-expressions.info/recurse.html#balanced)
+* [rexegg - all the (? usages](https://www.rexegg.com/regex-disambiguation.html)
+* [regular-expressions - recursion](https://www.regular-expressions.info/recurse.html#balanced)
 
 <br>
 
@@ -2795,6 +2795,9 @@ $ echo 'a 1 b 2 c' | perl -lane 'print $F[2]'
 b
 $ echo 'a 1 b 2 c' | perl -lne '@x=split; print $x[2]'
 b
+$ # temp variable can be avoided by using list context
+$ echo 'a 1 b 2 c' | perl -lne 'print join ":", (split)[2,-1]'
+b:c
 
 $ # using digits as separator
 $ echo 'a 1 b 2 c' | perl -lne '@x=split /\d+/; print ":$x[1]:"'
@@ -2827,6 +2830,9 @@ $ echo ':123::' | perl -F'/:/,$_,-1' -lane 'print scalar @F'
 
 ```bash
 $ echo 'a 1 b 2 c' | perl -lne '@x=split /(\d+)/; print "$x[1],$x[3]"'
+1,2
+$ # or, without the temp variable
+$ echo 'a 1 b 2 c' | perl -lne 'print join ",", (split /(\d+)/)[1,3]'
 1,2
 
 $ # same can be done for -F option
