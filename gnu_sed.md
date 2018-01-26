@@ -166,7 +166,7 @@ HavE a nicE day
 **Note**:
 
 * Refer to `man sed` for details of how to use the `-i` option. It varies with different `sed` implementations. As mentioned at start of this chapter, `sed (GNU sed) 4.2.2` is being used here
-* See [this Q&A](https://unix.stackexchange.com/questions/348693/sed-update-etc-grub-conf-in-spite-this-link-file) when working with symlinks
+* See also [unix.stackexchange - working with symlinks](https://unix.stackexchange.com/questions/348693/sed-update-etc-grub-conf-in-spite-this-link-file)
 
 <br>
 
@@ -423,7 +423,7 @@ $ seq 50 | tac | sed '/7/Q' | tac
 **Note**
 
 * This way of using quit commands won't work for inplace editing with multiple file input
-* See [this Q&A](https://unix.stackexchange.com/questions/309514/sed-apply-changes-in-multiple-files) for alternate solution, also has solutions using `gawk` and `perl`
+* See also [unix.stackexchange - applying changes to multiple files](https://unix.stackexchange.com/questions/309514/sed-apply-changes-in-multiple-files)
 
 <br>
 
@@ -1059,7 +1059,7 @@ $ echo '/foo/bar/baz' | sed 's#/#\\#g'
     * syntax is `\|` for BRE and `|` for ERE
 * Each side of `|` is complete regular expression with their own start/end anchors
 * How each part of alternation is handled and order of evaluation/output is beyond the scope of this tutorial
-    * See [this](http://www.regular-expressions.info/alternation.html) for more info on this topic.
+    * See [this](https://www.regular-expressions.info/alternation.html) for more info on this topic.
 
 ```bash
 $ # BRE
@@ -1250,7 +1250,7 @@ Character ranges
 
 * Matching any alphabet, number, hexadecimal number etc becomes cumbersome if every character has to be individually specified
 * So, there's a shortcut, using `-` to construct a range (has to be specified in ascending order)
-* See [ascii codes table](http://ascii.cl/) for reference
+* See [ascii codes table](https://ascii.cl/) for reference
     * Note that behavior of range will depend on locale settings
     * [arch wiki - locale](https://wiki.archlinux.org/index.php/locale)
     * [Linux: Define Locale and Language Settings](https://www.shellhacks.com/linux-define-locale-language-settings/)
@@ -1274,7 +1274,7 @@ foo
 ```
 
 * Numeric ranges, easy for certain cases but not suitable always. Use `awk` or `perl` for arithmetic computation
-* See also [Matching Numeric Ranges with a Regular Expression](http://www.regular-expressions.info/numericranges.html)
+* See also [Matching Numeric Ranges with a Regular Expression](https://www.regular-expressions.info/numericranges.html)
 
 ```bash
 $ # numbers between 10 to 29
@@ -1347,7 +1347,7 @@ d=f*h+e
 Named character classes
 
 * Equivalent class shown is for C locale and ASCII character encoding
-    * See [ascii codes table](http://ascii.cl/) for reference
+    * See [ascii codes table](https://ascii.cl/) for reference
 * See [sed manual - Character Classes and Bracket Expressions](https://www.gnu.org/software/sed/manual/sed.html#Character-Classes-and-Bracket-Expressions) for more details
 
 | Character classes | Description |
@@ -1393,7 +1393,7 @@ And so are you
 Backslash character classes
 
 * Equivalent class shown is for C locale and ASCII character encoding
-    * See [ascii codes table](http://ascii.cl/) for reference
+    * See [ascii codes table](https://ascii.cl/) for reference
 * See [sed manual - regular expression extensions](https://www.gnu.org/software/sed/manual/sed.html#regexp-extensions) for more details
 
 | Character classes | Description |
@@ -1425,7 +1425,7 @@ $ echo 'w=y-x+9*3' | perl -pe 's/[\w=]//g'
 * Certain ASCII characters like tab, carriage return, newline, etc have escape sequence to represent them
     * Unlike backslash character classes, these can be used within `[]` as well
 * Any ASCII character can be also represented using their decimal or octal or hexadecimal value
-    * See [ascii codes table](http://ascii.cl/) for reference
+    * See [ascii codes table](https://ascii.cl/) for reference
 * See [sed manual - Escapes](https://www.gnu.org/software/sed/manual/sed.html#Escapes) for more details
 
 ```bash
@@ -1831,7 +1831,7 @@ $ echo 'xyz 5' | sed 's/xyz/seq/e'
 * Either `m` or `M` can be used
 * So far, we've seen only line based operations (newline character being used to distinguish lines)
 * There are various ways (see [sed manual - How sed Works](https://www.gnu.org/software/sed/manual/sed.html#Execution-Cycle)) by which more than one line is there in pattern space and in such cases `m` modifier can be used
-* See also [usage of multi-line modifier](https://unix.stackexchange.com/questions/298670/simple-significant-usage-of-m-multi-line-address-suffix) for more examples
+* See also [unix.stackexchange - usage of multi-line modifier](https://unix.stackexchange.com/questions/298670/simple-significant-usage-of-m-multi-line-address-suffix) for more examples
 
 Before seeing example with `m` modifier, let's see a simple example to get two lines in pattern space
 
@@ -1879,11 +1879,11 @@ Sugar is sweet,
 ## <a name="shell-substitutions"></a>Shell substitutions
 
 * Examples presented works with `bash` shell, might differ for other shells
-* See also [Difference between single and double quotes in Bash](https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash)
+* See also [stackoverflow - Difference between single and double quotes in Bash](https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash)
 * For robust substitutions taking care of meta characters in *REGEXP* and *REPLACEMENT* sections, see
-    * [How to ensure that string interpolated into sed substitution escapes all metachars](https://unix.stackexchange.com/questions/129059/how-to-ensure-that-string-interpolated-into-sed-substitution-escapes-all-metac)
-    * [What characters do I need to escape when using sed in a sh script?](https://unix.stackexchange.com/questions/32907/what-characters-do-i-need-to-escape-when-using-sed-in-a-sh-script)
-    * [Is it possible to escape regex metacharacters reliably with sed](https://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed)
+    * [unix.stackexchange - How to ensure that string interpolated into sed substitution escapes all metachars](https://unix.stackexchange.com/questions/129059/how-to-ensure-that-string-interpolated-into-sed-substitution-escapes-all-metac)
+    * [unix.stackexchange - What characters do I need to escape when using sed in a sh script?](https://unix.stackexchange.com/questions/32907/what-characters-do-i-need-to-escape-when-using-sed-in-a-sh-script)
+    * [stackoverflow - Is it possible to escape regex metacharacters reliably with sed](https://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed)
 
 <br>
 
@@ -2330,7 +2330,7 @@ $ seq 3 | sed '2a'"$(seq 2)"
 sed: -e expression #1, char 5: missing command
 ```
 
-* See [this Q&A](https://stackoverflow.com/questions/41343062/what-does-this-mean-in-linux-sed-a-a-txt) for using `a` command to make sure last line of input has a newline character
+* See also [stackoverflow - add newline character if last line of input doesn't have one](https://stackoverflow.com/questions/41343062/what-does-this-mean-in-linux-sed-a-a-txt)
 
 <br>
 
@@ -2424,7 +2424,7 @@ And so are you.
 ```
 
 * replacing a line or range of lines with contents of file
-* See also [various ways to replace line M in file1 with line N in file2](https://unix.stackexchange.com/a/396450)
+* See also [unix.stackexchange - various ways to replace line M in file1 with line N in file2](https://unix.stackexchange.com/a/396450)
 
 ```bash
 $ # replacing range of lines
@@ -2542,7 +2542,7 @@ Quoting from [sed manual - other commands](https://www.gnu.org/software/sed/manu
 
 >When -z is used, a zero byte (the ascii ‘NUL’ character) is added between the lines (instead of a new line)
 
-* See [this Q&A](https://stackoverflow.com/questions/40229578/how-to-insert-a-line-feed-into-a-sed-line-concatenation) for an interesting case of applying substitution every 4 lines but excluding the 4th line
+* See also [stackoverflow - apply substitution every 4 lines but excluding the 4th line](https://stackoverflow.com/questions/40229578/how-to-insert-a-line-feed-into-a-sed-line-concatenation)
 
 ```bash
 $ # if line contains 'blue', replace 'e' with 'E' both in current line and next
@@ -2604,7 +2604,7 @@ $ seq 6 | sed 'N;s/\n/ /'
 * Simple if-then-else can be simulated using `b` command
 * `b` command will unconditionally branch to specified label
 * Without label, `b` will skip rest of commands and start next cycle
-* See [processing only lines between REGEXPs](https://unix.stackexchange.com/questions/292819/remove-commented-lines-except-one-comment-using-sed) for interesting use case
+* See [unix.stackexchange - processing only lines between REGEXPs](https://unix.stackexchange.com/questions/292819/remove-commented-lines-except-one-comment-using-sed) for interesting use case
 
 ```bash
 $ # changing -ve to +ve and vice versa
@@ -2639,8 +2639,8 @@ And so ar* you.
 * `t` command will branch to specified label on successful substitution
 * Without label, `t` will skip rest of commands and start next cycle
 * More examples
-    * [replace data after last delimiter](https://stackoverflow.com/questions/39907133/replace-data-after-last-delimiter-of-every-line-using-sed-or-awk/39908523#39908523)
-    * [replace multiple occurrences in specific column](https://stackoverflow.com/questions/42886531/replace-mutliple-occurances-in-delimited-columns/42886919#42886919)
+    * [stackoverflow - replace data after last delimiter](https://stackoverflow.com/questions/39907133/replace-data-after-last-delimiter-of-every-line-using-sed-or-awk/39908523#39908523)
+    * [stackoverflow - replace multiple occurrences in specific column](https://stackoverflow.com/questions/42886531/replace-mutliple-occurances-in-delimited-columns/42886919#42886919)
 
 ```bash
 $ # replace space with underscore only in 3rd column
@@ -2677,7 +2677,7 @@ And so ar# you.
 #### <a name="overlapping-substitutions"></a>overlapping substitutions
 
 * `t` command looping with label comes in handy for overlapping substitutions as well
-* Note that in general this method will work recursively, see [substitute recursively](https://stackoverflow.com/questions/9983646/sed-substitute-recursively) for example
+* Note that in general this method will work recursively, see [stackoverflow - substitute recursively](https://stackoverflow.com/questions/9983646/sed-substitute-recursively) for example
 
 ```bash
 $ # consider the problem of replacing empty columns with something
@@ -2978,7 +2978,7 @@ foo bar
 ```
 
 * command line options can be specified along with shebang as well as added at time of invocation
-* **Note** [usage of options along with shebang depends on lot of factors](https://stackoverflow.com/questions/4303128/how-to-use-multiple-arguments-with-a-shebang-i-e)
+* See also [stackoverflow - usage of options along with shebang depends on lot of factors](https://stackoverflow.com/questions/4303128/how-to-use-multiple-arguments-with-a-shebang-i-e)
 
 ```bash
 $ type sed
@@ -3148,11 +3148,11 @@ foo xyz
 ```
 
 * and many more... see also
-    * [Why does my regular expression work in X but not in Y?](https://unix.stackexchange.com/questions/119905/why-does-my-regular-expression-work-in-x-but-not-in-y)
-    * [Greedy vs. Reluctant vs. Possessive Quantifiers](https://stackoverflow.com/questions/5319840/greedy-vs-reluctant-vs-possessive-quantifiers)
-    * [How to replace everything between but only until the first occurrence of the end string?](https://stackoverflow.com/questions/45168607/how-to-replace-everything-between-but-only-until-the-first-occurrence-of-the-end)
-    * [How to match a specified pattern with multiple possibilities](https://stackoverflow.com/questions/43650926/how-to-match-a-specified-pattern-with-multiple-possibilities)
-    * [mixing different regex syntax](https://stackoverflow.com/questions/45389684/cant-comment-a-line-in-my-cnf/45389833#45389833)
+    * [unix.stackexchange - Why does my regular expression work in X but not in Y?](https://unix.stackexchange.com/questions/119905/why-does-my-regular-expression-work-in-x-but-not-in-y)
+    * [stackoverflow - Greedy vs. Reluctant vs. Possessive Quantifiers](https://stackoverflow.com/questions/5319840/greedy-vs-reluctant-vs-possessive-quantifiers)
+    * [stackoverflow - How to replace everything between but only until the first occurrence of the end string?](https://stackoverflow.com/questions/45168607/how-to-replace-everything-between-but-only-until-the-first-occurrence-of-the-end)
+    * [stackoverflow - How to match a specified pattern with multiple possibilities](https://stackoverflow.com/questions/43650926/how-to-match-a-specified-pattern-with-multiple-possibilities)
+    * [stackoverflow - mixing different regex syntax](https://stackoverflow.com/questions/45389684/cant-comment-a-line-in-my-cnf/45389833#45389833)
     * [sed manual - BRE-vs-ERE](https://www.gnu.org/software/sed/manual/sed.html#BRE-vs-ERE)
 
 * Speed boost for ASCII encoded input
@@ -3187,27 +3187,27 @@ real    0m0.073s
     * `man sed` and `info sed` for more details, known issues/limitations as well as options/commands not covered in this tutorial
     * [GNU sed manual](https://www.gnu.org/software/sed/manual/sed.html) has even more detailed information and examples
     * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), but last modified '10 March 2003'
-    * [BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/questions/24275070/sed-not-giving-me-correct-substitute-operation-for-newline-with-mac-difference/24276470#24276470)
-    * [Differences between sed on Mac OSX and other standard sed](https://unix.stackexchange.com/questions/13711/differences-between-sed-on-mac-osx-and-other-standard-sed)
+    * [stackoverflow - BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/questions/24275070/sed-not-giving-me-correct-substitute-operation-for-newline-with-mac-difference/24276470#24276470)
+    * [unix.stackexchange - Differences between sed on Mac OSX and other standard sed](https://unix.stackexchange.com/questions/13711/differences-between-sed-on-mac-osx-and-other-standard-sed)
 * Tutorials and Q&A
     * [sed basics](https://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
     * [sed detailed tutorial](http://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
     * [sed one-liners explained](http://www.catonmat.net/series/sed-one-liners-explained)
     * [cheat sheet](http://www.catonmat.net/download/sed.stream.editor.cheat.sheet.txt)
-    * [common search and replace examples](https://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files)
+    * [unix.stackexchange - common search and replace examples](https://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files)
     * [sed Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sed?sort=votes&pageSize=15)
     * [sed Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/sed?sort=votes&pageSize=15)
 * Selected examples - portable solutions, commands not covered in this tutorial, same problem solved using different tools, etc
-    * [replace multiline string](http://unix.stackexchange.com/questions/26284/how-can-i-use-sed-to-replace-a-multi-line-string)
-    * [deleting empty lines with optional white spaces](https://stackoverflow.com/questions/16414410/delete-empty-lines-using-sed)
-    * [print only line above the matching line](https://unix.stackexchange.com/questions/264489/find-each-line-matching-a-pattern-but-print-only-the-line-above-it)
-    * [How to select lines between two patterns?](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
-    * [get lines between two patterns only if there is third pattern between them](https://stackoverflow.com/questions/39960075/bash-how-to-get-lines-between-patterns-only-if-there-is-pattern2-between-them)
-        * [similar example](https://unix.stackexchange.com/questions/228699/sed-print-lines-matched-by-a-pattern-range-if-one-line-matches-a-condition)
+    * [unix.stackexchange - replace multiline string](https://unix.stackexchange.com/questions/26284/how-can-i-use-sed-to-replace-a-multi-line-string)
+    * [stackoverflow - deleting empty lines with optional white spaces](https://stackoverflow.com/questions/16414410/delete-empty-lines-using-sed)
+    * [unix.stackexchange - print only line above the matching line](https://unix.stackexchange.com/questions/264489/find-each-line-matching-a-pattern-but-print-only-the-line-above-it)
+    * [stackoverflow - How to select lines between two patterns?](https://stackoverflow.com/questions/38972736/how-to-select-lines-between-two-patterns)
+    * [stackoverflow - get lines between two patterns only if there is third pattern between them](https://stackoverflow.com/questions/39960075/bash-how-to-get-lines-between-patterns-only-if-there-is-pattern2-between-them)
+        * [unix.stackexchange - similar example](https://unix.stackexchange.com/questions/228699/sed-print-lines-matched-by-a-pattern-range-if-one-line-matches-a-condition)
 * Learn Regular Expressions (has information on flavors other than BRE/ERE too)
-    * [Regular Expressions Tutorial](http://www.regular-expressions.info/tutorial.html)
+    * [Regular Expressions Tutorial](https://www.regular-expressions.info/tutorial.html)
     * [regexcrossword](https://regexcrossword.com/)
-    * [What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
+    * [stackoverflow - What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
 * Related tools
     * [sedsed - Debugger, indenter and HTMLizer for sed scripts](https://github.com/aureliojargas/sedsed)
     * [xo - composes regular expression match groups](https://github.com/ezekg/xo)
