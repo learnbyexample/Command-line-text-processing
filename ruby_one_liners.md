@@ -23,6 +23,7 @@
     * [Non-greedy quantifier](#non-greedy-quantifier)
     * [Lookarounds](#lookarounds)
     * [Special capture groups](#special-capture-groups)
+    * [Modifiers](#modifiers)
 
 <br>
 
@@ -937,6 +938,50 @@ $ echo 'foo,baz,,xyz,,,123' | ruby -lpe 'gsub(/(?<=^|,)[^,]*(?=,|$)/, "A")'
 A,A,A,A,A,A,A
 ```
 
+* difference between `^` and `\A`
+
+```bash
+$ # ^ matches start of line, not start of string
+$ # same as: perl -00 -ne 'print if /^Believe/m' sample.txt
+$ ruby -00 -ne 'print if /^Believe/' sample.txt
+Just do-it
+Believe it
+
+$ ruby -00 -ne 'print if /^he/i' sample.txt
+Hello World
+
+Much ado about nothing
+He he he
+
+$ # \A matches start of string
+$ # without m modifier, both ^ and \A will match start of string in perl
+$ ruby -00 -ne 'print if /\Ahe/i' sample.txt
+Hello World
+
+$ # similarly, $ matches end of line
+$ ruby -00 -ne 'print if /funny$/' sample.txt
+Today is sunny
+Not a bit funny
+No doubt you like it too
+```
+
+* difference between `\z` and `\Z`
+
+```bash
+$ # \Z matches just before newline
+$ seq 14 | ruby -ne 'print if /2\Z/'
+2
+12
+
+$ # \z matches end of string
+$ seq 14 | ruby -ne 'print if /2\z/'
+$ seq 14 | ruby -ne 'print if /2\n\z/'
+2
+12
+
+$ # without newline at end of line, both \z and \Z will give same result
+```
+
 * delimiters and quoting
 * quoting from [ruby-doc Percent Strings](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Percent+Strings)
 
@@ -1197,8 +1242,34 @@ foo,bar|123|x,y,z|42
 * [regular-expressions - recursion](https://www.regular-expressions.info/recurse.html#balanced)
 * [stackoverflow - Recursive nested matching pairs of curly braces](https://stackoverflow.com/questions/19486686/recursive-nested-matching-pairs-of-curly-braces-in-ruby-regex)
 
+<br>
 
+#### <a name="modifiers"></a>Modifiers
 
+* use `i` modifier to ignore case while matching
+
+```bash
+$ ruby -ne 'print if /rose/i' poem.txt
+Roses are red,
+
+$ echo 'foo 123 FoO' | ruby -pe 'gsub(/foo/i, "good")'
+good 123 good
+```
+
+* by default, `.` doesn't match the newline character
+* `m` modifier allows `.` metacharacter to match newline character as well
+
+```bash
+$ # searching for a match which can span across multiple lines
+
+$ # no output as . doesn't match newline
+$ ruby -00 -ne 'print if /do.*he/' sample.txt
+
+$ # same as: perl -00 -ne 'print if /do.*he/s' sample.txt
+$ ruby -00 -ne 'print if /do.*he/m' sample.txt
+Much ado about nothing
+He he he
+```
 
 
 
