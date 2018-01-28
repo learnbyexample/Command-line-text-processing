@@ -1156,6 +1156,18 @@ Today is sunny. Not a bit funny. No doubt you like it too
 Much ado about nothing. He he he
 ```
 
+* capture groups can also be used inside lookarounds
+
+```bash
+$ # same as: perl -pe 's/(\H+\h+)(?=(\H+)\h)/$1$2\n/g'
+$ # %q cannot be used here as \n is not meaningful inside single quotes
+$ echo 'a b c d e' | ruby -lpe 'gsub(/(\S+\s+)(?=(\S+)\s)/, "\\1\\2\n")'
+a b
+b c
+c d
+d e
+```
+
 * `\K` helps as a workaround for some of the variable-length lookbehind cases
 * See also [stackoverflow - Variable-length lookbehind-assertion alternatives](https://stackoverflow.com/questions/11640447/variable-length-lookbehind-assertion-alternatives-for-regular-expressions)
 
