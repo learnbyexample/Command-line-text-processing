@@ -24,6 +24,7 @@
     * [Lookarounds](#lookarounds)
     * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
+    * [Code in replacement section](#code-in-replacement-section)
 
 <br>
 
@@ -1281,6 +1282,44 @@ $ # same as: perl -00 -ne 'print if /do.*he/s' sample.txt
 $ ruby -00 -ne 'print if /do.*he/m' sample.txt
 Much ado about nothing
 He he he
+```
+
+<br>
+
+#### <a name="code-in-replacement-section"></a>Code in replacement section
+
+* block form allows to use `ruby` code for replacement section
+
+quoting from [ruby-doc gsub](https://ruby-doc.org/core-2.5.0/String.html#method-i-gsub)
+
+>In the block form, the current match string is passed in as a parameter, and variables such as $1, $2, $`, $&, and $' will be set appropriately. The value returned by the block will be substituted for the match on each call.
+
+* `$1`, `$2`, etc are equivalent of `\1`, `\2`, etc
+* `$&` is equivalent of `\0` - i.e the entire matched string
+
+
+```bash
+$ # replace numbers with their squares, same as: perl -pe 's/\d+/$&*$&/ge'
+$ echo '4 and 10' | ruby -pe 'gsub(/\d+/){$&.to_i * $&.to_i}'
+16 and 100
+
+$ # replace matched string with incremental value
+$ # same as: perl -pe 's/\d+/++$c/ge'
+$ echo '4 and 10 foo 57' | ruby -pe 'BEGIN{c=0}; gsub(/\d+/){c+=1}'
+1 and 2 foo 3
+
+$ # formatting string, same as: perl -lpe 's/[^-]+/sprintf "%04s", $&/ge'
+$ echo 'a1-2-deed' | ruby -lpe 'gsub(/[^-]+/){ $&.rjust(4, "0") }'
+00a1-0002-deed
+
+$ # calling a function, same as: perl -pe 's/\w+/length($&)/ge'
+$ echo 'food:12:explain:789' | ruby -pe 'gsub(/\w+/){$&.length}'
+4:2:7:3
+
+$ # applying another substitution to matched string
+$ # same as: perl -pe 's/"[^"]+"/$&=~s|a|A|gr/ge'
+$ echo '"mango" and "guava"' | ruby -pe 'gsub(/"[^"]+"/){$&.gsub(/a/, "A")}'
+"mAngo" and "guAvA"
 ```
 
 
