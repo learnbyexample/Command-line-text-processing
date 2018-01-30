@@ -25,6 +25,7 @@
     * [Special capture groups](#special-capture-groups)
     * [Modifiers](#modifiers)
     * [Code in replacement section](#code-in-replacement-section)
+    * [Quoting metacharacters](#quoting-metacharacters)
 
 <br>
 
@@ -1299,8 +1300,8 @@ quoting from [ruby-doc gsub](https://ruby-doc.org/core-2.5.0/String.html#method-
 
 
 ```bash
-$ # replace numbers with their squares, same as: perl -pe 's/\d+/$&*$&/ge'
-$ echo '4 and 10' | ruby -pe 'gsub(/\d+/){$&.to_i * $&.to_i}'
+$ # replace numbers with their squares, same as: perl -pe 's/\d+/$&**2/ge'
+$ echo '4 and 10' | ruby -pe 'gsub(/\d+/){$&.to_i ** 2}'
 16 and 100
 
 $ # replace matched string with incremental value
@@ -1321,6 +1322,44 @@ $ # same as: perl -pe 's/"[^"]+"/$&=~s|a|A|gr/ge'
 $ echo '"mango" and "guava"' | ruby -pe 'gsub(/"[^"]+"/){$&.gsub(/a/, "A")}'
 "mAngo" and "guAvA"
 ```
+
+<br>
+
+#### <a name="quoting-metacharacters"></a>Quoting metacharacters
+
+* to match contents of string variable exactly, all metacharacters need to be escaped
+* See [ruby-doc Regexp.escape](https://ruby-doc.org/core-2.5.0/Regexp.html#method-c-escape) for syntax details
+
+```bash
+$ cat eqns.txt
+a=b,a-b=c,c*d
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ # since + is a metacharacter, no match found
+$ # note that #{} allows interpolation
+$ s='a+b' ruby -ne 'print if /^#{ENV["s"]}/' eqns.txt
+
+$ # same as: s='a+b' perl -ne 'print if /\Q$ENV{s}/' eqns.txt
+$ s='a+b' ruby -ne 'print if /#{Regexp.escape(ENV["s"])}/' eqns.txt
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a+b
+
+$ # use regex as needed around variable content, for ex: end of line anchor
+$ ruby -pe 'BEGIN{s="a+b"}; sub(/#{Regexp.escape(s)}$/, "a**b")' eqns.txt
+a=b,a-b=c,c*d
+a+b,pi=3.14,5e12
+i*(t+9-g)/8,4-a**b
+```
+
+
+
+
+
+
+
+
+
 
 
 
