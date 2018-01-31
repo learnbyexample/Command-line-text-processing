@@ -26,6 +26,7 @@
     * [Modifiers](#modifiers)
     * [Code in replacement section](#code-in-replacement-section)
     * [Quoting metacharacters](#quoting-metacharacters)
+* [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
 
@@ -1338,7 +1339,7 @@ i*(t+9-g)/8,4-a+b
 
 $ # since + is a metacharacter, no match found
 $ # note that #{} allows interpolation
-$ s='a+b' ruby -ne 'print if /^#{ENV["s"]}/' eqns.txt
+$ s='a+b' ruby -ne 'print if /#{ENV["s"]}/' eqns.txt
 
 $ # same as: s='a+b' perl -ne 'print if /\Q$ENV{s}/' eqns.txt
 $ s='a+b' ruby -ne 'print if /#{Regexp.escape(ENV["s"])}/' eqns.txt
@@ -1350,6 +1351,42 @@ $ ruby -pe 'BEGIN{s="a+b"}; sub(/#{Regexp.escape(s)}$/, "a**b")' eqns.txt
 a=b,a-b=c,c*d
 a+b,pi=3.14,5e12
 i*(t+9-g)/8,4-a**b
+```
+
+<br>
+
+## <a name="dealing-with-duplicates"></a>Dealing with duplicates
+
+* retain only first copy of duplicates
+* `-r` command line option allows to specify library required
+* here, `set` data type is used to keep track of unique values - be it whole line or a particular field
+    * the `add?` method will add element to `set` and returns `nil` if element already exists
+    * See [ruby-doc add?(o)](https://ruby-doc.org/stdlib-2.5.0/libdoc/set/rdoc/Set.html#method-i-add-3F) for syntax details
+
+```bash
+$ cat duplicates.txt
+abc  7   4
+food toy ****
+abc  7   4
+test toy 123
+good toy ****
+
+$ # whole line, same as: perl -ne 'print if !$seen{$_}++' duplicates.txt
+$ ruby -rset -ne 'BEGIN{s=Set.new}; print if s.add?($_)' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+good toy ****
+
+$ # particular column, same as: perl -ane 'print if !$seen{$F[1]}++'
+$ ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1])' duplicates.txt
+abc  7   4
+food toy ****
+
+$ # total count, same as: perl -lane '$c++ if !$seen{$F[1]}++; END{print $c}'
+$ ruby -rset -ane 'BEGIN{s=Set.new}; s.add($F[1]);
+                   END{puts s.length}' duplicates.txt
+2
 ```
 
 
