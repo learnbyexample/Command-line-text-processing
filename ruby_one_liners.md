@@ -1389,6 +1389,27 @@ $ ruby -rset -ane 'BEGIN{s=Set.new}; s.add($F[1]);
 2
 ```
 
+* multiple fields
+
+```bash
+$ # same as: perl -ane 'print if !$seen{$F[1],$F[2]}++' duplicates.txt
+$ # $F[1,2] will return an array with fields 2 and 3 as elements
+$ ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1,2])' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+```
+
+* retaining only last copy of duplicate
+
+```bash
+$ # reverse the input line-wise, retain first copy and then reverse again
+$ # same as: tac duplicates.txt | perl -ane 'print if !$seen{$F[1]}++' | tac
+$ tac duplicates.txt | ruby -rset -ane 'BEGIN{s=Set.new};
+                       print if s.add?($F[1])' | tac
+abc  7   4
+good toy ****
+```
 
 
 
