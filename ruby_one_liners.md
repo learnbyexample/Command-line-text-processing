@@ -1411,8 +1411,21 @@ abc  7   4
 good toy ****
 ```
 
+* for count based filtering, use a `hash`
+* `Hash.new(0)` will initialize value of new key to `0`
 
+```bash
+$ # second occurrence of duplicate
+$ # same as: perl -ane 'print if ++$h{$F[1]}==2' duplicates.txt
+$ ruby -ane 'BEGIN{h=Hash.new(0)}; print if (h[$F[1]]+=1)==2' duplicates.txt
+abc  7   4
+test toy 123
 
+$ # third occurrence of duplicate
+$ # same as: perl -ane 'print if ++$h{$F[1]}==3' duplicates.txt
+$ ruby -ane 'BEGIN{h=Hash.new(0)}; print if (h[$F[1]]+=1)==3' duplicates.txt
+good toy ****
+```
 
 
 
