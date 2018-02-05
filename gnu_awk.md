@@ -1110,7 +1110,11 @@ $ printf '' | awk '{sum += $1} END{print sum}'
 $ # so either add '0' or use unary '+' operator to convert to number
 $ printf '' | awk '{sum += $1} END{print +sum}'
 0
+$ awk '{sum += $1} END{print sum+0}' /dev/null
+0
 ```
+
+* See also [unix.stackexchange - change in behavior of unary + with gawk version 4.2.0](https://unix.stackexchange.com/questions/421904/regression-with-unary-plus)
 
 <br>
 
