@@ -179,6 +179,7 @@ $ # '.bkp' is extension provided
 $ sed -i.bkp 's/Hi/Hello/' greeting.txt
 
 $ # original file gets preserved in 'greeting.txt.bkp'
+$ cat greeting.txt.bkp
 Hi there
 Have a nice day
 
