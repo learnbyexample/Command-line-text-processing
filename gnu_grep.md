@@ -1201,10 +1201,10 @@ bar
 
 | Character classes | Description |
 | ------------- | ----------- |
-| \w | Same as [0-9a-zA-Z_] or [[:alnum:]_] |
-| \W | Same as [^0-9a-zA-Z_] or [^[:alnum:]_] |
-| \s | Same as [[:space:]] |
-| \S | Same as [^[:space:]] |
+| \w | Same as `[0-9a-zA-Z_]` or `[[:alnum:]_]` |
+| \W | Same as `[^0-9a-zA-Z_]` or `[^[:alnum:]_]` |
+| \s | Same as `[[:space:]]` |
+| \S | Same as `[^[:space:]]` |
 
 ```bash
 $ printf '123\n$#\ncmp_str\nFoo_bar\n' | grep -x '\w*'

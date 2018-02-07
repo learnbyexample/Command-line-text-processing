@@ -1398,10 +1398,10 @@ Backslash character classes
 
 | Character classes | Description |
 | ------------- | ----------- |
-| \w | Same as [0-9a-zA-Z_] or [[:alnum:]_] |
-| \W | Same as [^0-9a-zA-Z_] or [^[:alnum:]_] |
-| \s | Same as [[:space:]] |
-| \S | Same as [^[:space:]] |
+| \w | Same as `[0-9a-zA-Z_]` or `[[:alnum:]_]` |
+| \W | Same as `[^0-9a-zA-Z_]` or `[^[:alnum:]_]` |
+| \s | Same as `[[:space:]]` |
+| \S | Same as `[^[:space:]]` |
 
 ```bash
 $ # lines containing only word characters
