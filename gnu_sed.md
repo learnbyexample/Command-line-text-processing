@@ -177,14 +177,14 @@ HavE a nicE day
 ```bash
 $ # '.bkp' is extension provided
 $ sed -i.bkp 's/Hi/Hello/' greeting.txt
-
-$ # original file gets preserved in 'greeting.txt.bkp'
-Hi there
-Have a nice day
-
-$ # output from sed gets written to 'greeting.txt'
+$ # output from sed is written back to 'greeting.txt'
 $ cat greeting.txt
 Hello there
+Have a nice day
+
+$ # original file is preserved in 'greeting.txt.bkp'
+$ cat greeting.txt.bkp
+Hi there
 Have a nice day
 ```
 
