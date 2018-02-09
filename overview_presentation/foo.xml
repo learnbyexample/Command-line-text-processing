@@ -1,0 +1,4 @@
+<foo>
+    <abc attr="good">Hi there</abc>
+    <xyz attr="bad">I am good. How are you?</xyz>
+</foo>

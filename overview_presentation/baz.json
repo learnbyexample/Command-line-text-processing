@@ -1,0 +1,10 @@
+{
+   "abc": {
+      "@attr": "good",
+      "text": "Hi there"
+   },
+   "xyz": {
+      "@attr": "bad",
+      "text": "I am good. How are you?"
+   }
+}
