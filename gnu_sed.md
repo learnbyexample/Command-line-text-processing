@@ -1352,18 +1352,18 @@ Named character classes
 
 | Character classes | Description |
 | ------------- | ----------- |
-| [:digit:] | Same as [0-9] |
-| [:lower:] | Same as [a-z] |
-| [:upper:] | Same as [A-Z] |
-| [:alpha:] | Same as [a-zA-Z] |
-| [:alnum:] | Same as [0-9a-zA-Z] |
-| [:xdigit:] | Same as [0-9a-fA-F] |
-| [:cntrl:] | Control characters - first 32 ASCII characters and 127th (DEL) |
-| [:punct:] | All the punctuation characters |
-| [:graph:] | [:alnum:] and [:punct:] |
-| [:print:] | [:alnum:], [:punct:] and space |
-| [:blank:] | Space and tab characters |
-| [:space:] | white-space characters: tab, newline, vertical tab, form feed, carriage return and space |
+| `[:digit:]` | Same as `[0-9]` |
+| `[:lower:]` | Same as `[a-z]` |
+| `[:upper:]` | Same as `[A-Z]` |
+| `[:alpha:]` | Same as `[a-zA-Z]` |
+| `[:alnum:]` | Same as `[0-9a-zA-Z]` |
+| `[:xdigit:]` | Same as `[0-9a-fA-F]` |
+| `[:cntrl:]` | Control characters - first 32 ASCII characters and 127th (DEL) |
+| `[:punct:]` | All the punctuation characters |
+| `[:graph:]` | `[:alnum:]` and `[:punct:]` |
+| `[:print:]` | `[:alnum:]`, `[:punct:]` and space |
+| `[:blank:]` | Space and tab characters |
+| `[:space:]` | white-space characters: tab, newline, vertical tab, form feed, carriage return and space |
 
 ```bash
 $ # lines containing only hexadecimal characters
@@ -1398,10 +1398,10 @@ Backslash character classes
 
 | Character classes | Description |
 | ------------- | ----------- |
-| \w | Same as [0-9a-zA-Z_] or [[:alnum:]_] |
-| \W | Same as [^0-9a-zA-Z_] or [^[:alnum:]_] |
-| \s | Same as [[:space:]] |
-| \S | Same as [^[:space:]] |
+| `\w` | Same as `[0-9a-zA-Z_]` or `[[:alnum:]_]` |
+| `\W` | Same as `[^0-9a-zA-Z_]` or `[^[:alnum:]_]` |
+| `\s` | Same as `[[:space:]]` |
+| `\S` | Same as `[^[:space:]]` |
 
 ```bash
 $ # lines containing only word characters
