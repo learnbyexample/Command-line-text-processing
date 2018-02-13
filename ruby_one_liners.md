@@ -26,6 +26,8 @@
     * [Modifiers](#modifiers)
     * [Code in replacement section](#code-in-replacement-section)
     * [Quoting metacharacters](#quoting-metacharacters)
+* [Two file processing](#two-file-processing)
+    * [Comparing whole lines](#comparing-whole-lines)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -1355,6 +1357,67 @@ i*(t+9-g)/8,4-a**b
 
 <br>
 
+## <a name="two-file-processing"></a>Two file processing
+
+First, a bit about `ARGV` which allows to keep track of which file is being processed
+
+```bash
+$ # similar to: perl -lne 'print $#ARGV' <(seq 2) <(seq 3) <(seq 1)
+$ ruby -ne 'puts ARGV.length' <(seq 2) <(seq 3) <(seq 1)
+2
+2
+1
+1
+1
+0
+```
+
+<br>
+
+#### <a name="comparing-whole-lines"></a>Comparing whole lines
+
+Consider the following test files
+
+```bash
+$ cat colors_1.txt
+Blue
+Brown
+Purple
+Red
+Teal
+Yellow
+
+$ cat colors_2.txt
+Black
+Blue
+Green
+Red
+White
+```
+
+* `-r` command line option allows to specify library required
+    * the `include?` method allows to check if `set` already contains the element
+    * See [ruby-doc include?(o)](https://ruby-doc.org/stdlib-2.5.0/libdoc/set/rdoc/Set.html#method-i-include-3F) for syntax details
+
+```bash
+$ # common lines
+$ # same as: perl -ne 'if(!$#ARGV){$h{$_}=1; next}
+$ #            print if $h{$_}' colors_1.txt colors_2.txt
+$ ruby -rset -ne 'BEGIN{s=Set.new}; s.add($_) && next if ARGV.length==1;
+                  print if s.include?($_)' colors_1.txt colors_2.txt
+Blue
+Red
+
+$ # lines from colors_2.txt not present in colors_1.txt
+$ ruby -rset -ne 'BEGIN{s=Set.new}; s.add($_) && next if ARGV.length==1;
+                  print if !s.include?($_)' colors_1.txt colors_2.txt
+Black
+Green
+White
+```
+
+<br>
+
 ## <a name="dealing-with-duplicates"></a>Dealing with duplicates
 
 * retain only first copy of duplicates
@@ -1411,7 +1474,7 @@ abc  7   4
 good toy ****
 ```
 
-* for count based filtering, use a `hash`
+* for count based filtering (other than first/last count), use a `hash`
 * `Hash.new(0)` will initialize value of new key to `0`
 
 ```bash
