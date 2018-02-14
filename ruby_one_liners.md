@@ -28,6 +28,7 @@
     * [Quoting metacharacters](#quoting-metacharacters)
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
+    * [Comparing specific fields](#comparing-specific-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -1414,6 +1415,80 @@ $ ruby -rset -ne 'BEGIN{s=Set.new}; s.add($_) && next if ARGV.length==1;
 Black
 Green
 White
+
+$ # next - to skip rest of code as long as first file is being processed
+$ # can also use: ARGV.length==1 ? s.add($_) : s.include?($_) && print
+```
+
+<br>
+
+#### <a name="comparing-specific-fields"></a>Comparing specific fields
+
+Consider the sample input file
+
+```bash
+$ cat marks.txt
+Dept    Name    Marks
+ECE     Raj     53
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+EEE     Tia     59
+ECE     Om      92
+CSE     Amy     67
+```
+
+* single field
+* For ex: only first field comparison instead of entire line as key
+
+```bash
+$ cat list1
+ECE
+CSE
+
+$ # extract only lines matching first field specified in list1
+$ ruby -rset -ane 'BEGIN{s=Set.new}; s.add($F[0]) && next if ARGV.length==1;
+                   print if s.include?($F[0])' list1 marks.txt
+ECE     Raj     53
+ECE     Joel    72
+CSE     Surya   81
+ECE     Om      92
+CSE     Amy     67
+```
+
+* multiple field comparison
+
+```bash
+$ cat list2
+EEE Moi
+CSE Amy
+ECE Raj
+
+$ # $F[0..1] will return array with elements specified by range (0 to 1 here)
+$ ruby -rset -ane 'BEGIN{s=Set.new}; s.add($F[0..1]) && next if ARGV.length==1;
+                   print if s.include?($F[0..1])' list2 marks.txt
+ECE     Raj     53
+EEE     Moi     68
+CSE     Amy     67
+```
+
+* field and value comparison
+* here, we use `hash` as well to save values based on a key
+
+```bash
+$ cat list3
+ECE 70
+EEE 65
+CSE 80
+
+$ # extract line matching Dept and minimum marks specified in list3
+$ ruby -rset -ane 'BEGIN{d=Set.new; m={}};
+                   (d.add($F[0]); m[$F[0]]=$F[1]) && next if ARGV.length==1;
+                   print if d.include?($F[0]) && $F[2]>=m[$F[0]]' list3 marks.txt
+ECE     Joel    72
+EEE     Moi     68
+CSE     Surya   81
+ECE     Om      92
 ```
 
 <br>
@@ -1456,8 +1531,8 @@ $ ruby -rset -ane 'BEGIN{s=Set.new}; s.add($F[1]);
 
 ```bash
 $ # same as: perl -ane 'print if !$seen{$F[1],$F[2]}++' duplicates.txt
-$ # $F[1,2] will return an array with fields 2 and 3 as elements
-$ ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1,2])' duplicates.txt
+$ # $F[1..2] will return an array with fields 2 and 3 as elements
+$ ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1..2])' duplicates.txt
 abc  7   4
 food toy ****
 test toy 123
