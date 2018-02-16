@@ -30,6 +30,7 @@
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
     * [Line number matching](#line-number-matching)
+* [Creating new fields](#creating-new-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -585,6 +586,9 @@ $ echo 'foo:123:bar:789' | ruby -F: -lane '$,=" - "; print $F.join'
 foo - 123 - bar - 789
 $ # or pass the separator as argument to join method
 $ echo 'foo:123:bar:789' | ruby -F: -lane 'print $F.join(" - ")'
+foo - 123 - bar - 789
+$ # or the equivalent
+$ echo 'foo:123:bar:789' | ruby -F: -lane 'print $F * " - "'
 foo - 123 - bar - 789
 ```
 
@@ -1520,6 +1524,46 @@ For syntax and implementation details, see
 * [ruby-doc ARGF](https://ruby-doc.org/core-2.5.0/ARGF.html)
 * [ruby-doc times](https://ruby-doc.org/core-2.5.0/Integer.html#method-i-times)
 * [ruby-doc gets](https://ruby-doc.org/core-2.5.0/IO.html#method-i-gets)
+
+<br>
+
+## <a name="creating-new-fields"></a>Creating new fields
+
+* See [ruby-doc slice](https://ruby-doc.org/core-2.5.0/Array.html#method-i-slice) for syntax details
+
+```bash
+$ s='foo,bar,123,baz'
+
+$ # to reduce fields, use slice method
+$ # same as: echo "$s" | perl -F, -lane '$,=","; $#F=1; print @F'
+$ # 1st arg - starting index, 2nd arg - number of elements
+$ echo "$s" | ruby -F, -lane '$F.slice!(-2,2); print $F * ","'
+foo,bar
+
+$ # assigning to field greater than length will create empty fields as needed
+$ # same as: echo "$s" | perl -F, -lane '$,=","; $F[6]=42; print @F'
+$ echo "$s" | ruby -F, -lane '$F[6]=42; print $F * ","'
+foo,bar,123,baz,,,42
+```
+
+* adding a field based on existing fields
+
+```bash
+$ # adding a new 'Grade' field
+$ # same as: perl -lane 'BEGIN{$,="\t"; @g = qw(D C B A S)}
+$ #          push @F, $.==1 ? "Grade" : $g[$F[-1]/10 - 5]; print @F' marks.txt
+$ ruby -lane 'BEGIN{g = %w[D C B A S]};
+              $F.push($.==1 ? "Grade" : g[$F[-1].to_i/10 - 5]);
+              print $F * "\t"' marks.txt
+Dept    Name    Marks   Grade
+ECE     Raj     53      D
+ECE     Joel    72      B
+EEE     Moi     68      C
+CSE     Surya   81      A
+EEE     Tia     59      D
+ECE     Om      92      S
+CSE     Amy     67      C
+```
 
 <br>
 
