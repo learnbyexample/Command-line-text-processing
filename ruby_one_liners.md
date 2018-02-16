@@ -29,6 +29,7 @@
 * [Two file processing](#two-file-processing)
     * [Comparing whole lines](#comparing-whole-lines)
     * [Comparing specific fields](#comparing-specific-fields)
+    * [Line number matching](#line-number-matching)
 * [Dealing with duplicates](#dealing-with-duplicates)
 
 <br>
@@ -1473,7 +1474,7 @@ CSE     Amy     67
 ```
 
 * field and value comparison
-* here, we use `hash` as well to save values based on a key
+* here, we use [hash](https://ruby-doc.org/core-2.5.0/Hash.html) as well to save values based on a key
 
 ```bash
 $ cat list3
@@ -1490,6 +1491,35 @@ EEE     Moi     68
 CSE     Surya   81
 ECE     Om      92
 ```
+
+<br>
+
+#### <a name="line-number-matching"></a>Line number matching
+
+```bash
+$ # replace mth line in poem.txt with nth line from list1
+$ # same as: m=3 n=2 perl -pe 'BEGIN{ $s=<> while $ENV{n}-- > 0; close ARGV}
+$ #                    $_=$s if $.==$ENV{m}' list1 poem.txt
+$ m=3 n=2 ruby -pe 'BEGIN{ENV["n"].to_i.times { $s=gets }; ARGF.close };
+                    $_=$s if $.==ENV["m"].to_i' list1 poem.txt
+Roses are red,
+Violets are blue,
+CSE
+And so are you.
+
+$ # print line from fruits.txt if corresponding line from nums.txt is +ve number
+$ # same as: <nums.txt perl -ne '$num=<STDIN>; print if $num>0' fruits.txt
+$ # line from fruits.txt is saved first as STDIN.gets will also set $_
+$ <nums.txt ruby -ne 'ln=$_; print ln if STDIN.gets.to_i>0' fruits.txt
+fruit   qty
+banana  31
+```
+
+For syntax and implementation details, see
+
+* [ruby-doc ARGF](https://ruby-doc.org/core-2.5.0/ARGF.html)
+* [ruby-doc times](https://ruby-doc.org/core-2.5.0/Integer.html#method-i-times)
+* [ruby-doc gets](https://ruby-doc.org/core-2.5.0/IO.html#method-i-gets)
 
 <br>
 
