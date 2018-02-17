@@ -1639,6 +1639,30 @@ $ ruby -ane 'BEGIN{h=Hash.new(0)}; print if (h[$F[1]]+=1)==3' duplicates.txt
 good toy ****
 ```
 
+* filtering based on duplicate count
+* allows to emulate [uniq](./sorting_stuff.md#uniq) command for specific fields
+
+```bash
+$ # all duplicates based on 1st column
+$ # same as: perl -ane '!$#ARGV ? $x{$F[0]}++ : $x{$F[0]}>1 && print'
+$ ruby -ane 'BEGIN{h=Hash.new(0)}; ARGV.length==1 ? h[$F[0]]+=1 :
+              h[$F[0]]>1 && print' duplicates.txt duplicates.txt
+abc  7   4
+abc  7   4
+
+$ # more than 2 duplicates based on 2nd column
+$ ruby -ane 'BEGIN{h=Hash.new(0)}; ARGV.length==1 ? h[$F[1]]+=1 :
+              h[$F[1]]>2 && print' duplicates.txt duplicates.txt
+food toy ****
+test toy 123
+good toy ****
+
+$ # only unique lines based on 3rd column
+$ ruby -ane 'BEGIN{h=Hash.new(0)}; ARGV.length==1 ? h[$F[2]]+=1 :
+              h[$F[2]]==1 && print' duplicates.txt duplicates.txt
+test toy 123
+```
+
 
 
 
