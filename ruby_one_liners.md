@@ -32,6 +32,9 @@
     * [Line number matching](#line-number-matching)
 * [Creating new fields](#creating-new-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
+* [Lines between two REGEXPs](#lines-between-two-regexps)
+    * [All unbroken blocks](#all-unbroken-blocks)
+    * [Specific blocks](#specific-blocks)
 
 <br>
 
@@ -1661,6 +1664,191 @@ $ # only unique lines based on 3rd column
 $ ruby -ane 'BEGIN{h=Hash.new(0)}; ARGV.length==1 ? h[$F[2]]+=1 :
               h[$F[2]]==1 && print' duplicates.txt duplicates.txt
 test toy 123
+```
+
+<br>
+
+## <a name="lines-between-two-regexps"></a>Lines between two REGEXPs
+
+* This section deals with filtering lines bound by two *REGEXP*s (referred to as blocks)
+* For simplicity the two *REGEXP*s usually used in below examples are the strings **BEGIN** and **END**
+
+<br>
+
+#### <a name="all-unbroken-blocks"></a>All unbroken blocks
+
+Consider the below sample input file, which doesn't have any unbroken blocks (i.e **BEGIN** and **END** are always present in pairs)
+
+```bash
+$ cat range.txt 
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+END
+baz
+```
+
+* Extracting lines between starting and ending *REGEXP*
+
+```bash
+$ # include both starting/ending REGEXP
+$ # same as: perl -ne '$f=1 if /BEGIN/; print if $f; $f=0 if /END/'
+$ ruby -ne '$f=1 if /BEGIN/; print if $f==1; $f=0 if /END/' range.txt
+BEGIN
+1234
+6789
+END
+BEGIN
+a
+b
+c
+END
+
+$ # can also use: ruby -ne 'print if /BEGIN/../END/' range.txt
+$ # which is similar to sed -n '/BEGIN/,/END/p'
+$ # but not suitable to extend for other cases
+```
+
+* other variations
+
+```bash
+$ # exclude both starting/ending REGEXP
+$ # same as: perl -ne '$f=0 if /END/; print if $f; $f=1 if /BEGIN/'
+$ ruby -ne '$f=0 if /END/; print if $f==1; $f=1 if /BEGIN/' range.txt
+1234
+6789
+a
+b
+c
+
+$ # check out what these do:
+$ ruby -ne '$f=1 if /BEGIN/; $f=0 if /END/; print if $f==1' range.txt
+$ ruby -ne 'print if $f==1; $f=0 if /END/; $f=1 if /BEGIN/' range.txt
+```
+
+* Extracting lines other than lines between the two *REGEXP*s
+
+```bash
+$ # same as: perl -ne '$f=1 if /BEGIN/; print if !$f; $f=0 if /END/'
+$ # can also use: ruby -ne 'print if !(/BEGIN/../END/)' range.txt
+$ ruby -ne '$f=1 if /BEGIN/; print if $f!=1; $f=0 if /END/' range.txt
+foo
+bar
+baz
+
+$ # the other three cases would be
+$ ruby -ne '$f=0 if /END/; print if $f!=1; $f=1 if /BEGIN/' range.txt
+$ ruby -ne 'print if $f!=1; $f=1 if /BEGIN/; $f=0 if /END/' range.txt
+$ ruby -ne '$f=1 if /BEGIN/; $f=0 if /END/; print if $f!=1' range.txt
+```
+
+<br>
+
+#### <a name="specific-blocks"></a>Specific blocks
+
+* Getting first block
+
+```bash
+$ # same as: perl -ne '$f=1 if /BEGIN/; print if $f; exit if /END/'
+$ ruby -ne '$f=1 if /BEGIN/; print if $f==1; exit if /END/' range.txt
+BEGIN
+1234
+6789
+END
+
+$ # use other tricks discussed in previous section as needed
+$ ruby -ne 'exit if /END/; print if $f==1; $f=1 if /BEGIN/' range.txt
+1234
+6789
+```
+
+* Getting last block
+
+```bash
+$ # reverse input linewise, change the order of REGEXPs, finally reverse again
+$ tac range.txt | ruby -ne '$f=1 if /END/; print if $f==1; exit if /BEGIN/' | tac
+BEGIN
+a
+b
+c
+END
+
+$ # or, save the blocks in a buffer and print the last one alone
+$ # same as: seq 30 | perl -ne 'if(/4/){$f=1; $b=$_; next}
+$ #                     $b.=$_ if $f; $f=0 if /6/; END{print $b}'
+$ # << operator concatenates given string to the variable in-place
+$ seq 30 | ruby -ne '($f=1; $b=$_) && next if /4/;
+                     $b << $_ if $f==1; $f=0 if /6/; END{print $b}'
+24
+25
+26
+```
+
+* Getting blocks based on a counter
+
+```bash
+$ # get only 2nd block
+$ # same as: b=2 perl -ne '$c++ if /4/; if($c==$ENV{b}){print; exit if /6/}'
+$ seq 30 | b=2 ruby -ne 'BEGIN{c=0}; c+=1 if /4/;
+                         c==ENV["b"].to_i && (print; exit if /6/)'
+14
+15
+16
+
+$ # to get all blocks greater than 'b' blocks
+$ seq 30 | b=1 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;
+                         print if $f==1 && c>ENV["b"].to_i; $f=0 if /6/'
+14
+15
+16
+24
+25
+26
+```
+
+* excluding a particular block
+
+```bash
+$ # excludes 2nd block
+$ seq 30 | b=2 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;                                        
+                         print if $f==1 && c!=ENV["b"].to_i; $f=0 if /6/'
+4
+5
+6
+24
+25
+26
+```
+
+* extract block only if matches another string as well
+
+```bash
+$ # string to match inside block: 23
+$ # same as: perl -ne 'if(/BEGIN/){$f=1; $m=0; $b=""}; $m=1 if $f && /23/;
+$ #            $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt 
+$ ruby -ne '($f=1; $m=0; $b="") if /BEGIN/; $m=1 if $f==1 && /23/;
+            $b<<$_ if $f==1; (print $b if $m==1; $f=0) if /END/' range.txt 
+BEGIN
+1234
+6789
+END
+
+$ # line to match inside block: 5 or 25
+$ seq 30 | ruby -ne '($f=1; $m=0; $b="") if /4/; $m=1 if $f==1 && /^2?5$/;
+                     $b<<$_ if $f==1; (print $b if $m==1; $f=0) if /6/'
+4
+5
+6
+24
+25
+26
 ```
 
 
