@@ -35,6 +35,7 @@
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
+    * [Broken blocks](#broken-blocks)
 
 <br>
 
@@ -1849,6 +1850,77 @@ $ seq 30 | ruby -ne '($f=1; $m=0; $b="") if /4/; $m=1 if $f==1 && /^2?5$/;
 24
 25
 26
+```
+
+<br>
+
+#### <a name="broken-blocks"></a>Broken blocks
+
+* If there are blocks with ending *REGEXP* but without corresponding start, earlier techniques used will suffice
+* Consider the modified input file where starting *REGEXP* doesn't have corresponding ending
+
+```bash
+$ cat broken_range.txt
+foo
+BEGIN
+1234
+6789
+END
+bar
+BEGIN
+a
+b
+c
+baz
+
+$ # the file reversing trick comes in handy here as well
+$ tac broken_range.txt | ruby -ne '$f=1 if /END/;
+                         print if $f==1; $f=0 if /BEGIN/' | tac
+BEGIN
+1234
+6789
+END
+```
+
+* But if both kinds of broken blocks are present, for ex:
+
+```bash
+$ cat multiple_broken.txt 
+qqqqqqq
+BEGIN
+foo
+BEGIN
+1234
+6789
+END
+bar
+END
+0-42-1
+BEGIN
+a
+BEGIN
+b
+END
+xyzabc
+```
+
+then use buffers to accumulate the records and print accordingly
+
+```bash
+$ # same as: perl -ne 'if(/BEGIN/){$f=1; $b=$_; next} $b.=$_ if $f;
+$ #            if(/END/){$f=0; print $b if $b; $b=""}' multiple_broken.txt
+$ ruby -ne '($f=1; $b=$_) && next if /BEGIN/; $b << $_ if $f==1;
+            ($f=0; print $b if $b!=""; $b="") if /END/' multiple_broken.txt
+BEGIN
+1234
+6789
+END
+BEGIN
+b
+END
+
+$ # note how buffer is initialized as well as cleared
+$ # on matching beginning/end REGEXPs respectively
 ```
 
 
