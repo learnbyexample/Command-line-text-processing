@@ -998,7 +998,7 @@ $ # without newline at end of line, both \z and \Z will give same result
 ```
 
 * delimiters and quoting
-* quoting from [ruby-doc Percent Strings](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Percent+Strings)
+* from [ruby-doc Percent Strings](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Percent+Strings)
 
 > If you are using “(”, “[”, “{”, “<” you must close it with “)”, “]”, “}”, “>” respectively. You may use most other non-alphanumeric characters for percent string delimiters such as “%”, “|”, “^”, etc.
 
@@ -1334,6 +1334,29 @@ $ # applying another substitution to matched string
 $ # same as: perl -pe 's/"[^"]+"/$&=~s|a|A|gr/ge'
 $ echo '"mango" and "guava"' | ruby -pe 'gsub(/"[^"]+"/){$&.gsub(/a/, "A")}'
 "mAngo" and "guAvA"
+```
+
+* replacing specific occurrence
+
+```bash
+$ # replacing 2nd occurrence, same as: sed 's/:/-/2'
+$ # same as: perl -pe '$c=0; s/:/++$c==2 ? "-" : $&/ge'
+$ echo 'foo:123:bar:baz' | ruby -pe 'c=0; gsub(/:/){(c+=1)==2 ? "-" : $&}'
+foo:123-bar:baz
+$ # or use non-greedy matching, same as: sed 's/and/-/3'
+$ echo 'foo and bar and baz land good' | ruby -pe 'sub(/(and.*?){2}\Kand/, "-")'
+foo and bar and baz l- good
+
+$ # emulating GNU sed's number+g modifier
+$ a='456:foo:123:bar:789:baz
+x:y:z:a:v:xc:gf'
+$ echo "$a" | sed -E 's/:/-/3g'
+456:foo:123-bar-789-baz
+x:y:z-a-v-xc-gf
+$ # same as: perl -pe '$c=0; s/:/++$c<3 ? $& : "-"/ge'
+$ echo "$a" | ruby -pe 'c=0; gsub(/:/){(c+=1)<3 ? $& : "-"}'
+456:foo:123-bar-789-baz
+x:y:z-a-v-xc-gf
 ```
 
 <br>
