@@ -36,6 +36,7 @@
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
+* [Array operations](#array-operations)
 
 <br>
 
@@ -1350,7 +1351,7 @@ foo and bar and baz l- good
 $ # emulating GNU sed's number+g modifier
 $ a='456:foo:123:bar:789:baz
 x:y:z:a:v:xc:gf'
-$ echo "$a" | sed -E 's/:/-/3g'
+$ echo "$a" | sed 's/:/-/3g'
 456:foo:123-bar-789-baz
 x:y:z-a-v-xc-gf
 $ # same as: perl -pe '$c=0; s/:/++$c<3 ? $& : "-"/ge'
@@ -1946,8 +1947,63 @@ $ # note how buffer is initialized as well as cleared
 $ # on matching beginning/end REGEXPs respectively
 ```
 
+<br>
 
+## <a name="array-operations"></a>Array operations
 
+See [ruby-doc Array](https://ruby-doc.org/core-2.5.0/Array.html) for various ways to initialize and methods available
+
+* array slices
+
+```bash
+$ # accessing more than one element in random order
+$ echo 'a b c d' | ruby -lane 'print $F.values_at(0,-1,2) * " "'
+a d c
+
+$ # start and number of elements needed
+$ echo 'a b c d' | ruby -lane 'print $F[0,2] * " "'
+a b
+
+$ # range operator
+$ echo 'a b c d' | ruby -lane 'print $F[1..2] * " "'
+b c
+$ echo 'a b c d' | ruby -lane 'print $F.values_at(-1,1..2) * " "'
+d b c
+$ # rotating elements
+$ echo 'a b c d' | ruby -lane 'print $F.values_at(1..-1,0) * " "'
+b c d a
+
+$ # n elements from start
+$ echo 'a b c d' | ruby -lane 'print $F.take(2) * " "'
+a b
+$ # remaining elements after ignoring n elements from start
+$ echo 'a b c d' | ruby -lane 'print $F.drop(3) * " "'
+d
+```
+
+* filtering array elements based on a condition
+
+```bash
+$ # based on regex matching
+$ s='foo:123:bar:baz'
+$ echo "$s" | ruby -F: -lane 'print $F.select { |s| s =~ /[a-z]/ }'
+["foo", "bar", "baz"]
+$ echo "$s" | ruby -F: -lane 'print $F.select { |s| s =~ /[a-z]/ } * ":"'
+foo:bar:baz
+
+$ # to get index instead of matches
+$ echo "$s" | ruby -F: -lane 'print $F.each_index.select{|i| $F[i] =~ /[a-z]/}'
+[0, 2, 3]
+
+$ # based on numeric value
+$ s='23 756 -983 5'
+$ echo "$s" | ruby -lane 'print $F.select { |s| s.to_i < 100 } * " "'
+23 -983 5
+
+$ # filters only those elements with successful substitution
+$ echo "$s" | ruby -lane 'print $F.select { |s| s.sub!(/3/, "E") } * " "'
+2E -98E
+```
 
 
 
