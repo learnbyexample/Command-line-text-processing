@@ -39,6 +39,7 @@
 * [Array operations](#array-operations)
     * [Filtering](#filtering)
     * [Sorting](#sorting)
+    * [Transforming](#transforming)
 
 <br>
 
@@ -2095,7 +2096,67 @@ ECE     92      Om
 CSE     67      Amy
 ```
 
+<br>
 
+#### <a name="transforming"></a>Transforming
+
+* shuffling elements
+* See also [ruby-doc readlines](https://ruby-doc.org/core-2.5.0/IO.html#method-c-readlines)
+
+```bash
+$ s='23 756 -983 5'
+$ echo "$s" | ruby -lane 'print $F.shuffle * " "'
+5 756 -983 23
+$ echo "$s" | ruby -lane 'print $F.shuffle * " "'
+756 5 23 -983
+
+$ # randomizing file contents
+$ # note that -n/-p option is not used
+$ ruby -e 'print *readlines.shuffle' poem.txt
+And so are you.
+Violets are blue,
+Roses are red,
+Sugar is sweet,
+
+$ # or if shuffle order is known
+$ seq 5 | ruby -e 'print *readlines.values_at(3,1,0,2,4)'
+4
+2
+1
+3
+5
+```
+
+* use `map` to transform every element
+
+```bash
+$ echo '23 756 -983 5' | ruby -lane 'print $F.map {|n| n.to_i ** 2} * " "'
+529 571536 966289 25
+$ echo 'a b c' | ruby -lane 'print $F.map {|s| "\"#{s}\""} * ","'
+"a","b","c"
+$ echo 'a b c' | ruby -lane 'print $F.map {|s| "\"#{s}\"".upcase} * ","'
+"A","B","C"
+
+$ # ASCII int values for each character
+$ echo 'AaBbCc' | ruby -lne 'print $_.split(//).map {|c| c.ord} * " "'
+65 97 66 98 67 99
+
+$ # shuffle each field character wise
+$ s='this is a sample sentence'
+$ echo "$s" | ruby -lane 'print $F.map {|s| s.split(//).shuffle * ""} * " "'
+hsti si a mlepas esencnet
+```
+
+* reverse array
+
+```bash
+$ s='23 756 -983 5'
+$ echo "$s" | ruby -lane 'print $F.reverse * " "'
+5 -983 756 23
+
+$ echo 'foobar' | ruby -lne 'print $_.split(//).reverse * ""'
+raboof
+```
 
 
 <br>
