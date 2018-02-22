@@ -37,6 +37,8 @@
     * [Specific blocks](#specific-blocks)
     * [Broken blocks](#broken-blocks)
 * [Array operations](#array-operations)
+    * [Filtering](#filtering)
+    * [Sorting](#sorting)
 
 <br>
 
@@ -1960,7 +1962,7 @@ $ # accessing more than one element in random order
 $ echo 'a b c d' | ruby -lane 'print $F.values_at(0,-1,2) * " "'
 a d c
 
-$ # start and number of elements needed
+$ # starting index and number of elements needed
 $ echo 'a b c d' | ruby -lane 'print $F[0,2] * " "'
 a b
 
@@ -1981,7 +1983,11 @@ $ echo 'a b c d' | ruby -lane 'print $F.drop(3) * " "'
 d
 ```
 
-* filtering array elements based on a condition
+<br>
+
+#### <a name="filtering"></a>Filtering
+
+* based on a condition
 
 ```bash
 $ # based on regex matching
@@ -2005,6 +2011,89 @@ $ echo "$s" | ruby -lane 'print $F.select { |s| s.sub!(/3/, "E") } * " "'
 2E -98E
 ```
 
+* random element(s)
+
+```bash
+$ s='65 23 756 -983 5'
+$ echo "$s" | ruby -lane 'print $F.sample'
+23
+$ echo "$s" | ruby -lane 'print $F.sample'
+5
+
+$ echo "$s" | ruby -lane 'print $F.sample(2)'
+["-983", "756"]
+```
+
+<br>
+
+#### <a name="sorting"></a>Sorting
+
+```bash
+$ s='foo baz v22 aimed'
+$ # same as: perl -lane 'print join " ", sort @F'
+$ echo "$s" | ruby -lane 'print $F.sort * " "'
+aimed baz foo v22
+
+$ # same as default sort 
+$ echo "$s" | ruby -lane 'print $F.sort { |a,b| a <=> b } * " "'
+aimed baz foo v22
+$ # descending order
+$ # same as: perl -lane 'print join " ", sort {$b cmp $a} @F'
+$ echo "$s" | ruby -lane 'print $F.sort { |a,b| b <=> a } * " "'
+v22 foo baz aimed
+
+$ s='floor bat to dubious four'
+$ # same as: perl -lane 'print join ":",sort {length $a <=> length $b} @F'
+$ echo "$s" | ruby -lane 'print $F.sort_by {|a| a.length} * ":"'
+to:bat:four:floor:dubious
+$ echo "$s" | ruby -lane 'print $F.sort {|a,b| b.length <=> a.length} * ":"'
+dubious:floor:four:bat:to
+```
+
+* sorting characters within word
+
+```bash
+$ echo 'foobar' | ruby -lne 'print $_.split(//).sort * ""'
+abfoor
+
+$ cat words.txt
+bot
+art
+are
+boat
+toe
+flee
+reed
+
+$ # words with characters in ascending order
+$ ruby -lne 'print if $_ == $_.split(//).sort * ""' words.txt
+bot
+art
+
+$ # words with characters in descending order
+$ ruby -lne 'print if $_ == $_.split(//).sort {|a,b| b <=> a} * ""' words.txt
+toe
+reed
+```
+
+* sorting columns based on header
+* See also [ruby-doc Array to Arguments Conversion](https://ruby-doc.org/core-2.5.0/doc/syntax/calling_methods_rdoc.html#label-Array+to+Arguments+Conversion)
+
+```bash
+$ # need to get indexes of order required for header, then use it for all lines
+$ # same as: perl -lane '@i = sort {$F[$a] cmp $F[$b]} 0..$#F if $.==1;
+$ #              print join "\t", @F[@i]' marks.txt
+$ ruby -lane 'idx = $F.each_index.sort {|i,j| $F[i] <=> $F[j]} if $.==1;
+              print $F.values_at(*idx) * "\t"' marks.txt
+Dept    Marks   Name
+ECE     53      Raj
+ECE     72      Joel
+EEE     68      Moi
+CSE     81      Surya
+EEE     59      Tia
+ECE     92      Om
+CSE     67      Amy
+```
 
 
 
