@@ -1,4 +1,4 @@
-[![Join the chat at https://gitter.im/learnbyexample/scripting_course](https://badges.gitter.im/learnbyexample/scripting_course.svg)](https://gitter.im/learnbyexample/scripting_course) [![fundme](https://img.shields.io/badge/support-learnbyexample-brightgreen.svg)](https://www.instamojo.com/learnbyexample/learnbyexample-a6b8f/)
+[![Join the chat at https://gitter.im/learnbyexample/scripting_course](https://badges.gitter.im/learnbyexample/scripting_course.svg)](https://gitter.im/learnbyexample/scripting_course) [![support learnbyexample](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/learnbyexample/donate)
 
 <br>
 
@@ -48,7 +48,7 @@ Possible additions
 
 <br>
 
-[![fundme](https://img.shields.io/badge/support-learnbyexample-brightgreen.svg)](https://www.instamojo.com/learnbyexample/learnbyexample-a6b8f/)
+[![support learnbyexample](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/learnbyexample/donate)
 
 * In case you need to reach me, use [gitter private chat](https://gitter.im/learnbyexample)
     * or mail me at `echo 'yrneaolrknzcyr.arg@tznvy.pbz' | tr 'a-z' 'n-za-m'`
