@@ -40,6 +40,8 @@
     * [Filtering](#filtering)
     * [Sorting](#sorting)
     * [Transforming](#transforming)
+* [Miscellaneous](#miscellaneous)
+    * [split](#split)
 
 <br>
 
@@ -2157,6 +2159,64 @@ $ echo "$s" | ruby -lane 'print $F.reverse * " "'
 $ echo 'foobar' | ruby -lne 'print $_.split(//).reverse * ""'
 raboof
 ```
+
+<br>
+
+## <a name="miscellaneous"></a>Miscellaneous
+
+<br>
+
+#### <a name="split"></a>split
+
+* the `-a` command line option uses `split` and automatically saves the results in `$F` array
+* default separator is `\s+` and also strips whitespace from start/end of string
+* See also [ruby-doc - split](https://ruby-doc.org/core-2.5.0/String.html#method-i-split)
+
+```bash
+$ # specifying maximum number of splits
+$ # same as: perl -lne 'print join ":", split /\s+/,$_,2'
+$ echo 'a 1 b 2 c' | ruby -lne 'print $_.split(/\s+/, 2) * ":"'
+a:1 b 2 c
+
+$ # by default, trailing empty fields are stripped
+$ echo ':123::' | ruby -lne 'print $_.split(/:/) * ","'
+,123
+
+$ # specify a negative count to preserve trailing empty fields
+$ echo ':123::' | ruby -lne 'print $_.split(/:/, -1) * ","'
+,123,,
+
+$ # use string argument for fixed-string split instead of regex
+$ echo 'foo**123**baz' | ruby -lne 'print $_.split("**") * ":"'
+foo:123:baz
+
+$ # to save the separators as well, use capture groups
+$ s='Sample123string54with908numbers'
+$ echo "$s" | ruby -lne 'print $_.split(/(\d+)/) * ":"'
+Sample:123:string:54:with:908:numbers
+```
+
+* single line to multiple line by splitting a column
+
+```bash
+$ cat split.txt
+foo,1:2:5,baz
+wry,4,look
+free,3:8,oh
+
+$ # same as: perl -F, -ane 'print join ",", $F[0],$_,$F[2] for split /:/,$F[1]'
+$ ruby -F, -ane '$F[1].split(/:/).each {|x| print [$F[0],x,$F[2]]*","}' split.txt
+foo,1,baz
+foo,2,baz
+foo,5,baz
+wry,4,look
+free,3,oh
+free,8,oh
+```
+
+
+
+
 
 
 <br>
