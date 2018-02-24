@@ -2031,6 +2031,8 @@ $ echo "$s" | ruby -lane 'print $F.sample(2)'
 
 #### <a name="sorting"></a>Sorting
 
+* [ruby-doc sort](https://ruby-doc.org/core-2.5.0/Array.html#method-i-sort)
+
 ```bash
 $ s='foo baz v22 aimed'
 $ # same as: perl -lane 'print join " ", sort @F'
@@ -2056,7 +2058,7 @@ dubious:floor:four:bat:to
 * sorting characters within word
 
 ```bash
-$ echo 'foobar' | ruby -lne 'print $_.split(//).sort * ""'
+$ echo 'foobar' | ruby -lne 'print $_.chars.sort * ""'
 abfoor
 
 $ cat words.txt
@@ -2069,12 +2071,12 @@ flee
 reed
 
 $ # words with characters in ascending order
-$ ruby -lne 'print if $_ == $_.split(//).sort * ""' words.txt
+$ ruby -lne 'print if $_ == $_.chars.sort * ""' words.txt
 bot
 art
 
 $ # words with characters in descending order
-$ ruby -lne 'print if $_ == $_.split(//).sort {|a,b| b <=> a} * ""' words.txt
+$ ruby -lne 'print if $_ == $_.chars.sort {|a,b| b <=> a} * ""' words.txt
 toe
 reed
 ```
@@ -2096,6 +2098,23 @@ CSE     81      Surya
 EEE     59      Tia
 ECE     92      Om
 CSE     67      Amy
+```
+
+* [ruby-doc uniq](https://ruby-doc.org/core-2.5.0/Array.html#method-i-uniq)
+* order is preserved
+
+```bash
+$ s='3,b,a,c,d,1,d,c,2,3,1,b'
+$ # same as: perl -MList::MoreUtils=uniq -F, -lane 'print join ",",uniq @F'
+$ echo "$s" | ruby -F, -lane 'print $F.uniq * ","'
+3,b,a,c,d,1,2
+
+$ # same as: ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1])'
+$ # suitable for files small enough to fit memory requirements
+$ # note that -n/-p option is not used
+$ ruby -e 'print *readlines.uniq {|s| s.split[1]}' duplicates.txt
+abc  7   4
+food toy ****
 ```
 
 <br>
@@ -2149,14 +2168,17 @@ $ echo "$s" | ruby -lane 'print $F.map {|s| s.split(//).shuffle * ""} * " "'
 hsti si a mlepas esencnet
 ```
 
-* reverse array
+* reverse array/string
 
 ```bash
 $ s='23 756 -983 5'
 $ echo "$s" | ruby -lane 'print $F.reverse * " "'
 5 -983 756 23
 
-$ echo 'foobar' | ruby -lne 'print $_.split(//).reverse * ""'
+$ echo 'foobar' | ruby -lne 'print $_.reverse'
+raboof
+$ # or inplace reverse
+$ echo 'foobar' | ruby -lpe '$_.reverse!'
 raboof
 ```
 
@@ -2181,7 +2203,6 @@ a:1 b 2 c
 $ # by default, trailing empty fields are stripped
 $ echo ':123::' | ruby -lne 'print $_.split(/:/) * ","'
 ,123
-
 $ # specify a negative count to preserve trailing empty fields
 $ echo ':123::' | ruby -lne 'print $_.split(/:/, -1) * ","'
 ,123,,
