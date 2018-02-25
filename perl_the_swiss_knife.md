@@ -1101,14 +1101,14 @@ Execution of -e aborted due to compilation errors.
 $ # e modifier covered later, allows Perl code in replacement section
 $ echo 'foo:123:bar:baz' | perl -pe '$c=0; s/:/++$c==2 ? "-" : $&/ge'
 foo:123-bar:baz
-$ # or use non-greedy and lookbehind(covered later), same as: sed 's/and/-/3'
+$ # or use non-greedy and \K(covered later), same as: sed 's/and/-/3'
 $ echo 'foo and bar and baz land good' | perl -pe 's/(and.*?){2}\Kand/-/'
 foo and bar and baz l- good
 
 $ # emulating GNU sed's number+g modifier
 $ a='456:foo:123:bar:789:baz
 x:y:z:a:v:xc:gf'
-$ echo "$a" | sed -E 's/:/-/3g'
+$ echo "$a" | sed 's/:/-/3g'
 456:foo:123-bar-789-baz
 x:y:z-a-v-xc-gf
 $ echo "$a" | perl -pe '$c=0; s/:/++$c<3 ? $& : "-"/ge'
@@ -1305,9 +1305,8 @@ Today is sunny. Not a bit funny. No doubt you like it too
 Much ado about nothing. He he he
 ```
 
-* variable lookbehind with `\K`
-* useful when positive lookbehind is not a constant length of characters to look up
-    * for ex: quantifiers that can match different number of characters
+* `\K` helps as a workaround for some of the variable-length lookbehind cases
+* See also [stackoverflow - Variable-length lookbehind-assertion alternatives](https://stackoverflow.com/questions/11640447/variable-length-lookbehind-assertion-alternatives-for-regular-expressions)
 
 ```bash
 $ # lookbehind is checking start of line (0 characters) and comma(1 character)
@@ -1421,7 +1420,7 @@ baz 2008-03-24 and 2012-08-12 foo 2016-03-25
 
 * use `(?:` to group regular expressions without capturing it, so this won't be counted for backreference
 * See also
-    * [stackoverflow - what is non-capturing group](https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-what-does-a-question-mark-followed-by-a-colon)
+    * [stackoverflow - what is non-capturing group](https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-what-does-do)
     * [stackoverflow - extract specific fields and key-value pairs](https://stackoverflow.com/questions/46632397/parse-vcf-files-info-field)
 
 ```bash
@@ -1778,6 +1777,7 @@ $ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
             print if $h{$_}' colors_1.txt colors_2.txt
 Blue
 Red
+$ # can also use: perl -ne '!$#ARGV ? $h{$_}=1 : $h{$_} && print'
 
 $ # lines from colors_2.txt not present in colors_1.txt
 $ # same as: grep -vFxf colors_1.txt colors_2.txt
@@ -2646,7 +2646,7 @@ $ echo "$s" | perl -lane 'print join ":",sort {length $a <=> length $b} @F'
 to:bat:four:floor:dubious
 ```
 
-* sorting based on header
+* sorting columns based on header
 
 ```bash
 $ # need to get indexes of order required for header, then use it for all lines
@@ -2677,6 +2677,8 @@ Amy     67      CSE
 
 * [perldoc - How do I sort a hash (optionally by value instead of key)?](https://perldoc.perl.org/perlfaq4.html#How-do-I-sort-a-hash-(optionally-by-value-instead-of-key)%3f)
 * [stackoverflow - sort the keys of a hash by value](https://stackoverflow.com/questions/10901084/how-to-sort-perl-hash-on-values-and-order-the-keys-correspondingly-in-two-array)
+* [stackoverflow - sort only from 2nd field, ignore header](https://stackoverflow.com/questions/48920626/sort-rows-in-csv-file-without-header-first-column)
+* [stackoverflow - sort based on group of lines](https://stackoverflow.com/questions/48925359/sorting-groups-of-lines)
 
 <br>
 
