@@ -43,6 +43,8 @@
 * [Miscellaneous](#miscellaneous)
     * [split](#split)
     * [Fixed width processing](#fixed-width-processing)
+    * [String and file replication](#string-and-file-replication)
+    * [Executing external commands](#executing-external-commands)
 
 <br>
 
@@ -2266,6 +2268,90 @@ $ # same as: perl -lpe 'substr $_, 2, 3, "gleam"'
 $ echo 'b 123 good' | ruby -lpe '$_[2,3] = "gleam"'
 b gleam good
 ```
+
+<br>
+
+#### <a name="string-and-file-replication"></a>String and file replication
+
+```bash
+$ # replicate each line, same as: perl -ne 'print $_ x 2'
+$ seq 2 | ruby -ne 'print $_ * 2'
+1
+1
+2
+2
+
+$ # replicate a string, same as: perl -le 'print "abc" x 5'
+$ ruby -e 'puts "abc" * 5'
+abcabcabcabcabc
+
+$ # for array, same as: perl -le '@x=(3, 2, 1)x2; print join " ",@x'
+$ ruby -e 'x = [3, 2, 1] * 2; puts x * " "'
+3 2 1 3 2 1
+
+$ # replicating file, same as: perl -0777 -ne 'print $_ x 100'
+$ wc -c poem.txt
+65 poem.txt
+$ ruby -0777 -ne 'print $_ * 100' poem.txt | wc -c
+6500
+```
+
+<br>
+
+#### <a name="executing-external-commands"></a>Executing external commands
+
+* External commands can be issued using `system` function
+* Output would be as usual on `stdout` unless redirected while calling the command
+
+```bash
+$ # same as: perl -e 'system("echo Hello World")'
+$ ruby -e 'system("echo Hello World")'
+Hello World
+
+$ ruby -e 'system("wc poem.txt")'
+ 4 13 65 poem.txt
+
+$ ruby -e 'system("seq 10 | paste -sd, > out.txt")'
+$ cat out.txt
+1,2,3,4,5,6,7,8,9,10
+
+$ cat f2
+I bought two bananas and three mangoes
+$ # same as: perl -F, -lane 'system "cat $F[1]"'
+$ echo 'f1,f2,odd.txt' | ruby -F, -lane 'system("cat #{$F[1]}")'
+I bought two bananas and three mangoes
+```
+
+* return value of `system` or global variable `$?` can be used to act upon exit status of command issued
+* see [ruby-doc system](https://ruby-doc.org/core-2.5.0/Kernel.html#method-i-system) for details
+
+```bash
+$ ruby -e 'es=system("ls poem.txt"); puts es'
+poem.txt
+true
+$ ruby -e 'system("ls poem.txt"); puts $?'
+poem.txt
+pid 17005 exit 0
+
+$ ruby -e 'system("ls xyz.txt"); puts $?'
+ls: cannot access 'xyz.txt': No such file or directory
+pid 17059 exit 2
+```
+
+* to save result of external command, use backticks or `%x`
+
+```bash
+$ ruby -e 'lines = `wc -l < poem.txt`; print lines'
+4
+
+$ ruby -e 'nums = %x/seq 3/; print nums'
+1
+2
+3
+```
+
+* See also [stackoverflow - difference between exec, system and %x() or backticks](https://stackoverflow.com/questions/6338908/ruby-difference-between-exec-system-and-x-or-backticks)
+
 
 
 
