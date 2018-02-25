@@ -42,6 +42,7 @@
     * [Transforming](#transforming)
 * [Miscellaneous](#miscellaneous)
     * [split](#split)
+    * [Fixed width processing](#fixed-width-processing)
 
 <br>
 
@@ -2235,8 +2236,36 @@ free,3,oh
 free,8,oh
 ```
 
+<br>
 
+#### <a name="fixed-width-processing"></a>Fixed width processing
 
+* [ruby-doc unpack](https://ruby-doc.org/core-2.5.0/String.html#method-i-unpack)
+
+```bash
+$ # same as: perl -lne '@x = unpack("a1xa3xa4", $_); print $x[0]'
+$ # here 'a' indicates arbitrary binary string
+$ # the number that follows indicates length
+$ # the 'x' indicates characters to ignore, use length after 'x' if needed
+$ # and there are many other formats, see ruby-doc for details
+$ echo 'b 123 good' | ruby -lne 'print $_.unpack("a1xa3xa4")[0]'
+b
+$ echo 'b 123 good' | ruby -lne 'print $_.unpack("a1xa3xa4")[1]'
+123
+$ echo 'b 123 good' | ruby -lne 'print $_.unpack("a1xa3xa4")[2]'
+good
+
+$ # unpack not always needed, simple slicing might help
+$ echo 'b 123 good' | ruby -ne 'puts $_[2,3]'
+123
+$ echo 'b 123 good' | ruby -ne 'puts $_[6,4]'
+good
+
+$ # replacing arbitrary slice
+$ # same as: perl -lpe 'substr $_, 2, 3, "gleam"'
+$ echo 'b 123 good' | ruby -lpe '$_[2,3] = "gleam"'
+b gleam good
+```
 
 
 
