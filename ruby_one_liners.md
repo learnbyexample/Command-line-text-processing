@@ -131,6 +131,10 @@ $ ruby -e 'x=25; y=12; puts x**y'
     * See other chapters for examples of [seq](./miscellaneous.md#seq), [paste](./restructure_text.md#paste), etc
 
 ```bash
+$ # sample stdin data
+$ seq 10 | paste -sd,
+1,2,3,4,5,6,7,8,9,10
+
 $ # change only first ',' to ' : '
 $ # same as: perl -pe 's/,/ : /'
 $ seq 10 | paste -sd, | ruby -pe 'sub(/,/, " : ")'
@@ -330,6 +334,7 @@ $ #                  print if index($_, $ENV{s}) == $pos' eqns.txt
 $ s='a+b' ruby -ne 'pos = $_.length - ENV["s"].length - 1;
                     print if $_.index(ENV["s"]) == pos' eqns.txt
 i*(t+9-g)/8,4-a+b
+$ # .size can also be used instead of .length
 ```
 
 <br>
@@ -367,15 +372,18 @@ And so are you.
 $ # same as: perl -ne 'if($.==234){print; exit}'
 $ seq 14323 14563435 | ruby -ne 'if $.==234 then print; exit end'
 14556
+$ # can also group the commands in ()
+$ seq 14323 14563435 | ruby -ne '(print; exit) if $.==234'
+14556
 
 $ # mimicking head command
-$ # same as: head -n3 or sed '3q' or perl -pe 'exit if $.>3'
+$ # same as: head -n3 and sed '3q' or perl -pe 'exit if $.>3'
 $ seq 14 25 | ruby -pe 'exit if $.>3'
 14
 15
 16
 
-$ # same as: sed '3Q' or perl -pe 'exit if $.==3'
+$ # same as: sed '3Q' and perl -pe 'exit if $.==3'
 $ seq 14 25 | ruby -pe 'exit if $.==3'
 14
 15
@@ -1034,6 +1042,7 @@ $ echo '42,789' | ruby -lpe 'gsub(/\d+/, "\"\\0\"")'
 "42","789"
 $ echo '42,789' | ruby -lpe 'gsub(/\d+/, %q/"\0"/)'
 "42","789"
+$ # \& can also be used instead of \0
 ```
 
 <br>
@@ -1318,7 +1327,7 @@ quoting from [ruby-doc gsub](https://ruby-doc.org/core-2.5.0/String.html#method-
 >In the block form, the current match string is passed in as a parameter, and variables such as $1, $2, $`, $&, and $' will be set appropriately. The value returned by the block will be substituted for the match on each call.
 
 * `$1`, `$2`, etc are equivalent of `\1`, `\2`, etc
-* `$&` is equivalent of `\0` - i.e the entire matched string
+* `$&` is equivalent of `\&`(or `\0`) - i.e the entire matched string
 
 
 ```bash
