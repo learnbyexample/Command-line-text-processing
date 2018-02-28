@@ -104,7 +104,7 @@ $ # same as: perl -e 'print "Hello Perl\n"'
 $ ruby -e 'print "Hello Ruby\n"'
 Hello Ruby
 
-$ # multiple commands can be issued separated by ;
+$ # multiple statements can be issued separated by ;
 $ # puts adds newline character if input doesn't end with a newline
 $ # similar to: perl -E '$x=25; $y=12; say $x**$y'
 $ ruby -e 'x=25; y=12; puts x**y'
@@ -372,7 +372,7 @@ And so are you.
 $ # same as: perl -ne 'if($.==234){print; exit}'
 $ seq 14323 14563435 | ruby -ne 'if $.==234 then print; exit end'
 14556
-$ # can also group the commands in ()
+$ # can also group the statements in ()
 $ seq 14323 14563435 | ruby -ne '(print; exit) if $.==234'
 14556
 
@@ -414,8 +414,10 @@ $ seq 14 25 | ruby -ne 'print if $.>=10'
 
 * `-a` option will auto-split each input record based on one or more continuous white-space
     * similar to default behavior in `awk` and same as `perl -a`
+    * See also [split](#split) section
 * Special variable array `$F` will contain all the elements, indexing starts from 0
     * negative indexing is also supported, `-1` gives last element, `-2` gives last-but-one and so on
+    * see [Array operations](#array-operations) section for examples on array usage
 
 ```bash
 $ cat fruits.txt
@@ -1056,6 +1058,7 @@ $ # \& can also be used instead of \0
 
 ```bash
 $ # same as: perl -ne 'print if /^[[:xdigit:]]+$/'
+$ # can also use: ruby -lne 'print if !/\H/'
 $ printf '128A\n34\nfe32\nfoo1\nbar\n' | ruby -ne 'print if /^\h+$/'
 128A
 34
@@ -1215,7 +1218,7 @@ $ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(and.*?){2}\Kand/, "-")'
 ```
 
 * note that `\K` behaves differently than `perl` or `vim`'s `\zs` when it comes to consecutive matches with empty string in between
-    * `\K` is not mentioned in documentation, so not sure if this is intended behavior or a bug
+    * `\K` is [not mentioned in documentation](https://bugs.ruby-lang.org/issues/14500), so not sure if this is intended behavior or a bug
 
 ```bash
 $ echo ',,' | perl -pe 's/,\K/foo/g'
@@ -1243,9 +1246,9 @@ $ echo '"foo","12,34","good"' | ruby -F'(?<="),(?=")' -lane 'print $F[1]'
 
 ```bash
 $ s='baz 2008-03-24 and 2012-08-12 foo 2016-03-25'
-$ # same as: perl -pe 's/(\d{4}-\d{2}-\d{2}) and (?1)//'
-$ echo "$s" | ruby -pe 'sub(/(\d{4}-\d{2}-\d{2}) and \g<1>/, "")'
-baz  foo 2016-03-25
+$ # same as: perl -pe 's/(\d{4}-\d{2}-\d{2}) and (?1)/XYZ/'
+$ echo "$s" | ruby -pe 'sub(/(\d{4}-\d{2}-\d{2}) and \g<1>/, "XYZ")'
+baz XYZ foo 2016-03-25
 
 $ # using \1 won't work as the two dates are different
 $ echo "$s" | ruby -pe 'sub(/(\d{4}-\d{2}-\d{2}) and \1/, "")'
@@ -1268,6 +1271,7 @@ co1d fo_obar
 
 * named capture groups `(?<name>` or `(?'name'`
 * for backreference, use `\k<name>`
+* both named capture groups and normal capture groups cannot be used at the same time
 
 ```bash
 $ # same as: perl -pe 's/(?<fw>\w+) (?<sw>\w+)/$+{sw} $+{fw}/'
@@ -1340,13 +1344,13 @@ $ # same as: perl -pe 's/\d+/++$c/ge'
 $ echo '4 and 10 foo 57' | ruby -pe 'BEGIN{c=0}; gsub(/\d+/){c+=1}'
 1 and 2 foo 3
 
+$ # replace with string length, same as: perl -pe 's/\w+/length($&)/ge'
+$ echo 'food:12:explain:789' | ruby -pe 'gsub(/\w+/){$&.length}'
+4:2:7:3
+
 $ # formatting string, same as: perl -lpe 's/[^-]+/sprintf "%04s", $&/ge'
 $ echo 'a1-2-deed' | ruby -lpe 'gsub(/[^-]+/){ $&.rjust(4, "0") }'
 00a1-0002-deed
-
-$ # calling a function, same as: perl -pe 's/\w+/length($&)/ge'
-$ echo 'food:12:explain:789' | ruby -pe 'gsub(/\w+/){$&.length}'
-4:2:7:3
 
 $ # applying another substitution to matched string
 $ # same as: perl -pe 's/"[^"]+"/$&=~s|a|A|gr/ge'
