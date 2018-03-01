@@ -32,6 +32,7 @@
     * [Line number matching](#line-number-matching)
 * [Creating new fields](#creating-new-fields)
 * [Dealing with duplicates](#dealing-with-duplicates)
+    * [using uniq method](#using-uniq-method)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
     * [Specific blocks](#specific-blocks)
@@ -1456,6 +1457,7 @@ White
 
 ```bash
 $ # common lines
+$ # note that all duplicates matching in second file would get printed
 $ # same as: perl -ne 'if(!$#ARGV){$h{$_}=1; next}
 $ #            print if $h{$_}' colors_1.txt colors_2.txt
 $ ruby -rset -ne 'BEGIN{s=Set.new}; s.add($_) && next if ARGV.length==1;
@@ -1470,8 +1472,44 @@ Black
 Green
 White
 
-$ # next - to skip rest of code as long as first file is being processed
-$ # can also use: ARGV.length==1 ? s.add($_) : s.include?($_) && print
+$ # next - to skip rest of code and process next input line
+$ # here used to skip rest of code as long as first file is being processed
+$ # alternate: ARGV.length==1 ? s.add($_) : s.include?($_) && print
+```
+
+alternate solution by using set operations available for arrays
+
+* [ruby-doc ARGF](https://ruby-doc.org/core-2.5.0/ARGF.html) filehandle allows to read from filename arguments supplied to script
+    * if filename arguments are not present, it would act upon stdin
+* `STDIN` filehandle allows to read from stdin
+* `readlines` method allows to read all the lines as an array
+    * if filehandle is not specified, default is ARGF
+* some comparison notes
+    * both files will get saved as array in memory here, while previous solution would save only first file
+    * duplicates would get removed here
+    * likely to be faster compared to previous solution
+
+```bash
+$ # note that -n/-p options are not used
+$ # and puts is helpful here as record separator is newline character
+
+$ # common lines, output order is based on array to left of & operator
+$ ruby -e 'f1=STDIN.readlines; f2=readlines;
+           puts f1 & f2' <colors_1.txt colors_2.txt
+Blue
+Red
+
+$ # lines from colors_2.txt not present in colors_1.txt
+$ ruby -e 'f1=STDIN.readlines; f2=readlines;
+           puts f2 - f1' <colors_1.txt colors_2.txt
+Black
+Green
+White
+
+$ # for union, use either of these
+$ # ruby -e 'f1=STDIN.readlines; f2=readlines;
+$ #          puts f1 | f2' <colors_1.txt colors_2.txt
+$ # ruby -e 'puts readlines.uniq' colors_1.txt colors_2.txt
 ```
 
 <br>
@@ -1596,6 +1634,7 @@ foo,bar,123,baz,,,42
 ```
 
 * adding a field based on existing fields
+* See [ruby-doc Percent Strings](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Percent+Strings) for details on `%w`
 
 ```bash
 $ # adding a new 'Grade' field
@@ -1709,6 +1748,33 @@ good toy ****
 $ # only unique lines based on 3rd column
 $ ruby -ane 'BEGIN{h=Hash.new(0)}; ARGV.length==1 ? h[$F[2]]+=1 :
               h[$F[2]]==1 && print' duplicates.txt duplicates.txt
+test toy 123
+```
+
+<br>
+
+#### <a name="using-uniq-method"></a>using uniq method
+
+* [ruby-doc uniq](https://ruby-doc.org/core-2.5.0/Array.html#method-i-uniq)
+* original order is maintained
+
+```bash
+$ # same as: ruby -rset -ne 'BEGIN{s=Set.new}; print if s.add?($_)'
+$ ruby -e 'puts readlines.uniq' duplicates.txt
+abc  7   4
+food toy ****
+test toy 123
+good toy ****
+
+$ # same as: ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1])'
+$ ruby -e 'puts readlines.uniq {|s| s.split[1]}' duplicates.txt
+abc  7   4
+food toy ****
+
+$ # same as: ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1..2])'
+$ ruby -e 'puts readlines.uniq {|s| s.split[1..2]}' duplicates.txt
+abc  7   4
+food toy ****
 test toy 123
 ```
 
@@ -2128,7 +2194,7 @@ $ echo "$s" | ruby -F, -lane 'print $F.uniq * ","'
 $ # same as: ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1])'
 $ # suitable for files small enough to fit memory requirements
 $ # note that -n/-p option is not used
-$ ruby -e 'print *readlines.uniq {|s| s.split[1]}' duplicates.txt
+$ ruby -e 'puts readlines.uniq {|s| s.split[1]}' duplicates.txt
 abc  7   4
 food toy ****
 ```
