@@ -1482,7 +1482,7 @@ alternate solution by using set operations available for arrays
 * [ruby-doc ARGF](https://ruby-doc.org/core-2.5.0/ARGF.html) filehandle allows to read from filename arguments supplied to script
     * if filename arguments are not present, it would act upon stdin
 * `STDIN` filehandle allows to read from stdin
-* `readlines` method allows to read all the lines as an array
+* [ruby-doc readlines](https://ruby-doc.org/core-2.5.0/IO.html#method-c-readlines) method allows to read all the lines as an array
     * if filehandle is not specified, default is ARGF
 * some comparison notes
     * both files will get saved as array in memory here, while previous solution would save only first file
@@ -1604,6 +1604,8 @@ $ # line from fruits.txt is saved first as STDIN.gets will also set $_
 $ <nums.txt ruby -ne 'ln=$_; print ln if STDIN.gets.to_i>0' fruits.txt
 fruit   qty
 banana  31
+$ # can also use: 
+$ # ruby -e 'STDIN.readlines.zip(readlines).each {|a| puts a[1] if a[0].to_i>0}'
 ```
 
 For syntax and implementation details, see
@@ -1939,7 +1941,7 @@ $ seq 30 | b=2 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;
 26
 ```
 
-* extract block only if matches another string as well
+* extract block only if it matches another string as well
 
 ```bash
 $ # string to match inside block: 23
@@ -2040,23 +2042,49 @@ $ # on matching beginning/end REGEXPs respectively
 
 See [ruby-doc Array](https://ruby-doc.org/core-2.5.0/Array.html) for various ways to initialize and methods available
 
+* initialization
+
+```bash
+$ # as comma separated values, indexing starts at 0
+$ ruby -le 'sq = [1, 4, 9, 16]; print sq[2]'
+9
+$ ruby -le 'a = [123, "foo", "baz789"]; print a[1]'
+foo
+$ # -ve indexing, -1 for last element, -2 for second last, etc
+$ ruby -le 'foo = [2, "baz", ["a", "b"]]; print foo[-1]'
+["a", "b"]
+
+$ # variables can be used, double quoted string will interpolate
+$ ruby -le 'a=5; b=["a", "b"]; c=[a, 789, b]; print c'
+[5, 789, ["a", "b"]]
+$ ruby -le 'c=[89, "a\nb"]; print c[-1]'
+a
+b
+
+$ # %w allows space separated string values, no interpolation
+$ ruby -le 'b = %w[123 foo baz789]; print b[1]'
+foo
+$ ruby -le 's = %w[foo "baz" "a\nb"]; print s[-1]'
+"a\nb"
+```
+
 * array slices
+* See also [ruby-doc Array to Arguments Conversion](https://ruby-doc.org/core-2.5.0/doc/syntax/calling_methods_rdoc.html#label-Array+to+Arguments+Conversion)
 
 ```bash
 $ # accessing more than one element in random order
 $ echo 'a b c d' | ruby -lane 'print $F.values_at(0,-1,2) * " "'
 a d c
+$ echo 'a b c d' | ruby -lane 'i=[0, -1, 2]; print $F.values_at(*i) * " "'
+a d c
 
 $ # starting index and number of elements needed
-$ echo 'a b c d' | ruby -lane 'print $F[0,2] * " "'
-a b
+$ echo 'a b c d' | ruby -lane 'print $F[0,3] * " "'
+a b c
 
 $ # range operator
 $ echo 'a b c d' | ruby -lane 'print $F[1..2] * " "'
 b c
-$ echo 'a b c d' | ruby -lane 'print $F.values_at(-1,1..2) * " "'
-d b c
-$ # rotating elements
 $ echo 'a b c d' | ruby -lane 'print $F.values_at(1..-1,0) * " "'
 b c d a
 
@@ -2068,6 +2096,26 @@ $ echo 'a b c d' | ruby -lane 'print $F.drop(3) * " "'
 d
 ```
 
+* looping
+
+```bash
+$ # by element value
+$ # can also use range here: ruby -e '(1..4).each {|n| puts n*2}'
+$ ruby -e 'nums=[1, 2, 3, 4]; nums.each {|n| puts n*2}'
+2
+4
+6
+8
+
+$ # by index
+$ ruby -e 'books=%w[Elantris Martian Dune Alchemist]
+           books.each_index {|i| puts "#{i+1}) #{books[i]}"}'
+1) Elantris
+2) Martian
+3) Dune
+4) Alchemist
+```
+
 <br>
 
 #### <a name="filtering"></a>Filtering
@@ -2077,8 +2125,6 @@ d
 ```bash
 $ # based on regex matching
 $ s='foo:123:bar:baz'
-$ echo "$s" | ruby -F: -lane 'print $F.select { |s| s =~ /[a-z]/ }'
-["foo", "bar", "baz"]
 $ echo "$s" | ruby -F: -lane 'print $F.select { |s| s =~ /[a-z]/ } * ":"'
 foo:bar:baz
 
@@ -2094,6 +2140,8 @@ $ echo "$s" | ruby -lane 'print $F.select { |s| s.to_i < 100 } * " "'
 $ # filters only those elements with successful substitution
 $ echo "$s" | ruby -lane 'print $F.select { |s| s.sub!(/3/, "E") } * " "'
 2E -98E
+
+$ # for opposite, either use negated condition or use reject instead of select
 ```
 
 * random element(s)
@@ -2114,6 +2162,7 @@ $ echo "$s" | ruby -lane 'print $F.sample(2)'
 #### <a name="sorting"></a>Sorting
 
 * [ruby-doc sort](https://ruby-doc.org/core-2.5.0/Array.html#method-i-sort)
+* See also [stackoverflow What does map(&:name) mean in Ruby?](https://stackoverflow.com/questions/1217088/what-does-mapname-mean-in-ruby) for explanation on `&:`
 
 ```bash
 $ s='foo baz v22 aimed'
@@ -2130,7 +2179,7 @@ $ echo "$s" | ruby -lane 'print $F.sort { |a,b| b <=> a } * " "'
 v22 foo baz aimed
 
 $ s='floor bat to dubious four'
-$ # same as: perl -lane 'print join ":",sort {length $a <=> length $b} @F'
+$ # can also use: ruby -lane 'print $F.sort_by(&:length) * ":"'
 $ echo "$s" | ruby -lane 'print $F.sort_by {|a| a.length} * ":"'
 to:bat:four:floor:dubious
 $ echo "$s" | ruby -lane 'print $F.sort {|a,b| b.length <=> a.length} * ":"'
@@ -2138,6 +2187,7 @@ dubious:floor:four:bat:to
 ```
 
 * sorting characters within word
+* `chars` method returns array with individual characters
 
 ```bash
 $ echo 'foobar' | ruby -lne 'print $_.chars.sort * ""'
@@ -2153,6 +2203,7 @@ flee
 reed
 
 $ # words with characters in ascending order
+$ # can also use: ruby -lne 'print if $_.chars == $_.chars.sort' words.txt
 $ ruby -lne 'print if $_ == $_.chars.sort * ""' words.txt
 bot
 art
@@ -2164,7 +2215,6 @@ reed
 ```
 
 * sorting columns based on header
-* See also [ruby-doc Array to Arguments Conversion](https://ruby-doc.org/core-2.5.0/doc/syntax/calling_methods_rdoc.html#label-Array+to+Arguments+Conversion)
 
 ```bash
 $ # need to get indexes of order required for header, then use it for all lines
@@ -2192,7 +2242,6 @@ $ echo "$s" | ruby -F, -lane 'print $F.uniq * ","'
 3,b,a,c,d,1,2
 
 $ # same as: ruby -rset -ane 'BEGIN{s=Set.new}; print if s.add?($F[1])'
-$ # suitable for files small enough to fit memory requirements
 $ # note that -n/-p option is not used
 $ ruby -e 'puts readlines.uniq {|s| s.split[1]}' duplicates.txt
 abc  7   4
@@ -2204,7 +2253,6 @@ food toy ****
 #### <a name="transforming"></a>Transforming
 
 * shuffling elements
-* See also [ruby-doc readlines](https://ruby-doc.org/core-2.5.0/IO.html#method-c-readlines)
 
 ```bash
 $ s='23 756 -983 5'
@@ -2215,14 +2263,14 @@ $ echo "$s" | ruby -lane 'print $F.shuffle * " "'
 
 $ # randomizing file contents
 $ # note that -n/-p option is not used
-$ ruby -e 'print *readlines.shuffle' poem.txt
+$ ruby -e 'puts readlines.shuffle' poem.txt
 And so are you.
 Violets are blue,
 Roses are red,
 Sugar is sweet,
 
 $ # or if shuffle order is known
-$ seq 5 | ruby -e 'print *readlines.values_at(3,1,0,2,4)'
+$ seq 5 | ruby -e 'puts readlines.values_at(3,1,0,2,4)'
 4
 2
 1
@@ -2231,22 +2279,23 @@ $ seq 5 | ruby -e 'print *readlines.values_at(3,1,0,2,4)'
 ```
 
 * use `map` to transform every element
+* See also [stackoverflow What does map(&:name) mean in Ruby?](https://stackoverflow.com/questions/1217088/what-does-mapname-mean-in-ruby) for explanation on `&:`
 
 ```bash
 $ echo '23 756 -983 5' | ruby -lane 'print $F.map {|n| n.to_i ** 2} * " "'
 529 571536 966289 25
-$ echo 'a b c' | ruby -lane 'print $F.map {|s| "\"#{s}\""} * ","'
+$ echo 'a b c' | ruby -lane 'print $F.map {|s| %Q/"#{s}"/} * ","'
 "a","b","c"
-$ echo 'a b c' | ruby -lane 'print $F.map {|s| "\"#{s}\"".upcase} * ","'
+$ echo 'a b c' | ruby -lane 'print $F.map {|s| %Q/"#{s}"/.upcase} * ","'
 "A","B","C"
 
 $ # ASCII int values for each character
-$ echo 'AaBbCc' | ruby -lne 'print $_.split(//).map {|c| c.ord} * " "'
+$ echo 'AaBbCc' | ruby -lne 'print $_.chars.map(&:ord) * " "'
 65 97 66 98 67 99
 
 $ # shuffle each field character wise
 $ s='this is a sample sentence'
-$ echo "$s" | ruby -lane 'print $F.map {|s| s.split(//).shuffle * ""} * " "'
+$ echo "$s" | ruby -lane 'print $F.map {|s| s.chars.shuffle * ""} * " "'
 hsti si a mlepas esencnet
 ```
 
