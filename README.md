@@ -4,7 +4,9 @@
 
 # <a name="command-line-text-processing"></a>Command Line Text Processing
 
-Work still in progress, stay tuned :)
+Learn about various commands available for common and exotic text processing needs. Examples have been tested on GNU/Linux - there'd be syntax/feature variations with other distributions, consult their respective `man` pages for details.
+
+:warning: :construction: Work in progress, stay tuned...
 
 <br>
 
@@ -86,7 +88,6 @@ Includes only completed chapters
 * [unix.stackexchange](https://unix.stackexchange.com/) and [stackoverflow](https://stackoverflow.com/) - for getting answers to pertinent questions as well as sharpening skills by understanding and answering questions
 * Forums like [Linux users](https://www.linkedin.com/groups/65688), [/r/commandline/](https://www.reddit.com/r/commandline/), [/r/linux/](https://www.reddit.com/r/linux/), [/r/ruby/](https://www.reddit.com/r/ruby/), [news.ycombinator](https://news.ycombinator.com/news), [devup](http://devup.in/) and others for valuable feedback (especially spotting mistakes) and encouragement
 * See [wikipedia entry 'Roses Are Red'](https://en.wikipedia.org/wiki/Roses_Are_Red) for `poem.txt` used as sample text input file
-* [shields.io](https://shields.io/) for the support logo
 
 <br>
 
