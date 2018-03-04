@@ -46,6 +46,7 @@
     * [Fixed width processing](#fixed-width-processing)
     * [String and file replication](#string-and-file-replication)
     * [Executing external commands](#executing-external-commands)
+* [Further Reading](#further-reading)
 
 <br>
 
@@ -2364,6 +2365,8 @@ foo,5,baz
 wry,4,look
 free,3,oh
 free,8,oh
+$ # can also use scan here: 
+$ # ruby -F, -ane '$F[1].scan(/[^:]+/) {|x| print [$F[0],x,$F[2]]*","}'
 ```
 
 <br>
@@ -2413,9 +2416,11 @@ $ # replicate a string, same as: perl -le 'print "abc" x 5'
 $ ruby -e 'puts "abc" * 5'
 abcabcabcabcabc
 
-$ # for array, same as: perl -le '@x=(3, 2, 1)x2; print join " ",@x'
-$ ruby -e 'x = [3, 2, 1] * 2; puts x * " "'
-3 2 1 3 2 1
+$ # works for array too, but be careful with mutable elements
+$ ruby -le 'x = [3, 2, 1] * 2; print x'
+[3, 2, 1, 3, 2, 1]
+$ ruby -le 'x = [3, 2, [1, 7]] * 2; x[2][0]="a"; print x'
+[3, 2, ["a", 7], 3, 2, ["a", 7]]
 
 $ # replicating file, same as: perl -0777 -ne 'print $_ x 100'
 $ wc -c poem.txt
@@ -2480,13 +2485,24 @@ $ ruby -e 'nums = %x/seq 3/; print nums'
 
 * See also [stackoverflow - difference between exec, system and %x() or backticks](https://stackoverflow.com/questions/6338908/ruby-difference-between-exec-system-and-x-or-backticks)
 
-
-
-
 <br>
 
-<br>
+## <a name="further-reading"></a>Further Reading
 
-<br>
+* Manual and related
+    * [ruby-lang documentation](https://www.ruby-lang.org/en/documentation/) - manuals, tutorials and references
+    * [ruby-lang - faqs](https://www.ruby-lang.org/en/documentation/faq/)
+    * [ruby-lang - quickstart](https://www.ruby-lang.org/en/documentation/quickstart/)
+    * [ruby-lang - To Ruby From Perl](https://www.ruby-lang.org/en/documentation/ruby-from-other-languages/to-ruby-from-perl/)
+    * [rubular - Ruby regular expression editor](http://rubular.com/)
+* Tutorials and Q&A
+    * [Smooth Ruby One-Liners](https://dev.to/rpalo/smooth-ruby-one-liners-154) - simple intro to ruby one-liners
+    * [Ruby one-liners](http://benoithamelin.tumblr.com/ruby1line) based on [awk one-liners](http://www.pement.org/awk/awk1line.txt)
+    * [Ruby Tricks, Idiomatic Ruby, Refactorings and Best Practices](https://franzejr.github.io/best-ruby/index.html)
+    * [freecodecamp - learning Ruby](https://medium.freecodecamp.org/learning-ruby-from-zero-to-hero-90ad4eecc82d)
+    * [regex FAQ on SO](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
+* Alternatives
+    * [bioruby](https://github.com/bioruby/bioruby)
+    * [perl](https://perldoc.perl.org/)
+    * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
 
-*More to come*
