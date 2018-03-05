@@ -2079,28 +2079,28 @@ a d c
 $ echo 'a b c d' | ruby -lane 'i=[0, -1, 2]; print $F.values_at(*i) * " "'
 a d c
 
-$ # starting index and number of elements needed
+$ # starting index and number of elements needed from that index
 $ echo 'a b c d' | ruby -lane 'print $F[0,3] * " "'
 a b c
+$ # range operator, arguments are start/end indexes
+$ echo 'a b c d' | ruby -lane 'print $F[1..3] * " "'
+b c d
 
-$ # range operator
-$ echo 'a b c d' | ruby -lane 'print $F[1..2] * " "'
-b c
-$ echo 'a b c d' | ruby -lane 'print $F.values_at(1..-1,0) * " "'
-b c d a
-
-$ # n elements from start
+$ # n elements from start, can also use 'first' method instead of 'take'
 $ echo 'a b c d' | ruby -lane 'print $F.take(2) * " "'
 a b
 $ # remaining elements after ignoring n elements from start
 $ echo 'a b c d' | ruby -lane 'print $F.drop(3) * " "'
 d
+$ # n elements from end
+$ echo 'a b c d' | ruby -lane 'print $F.last(3) * " "'
+b c d
 ```
 
 * looping
 
 ```bash
-$ # by element value
+$ # by element value, use 'reverse_each' to iterate in reversed order
 $ # can also use range here: ruby -e '(1..4).each {|n| puts n*2}'
 $ ruby -e 'nums=[1, 2, 3, 4]; nums.each {|n| puts n*2}'
 2
@@ -2249,6 +2249,30 @@ abc  7   4
 food toy ****
 ```
 
+* max/min values
+
+```bash
+$ # if numeric array is constructed from string input
+$ echo '34,17,6' | ruby -F, -lane 'print $F.max {|a,b| a.to_i <=> b.to_i}'
+34
+$ # or convert numeric array first, 'map' is covered in next section
+$ echo '34,17,6' | ruby -F, -lane 'print $F.map(&:to_i).max'
+34
+$ echo '23.5,42,-36' | ruby -F, -lane 'puts $F.map(&:to_f).max'
+42.0
+
+$ # string comparison is default
+$ s='floor bat to dubious four'
+$ echo "$s" | ruby -lane 'print $F.min'
+bat
+
+$ # can also get max/min 'n' elements
+$ echo "$s" | ruby -lane 'print $F.max(2)'
+["to", "four"]
+$ echo "$s" | ruby -lane 'print $F.min(3) {|a,b| a.size <=> b.size}'
+["to", "bat", "four"]
+```
+
 <br>
 
 #### <a name="transforming"></a>Transforming
@@ -2294,6 +2318,9 @@ $ # ASCII int values for each character
 $ echo 'AaBbCc' | ruby -lne 'print $_.chars.map(&:ord) * " "'
 65 97 66 98 67 99
 
+$ echo '34,17,6' | ruby -F, -lane 'puts $F.map(&:to_i).sum'
+57
+
 $ # shuffle each field character wise
 $ s='this is a sample sentence'
 $ echo "$s" | ruby -lane 'print $F.map {|s| s.chars.shuffle * ""} * " "'
@@ -2313,6 +2340,10 @@ $ # or inplace reverse
 $ echo 'foobar' | ruby -lpe '$_.reverse!'
 raboof
 ```
+
+* See also [ruby-doc Enumerable](https://ruby-doc.org/core-2.5.0/Enumerable.html) for more methods like `inject`
+
+#### 
 
 <br>
 
