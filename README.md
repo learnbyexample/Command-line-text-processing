@@ -18,6 +18,7 @@ Learn about various commands available for common and exotic text processing nee
 * [GNU sed](./gnu_sed.md)
 * [GNU awk](./gnu_awk.md)
 * [Perl the swiss knife](./perl_the_swiss_knife.md)
+* [Ruby one liners](./ruby_one_liners.md)
 * [Sorting stuff](./sorting_stuff.md)
     * sort, uniq, comm, shuf
 * [Restructure text](./restructure_text.md)
@@ -29,7 +30,6 @@ Learn about various commands available for common and exotic text processing nee
 
 Rough drafts
 
-* [Ruby one liners](./ruby_one_liners.md)
 * [Wheres my file](./wheres_my_file.md)
 * [Whats the difference](./whats_the_difference.md)
 
