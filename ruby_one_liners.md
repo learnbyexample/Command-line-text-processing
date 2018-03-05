@@ -672,12 +672,12 @@ $ printf "$s" | ruby -0040 -l -ne 'print if /a/'
 a sample 
 ```
 
-* `-0` option used without argument will use the ASCII NUL character as input record separator 
+* `-0` option used without argument will use the ASCII NUL character as input record separator
 * `-0777` will cause entire file to be slurped
 
 ```bash
 $ printf 'foo\0bar\0' | cat -A
-foo^@bar^@$ 
+foo^@bar^@$
 $ # same as: perl -l -0 -ne 'print'
 $ # could be golfed to: ruby -l0pe ''
 $ printf 'foo\0bar\0' | ruby -l -0 -ne 'print'
@@ -749,7 +749,7 @@ Much ado about nothing. He he he
 * multi-character separator
 
 ```bash
-$ cat report.log 
+$ cat report.log
 blah blah
 Error: something went wrong
 more blah
@@ -851,7 +851,7 @@ $ seq 6 | ruby -lpe '$\ = $.%3!=0 ? "-" : "\n"'
     * See [ruby-doc Global variables](https://ruby-doc.org/core-2.5.0/doc/syntax/assignment_rdoc.html#label-Global+Variables) for syntax details
 
 ```bash
-$ cat poem.txt 
+$ cat poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
@@ -875,7 +875,7 @@ Roses are red,
 Consider this sample input file
 
 ```bash
-$ cat range.txt 
+$ cat range.txt
 foo
 BEGIN
 1234
@@ -946,7 +946,7 @@ a
 ```bash
 $ # newline character gets replaced too as shown by shell prompt
 $ echo 'foo:123:bar:789' | ruby -pe 'sub(/[^:]+$/, "xyz")'
-foo:123:bar:xyz$ 
+foo:123:bar:xyz$
 $ # simple workaround is to use -l option
 $ echo 'foo:123:bar:789' | ruby -lpe 'sub(/[^:]+$/, "xyz")'
 foo:123:bar:xyz
@@ -1605,7 +1605,7 @@ $ # line from fruits.txt is saved first as STDIN.gets will also set $_
 $ <nums.txt ruby -ne 'ln=$_; print ln if STDIN.gets.to_i>0' fruits.txt
 fruit   qty
 banana  31
-$ # can also use: 
+$ # can also use:
 $ # ruby -e 'STDIN.readlines.zip(readlines).each {|a| puts a[1] if a[0].to_i>0}'
 ```
 
@@ -1795,7 +1795,7 @@ test toy 123
 Consider the below sample input file, which doesn't have any unbroken blocks (i.e **BEGIN** and **END** are always present in pairs)
 
 ```bash
-$ cat range.txt 
+$ cat range.txt
 foo
 BEGIN
 1234
@@ -1932,7 +1932,7 @@ $ seq 30 | b=1 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;
 
 ```bash
 $ # excludes 2nd block
-$ seq 30 | b=2 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;                                        
+$ seq 30 | b=2 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;
                          print if $f==1 && c!=ENV["b"].to_i; $f=0 if /6/'
 4
 5
@@ -1947,9 +1947,9 @@ $ seq 30 | b=2 ruby -ne 'BEGIN{c=0}; ($f=1; c+=1) if /4/;
 ```bash
 $ # string to match inside block: 23
 $ # same as: perl -ne 'if(/BEGIN/){$f=1; $m=0; $b=""}; $m=1 if $f && /23/;
-$ #            $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt 
+$ #            $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt
 $ ruby -ne '($f=1; $m=0; $b="") if /BEGIN/; $m=1 if $f==1 && /23/;
-            $b<<$_ if $f==1; (print $b if $m==1; $f=0) if /END/' range.txt 
+            $b<<$_ if $f==1; (print $b if $m==1; $f=0) if /END/' range.txt
 BEGIN
 1234
 6789
@@ -1999,7 +1999,7 @@ END
 * But if both kinds of broken blocks are present, for ex:
 
 ```bash
-$ cat multiple_broken.txt 
+$ cat multiple_broken.txt
 qqqqqqq
 BEGIN
 foo
@@ -2171,7 +2171,7 @@ $ # same as: perl -lane 'print join " ", sort @F'
 $ echo "$s" | ruby -lane 'print $F.sort * " "'
 aimed baz foo v22
 
-$ # same as default sort 
+$ # same as default sort
 $ echo "$s" | ruby -lane 'print $F.sort { |a,b| a <=> b } * " "'
 aimed baz foo v22
 $ # descending order
@@ -2343,8 +2343,6 @@ raboof
 
 * See also [ruby-doc Enumerable](https://ruby-doc.org/core-2.5.0/Enumerable.html) for more methods like `inject`
 
-#### 
-
 <br>
 
 ## <a name="miscellaneous"></a>Miscellaneous
@@ -2396,7 +2394,7 @@ foo,5,baz
 wry,4,look
 free,3,oh
 free,8,oh
-$ # can also use scan here: 
+$ # can also use scan here:
 $ # ruby -F, -ane '$F[1].scan(/[^:]+/) {|x| print [$F[0],x,$F[2]]*","}'
 ```
 
