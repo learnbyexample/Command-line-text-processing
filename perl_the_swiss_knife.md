@@ -942,7 +942,7 @@ And so are you.
 
 $ # match two consecutive lines
 $ # same as: awk 'p~/are/ && /is/{print p ORS $0} {p=$0}' poem.txt
-$ perl -ne 'print "$p$_" if /is/ && $p=~/are/; $p=$_' poem.txt
+$ perl -ne 'print $p,$_ if /is/ && $p=~/are/; $p=$_' poem.txt
 Violets are blue,
 Sugar is sweet,
 $ # if only the second line is needed, same as: awk 'p~/are/ && /is/; {p=$0}'
@@ -1017,6 +1017,7 @@ a
 **Further Reading**
 
 * [stackoverflow - multiline find and replace](https://stackoverflow.com/questions/39884112/perl-multiline-find-and-replace-with-regex)
+* [stackoverflow - delete line based on content of previous/next lines](https://stackoverflow.com/questions/49112877/delete-line-if-line-matches-foo-line-above-matches-bar-and-line-below-match)
 * [softwareengineering - FSM examples](https://softwareengineering.stackexchange.com/questions/47806/examples-of-finite-state-machines)
 * [wikipedia - FSM](https://en.wikipedia.org/wiki/Finite-state_machine)
 
@@ -1410,8 +1411,8 @@ $ perl -pe '/^-/ ? s/// : s/^/-/' nums.txt
 ```bash
 $ s='baz 2008-03-24 and 2012-08-12 foo 2016-03-25'
 $ # (?1) refers to first capture group (\d{4}-\d{2}-\d{2})
-$ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and (?1)//'
-baz  foo 2016-03-25
+$ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and (?1)/XYZ/'
+baz XYZ foo 2016-03-25
 
 $ # using \1 won't work as the two dates are different
 $ echo "$s" | perl -pe 's/(\d{4}-\d{2}-\d{2}) and \1//'
@@ -1771,6 +1772,7 @@ White
 
 ```bash
 $ # common lines
+$ # note that all duplicates matching in second file would get printed
 $ # same as: grep -Fxf colors_1.txt colors_2.txt
 $ # same as: awk 'NR==FNR{a[$0]; next} $0 in a' colors_1.txt colors_2.txt
 $ perl -ne 'if(!$#ARGV){$h{$_}=1; next}
@@ -2296,9 +2298,10 @@ $ seq 30 | b=2 perl -ne '$f=1, $c++ if /4/;
 26
 ```
 
-* extract block only if matches another string as well
+* extract block only if it matches another string as well
 
 ```bash
+$ # string to match inside block: 23
 $ perl -ne 'if(/BEGIN/){$f=1; $m=0; $b=""}; $m=1 if $f && /23/;
             $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt 
 BEGIN
@@ -2306,6 +2309,7 @@ BEGIN
 6789
 END
 
+$ # line to match inside block: 5 or 25
 $ seq 30 | perl -ne 'if(/4/){$f=1; $m=0; $b=""}; $m=1 if $f && /^(5|25)$/;
                      $b.=$_ if $f; if(/6/){print $b if $m; $f=0}'
 4
@@ -2366,7 +2370,7 @@ a
 BEGIN
 b
 END
-;as;s;sd;
+xyzabc
 ```
 
 then use buffers to accumulate the records and print accordingly
@@ -2715,9 +2719,9 @@ $ seq 5 | perl -e '@lines=<>; print @lines[3,1,0,2,4]'
 ```bash
 $ echo '23 756 -983 5' | perl -lane 'print join " ", map {$_*$_} @F'
 529 571536 966289 25
-$ echo 'a b c' | perl -lane 'print join ",", map {"\"$_\""} @F'
+$ echo 'a b c' | perl -lane 'print join ",", map {qq/"$_"/} @F'
 "a","b","c"
-$ echo 'a b c' | perl -lane 'print join ",", map {uc "\"$_\""} @F'
+$ echo 'a b c' | perl -lane 'print join ",", map {uc qq/"$_"/} @F'
 "A","B","C"
 
 $ # changing the array itself
@@ -2947,10 +2951,10 @@ $ perl -0777 -ne 'print $_ x 100' poem.txt | wc -c
 ```bash
 $ # typical use case
 $ # same as: echo *.log
-$ perl -le '@x=glob q/*.log/; print "@x"'
+$ perl -le 'print join " ", glob q/*.log/'
 report.log
 $ # same as: echo *.{log,pl}
-$ perl -le '@x=glob q/*.{log,pl}/; print "@x"'
+$ perl -le 'print join " ", glob q/*.{log,pl}/'
 report.log code.pl sub_sq.pl
 
 $ # hacking
@@ -2993,6 +2997,9 @@ I bought two bananas and three mangoes
 * see [perldoc - system](https://perldoc.perl.org/functions/system.html) for details
 
 ```bash
+$ perl -le '$es=system q/ls poem.txt/; print "$es"'
+poem.txt
+0
 $ perl -le 'system q/ls poem.txt/; print "exit status: $?"'
 poem.txt
 exit status: 0
