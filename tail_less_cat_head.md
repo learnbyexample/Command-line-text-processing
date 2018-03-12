@@ -33,6 +33,9 @@
 ## <a name="cat"></a>cat
 
 ```bash
+$ cat --version | head -n1
+cat (GNU coreutils) 8.25
+
 $ man cat
 CAT(1)                           User Commands                          CAT(1)
 
@@ -141,11 +144,11 @@ $ cat -n marks_201*
 
 $ # number only non-empty lines
 $ printf 'hello\n\n\nworld\n\nhave a nice day\n' | cat -sb
-     1	hello
+     1  hello
 
-     2	world
+     2  world
 
-     3	have a nice day
+     3  have a nice day
 ```
 
 * For more numbering options, check out the command `nl`
@@ -223,6 +226,8 @@ Press Ctrl+d on a newline to save and quit.
 ```bash
 $ whatis tac
 tac (1)              - concatenate and print files in reverse
+$ tac --version | head -n1
+tac (GNU coreutils) 8.25
 
 $ seq 3 | tac
 3
@@ -230,13 +235,14 @@ $ seq 3 | tac
 1
 
 $ tac marks_2015.txt 
-bar	87	85
-foo	67	78
-Name	Maths	Science 
+bar     87      85
+foo     67      78
+Name    Maths   Science
 ```
 
 * Useful in cases where logic is easier to write when working on reversed file
 * Consider this made up log file, many **Warning** lines but need to extract only from last such **Warning** upto **Error** line
+    * See [GNU sed chapter](./gnu_sed.md#lines-between-two-regexps) for details on the `sed` command used below
 
 ```bash
 $ cat report.log 
@@ -321,8 +327,8 @@ $ cat marks_201* | grep -c 'foo'
 ## <a name="less"></a>less
 
 ```bash
-$ whatis less
-less (1)             - opposite of more
+$ less --version | head -n1
+less 481 (GNU regular expressions)
 
 $ # By default, pager is used to display the man pages
 $ # and usually, pager is linked to less command
@@ -373,6 +379,9 @@ Commonly used commands are given below, press `h` for summary of options
 ## <a name="tail"></a>tail
 
 ```bash
+$ tail --version | head -n1
+tail (GNU coreutils) 8.25
+
 $ man tail
 TAIL(1)                          User Commands                         TAIL(1)
 
@@ -519,6 +528,9 @@ blah blah blah
 ## <a name="head"></a>head
 
 ```bash
+$ head --version | head -n1
+head (GNU coreutils) 8.25
+
 $ man head
 HEAD(1)                          User Commands                         HEAD(1)
 
