@@ -880,7 +880,7 @@ just scat and quit bothering me
 that is quite a fabricated tale
 try the grape variety muscat
 
-$ # without anchors, substitution will replace whereever the string is found
+$ # without anchors, substitution will replace wherever the string is found
 $ sed 's/cat/XXX/g' anchors.txt 
 XXX and dog
 too many XXXs around here
@@ -3053,6 +3053,7 @@ five$
 ```
 
 * variable/command substitution
+* See also [stackoverflow - Is it possible to escape regex metacharacters reliably with sed](https://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed)
 
 ```bash
 $ # variables don't get expanded within single quotes
