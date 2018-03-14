@@ -31,6 +31,7 @@
     * [Comparing specific fields](#comparing-specific-fields)
     * [Line number matching](#line-number-matching)
 * [Creating new fields](#creating-new-fields)
+* [Multiple file input](#multiple-file-input)
 * [Dealing with duplicates](#dealing-with-duplicates)
     * [using uniq method](#using-uniq-method)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
@@ -1600,7 +1601,7 @@ CSE
 And so are you.
 
 $ # print line from fruits.txt if corresponding line from nums.txt is +ve number
-$ # same as: <nums.txt perl -ne '$num=<STDIN>; print if $num>0' fruits.txt
+$ # same as: <nums.txt perl -ne 'print if <STDIN> > 0' fruits.txt
 $ # line from fruits.txt is saved first as STDIN.gets will also set $_
 $ <nums.txt ruby -ne 'ln=$_; print ln if STDIN.gets.to_i>0' fruits.txt
 fruit   qty
@@ -1654,6 +1655,46 @@ CSE     Surya   81      A
 EEE     Tia     59      D
 ECE     Om      92      S
 CSE     Amy     67      C
+```
+
+<br>
+
+## <a name="multiple-file-input"></a>Multiple file input
+
+* processing based on line-number/begin/end of each input file
+
+```bash
+$ # same as: perl -ne 'print if $.==2; close ARGV if eof'
+$ # ARGF.close will reset $. to 0
+$ ruby -ne 'print if $.==2; ARGF.close if $<.eof' poem.txt greeting.txt
+Violets are blue,
+Have a safe journey
+
+$ # same as: perl -lne 'print "file: $ARGV" if $.==1;
+$ #            print "$_\n------" and close ARGV if eof' poem.txt greeting.txt
+$ ruby -lne 'print "file: #{ARGF.filename}" if $.==1;
+             (print "#{$_}\n------"; ARGF.close) if $<.eof' poem.txt greeting.txt
+file: poem.txt
+And so are you.
+------
+file: greeting.txt
+Have a safe journey
+------
+```
+
+* to skip remaining lines from current file being processed and move on to next file
+
+```bash
+$ # same as: perl -pe 'close ARGV if $.>=1' poem.txt greeting.txt fruits.txt
+$ ruby -pe 'ARGF.close if $.>=1' poem.txt greeting.txt fruits.txt
+Roses are red,
+Hello there
+fruit   qty
+
+$ # same as: perl -lane 'print $ARGV and close ARGV if $F[0] =~ /red/i' *
+$ ruby -ane '(puts ARGF.filename; ARGF.close) if $F[0] =~ /red/i' *
+colors_1.txt
+colors_2.txt
 ```
 
 <br>
