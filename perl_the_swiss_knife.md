@@ -33,6 +33,7 @@
     * [Comparing specific fields](#comparing-specific-fields)
     * [Line number matching](#line-number-matching)
 * [Creating new fields](#creating-new-fields)
+* [Multiple file input](#multiple-file-input)
 * [Dealing with duplicates](#dealing-with-duplicates)
 * [Lines between two REGEXPs](#lines-between-two-regexps)
     * [All unbroken blocks](#all-unbroken-blocks)
@@ -1686,6 +1687,7 @@ foo 123 baz
     * similar to `-o` option for GNU awk
 
 ```bash
+$ # command being deparsed is discussed in a later section
 $ perl -MO=Deparse -ne 'if(!$#ARGV){$h{$_}=1; next}
             print if $h{$_}' colors_1.txt colors_2.txt
 LINE: while (defined($_ = <ARGV>)) {
@@ -1925,6 +1927,7 @@ ECE     Om      92
 
 ```bash
 $ # replace mth line in poem.txt with nth line from nums.txt
+$ # assumes that there are at least n lines in nums.txt
 $ # same as: awk -v m=3 -v n=2 'BEGIN{while(n-- > 0) getline s < "nums.txt"}
 $ #                             FNR==m{$0=s} 1' poem.txt
 $ m=3 n=2 perl -pe 'BEGIN{ $s=<> while $ENV{n}-- > 0; close ARGV}
@@ -1935,13 +1938,8 @@ Violets are blue,
 And so are you.
 
 $ # print line from fruits.txt if corresponding line from nums.txt is +ve number
-$ # same as: awk -v file='nums.txt' '{getline num < file; if(num>0) print}'
-$ file='nums.txt' perl -ne 'BEGIN{open($f,$ENV{file})}
-                            $num=<$f>; print if $num>0' fruits.txt
-fruit   qty
-banana  31
-$ # or pass contents of nums.txt as standard input
-$ <nums.txt perl -ne '$num=<STDIN>; print if $num>0' fruits.txt
+$ # same as: awk -v file='nums.txt' '(getline num < file)==1 && num>0'
+$ <nums.txt perl -ne 'print if <STDIN> > 0' fruits.txt
 fruit   qty
 banana  31
 ```
@@ -2015,6 +2013,46 @@ CSE     Surya   81
 EEE     Tia     59      placement_rep
 ECE     Om      92
 CSE     Amy     67      sports_rep
+```
+
+<br>
+
+## <a name="multiple-file-input"></a>Multiple file input
+
+* there is no gawk's `FNR/BEGINFILE/ENDFILE` equivalent in perl, but it can be worked around
+
+```bash
+$ # same as: awk 'FNR==2' poem.txt greeting.txt 
+$ # close ARGV will reset $. to 0
+$ perl -ne 'print if $.==2; close ARGV if eof' poem.txt greeting.txt
+Violets are blue,
+Have a safe journey
+
+$ # same as: awk 'BEGINFILE{print "file: "FILENAME} ENDFILE{print $0"\n------"}'
+$ perl -lne 'print "file: $ARGV" if $.==1;
+             print "$_\n------" and close ARGV if eof' poem.txt greeting.txt
+file: poem.txt
+And so are you.
+------
+file: greeting.txt
+Have a safe journey
+------
+```
+
+* workaround for gawk's `nextfile`
+* to skip remaining lines from current file being processed and move on to next file
+
+```bash
+$ # same as: head -q -n1 and awk 'FNR>1{nextfile} 1'
+$ perl -pe 'close ARGV if $.>=1' poem.txt greeting.txt fruits.txt
+Roses are red,
+Hello there
+fruit   qty
+
+$ # same as: awk 'tolower($1) ~ /red/{print FILENAME; nextfile}' *
+$ perl -lane 'print $ARGV and close ARGV if $F[0] =~ /red/i' *
+colors_1.txt
+colors_2.txt
 ```
 
 <br>
