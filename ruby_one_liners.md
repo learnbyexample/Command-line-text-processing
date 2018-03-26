@@ -46,6 +46,7 @@
     * [split](#split)
     * [Fixed width processing](#fixed-width-processing)
     * [String and file replication](#string-and-file-replication)
+    * [transliteration](#transliteration)
     * [Executing external commands](#executing-external-commands)
 * [Further Reading](#further-reading)
 
@@ -2251,6 +2252,7 @@ bot
 art
 
 $ # words with characters in descending order
+$ # can also use: ruby -lne 'print if $_.chars == $_.chars.sort.reverse'
 $ ruby -lne 'print if $_ == $_.chars.sort {|a,b| b <=> a} * ""' words.txt
 toe
 reed
@@ -2497,6 +2499,36 @@ $ wc -c poem.txt
 65 poem.txt
 $ ruby -0777 -ne 'print $_ * 100' poem.txt | wc -c
 6500
+```
+
+<br>
+
+#### <a name="transliteration"></a>transliteration
+
+* [ruby-doc tr](https://ruby-doc.org/core-2.5.0/String.html#method-i-tr)
+
+```bash
+$ echo 'Uryyb Jbeyq' | ruby -pe '$_.tr!("a-zA-Z", "n-za-mN-ZA-M")'
+Hello World
+$ echo 'hi there!' | ruby -pe '$_.tr!("a-z", "\u{1d5ee}-\u{1d607}")'
+𝗵𝗶 𝘁𝗵𝗲𝗿𝗲!
+
+$ # when first argument is longer
+$ # the last character of second argument is padded
+$ echo 'foo bar cat baz' | ruby -pe '$_.tr!("a-z", "123")'
+333 213 313 213
+
+$ # use ^ at start of first argument to complement specified characters
+$ echo 'foo:123:baz' | ruby -lpe '$_.tr!("^0-9", "-")'
+----123----
+
+$ # use empty second argument to delete specified characters
+$ echo '"Foo1!", "Bar.", ":Baz:"' | ruby -lpe '$_.tr!("^A-Za-z,", "")'
+Foo,Bar,Baz
+
+$ # use - at start/end and ^ other than start to match themselves
+$ echo 'a^3-b*d' | ruby -lpe '$_.tr!("-^*", "*/+")'
+a/3*b+d
 ```
 
 <br>
