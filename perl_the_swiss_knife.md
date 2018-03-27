@@ -47,6 +47,7 @@
     * [split](#split)
     * [Fixed width processing](#fixed-width-processing)
     * [String and file replication](#string-and-file-replication)
+    * [transliteration](#transliteration)
     * [Executing external commands](#executing-external-commands)
 * [Further Reading](#further-reading)
 
@@ -3002,6 +3003,97 @@ $ perl -le '@x=glob q/{1,3}{a,b}/; print "@x"'
 $ # same as: echo {1,3}{1,3}{1,3}
 $ perl -le '@x=glob "{1,3}" x 3; print "@x"'
 111 113 131 133 311 313 331 333
+```
+
+<br>
+
+#### <a name="transliteration"></a>transliteration
+
+* See `tr` under [perldoc - Quote-Like Operators](https://perldoc.perl.org/perlop.html#Quote-Like-Operators) section for details
+* similar to substitution, by default `tr` acts on `$_` variable and modifies it unless `r` modifier is specified
+* however, characters `$` and `@` are treated as literals - i.e no interpolation
+* similar to `sed`, one can also use `y` instead of `tr`
+
+```bash
+$ # one-to-one mapping of characters, all occurrences are translated
+$ echo 'foo bar cat baz' | perl -pe 'tr/abc/123/'
+foo 21r 31t 21z
+
+$ # use - to represent a range in ascending order
+$ echo 'Hello World' | perl -pe 'tr/a-zA-Z/n-za-mN-ZA-M/'
+Uryyb Jbeyq
+$ echo 'Uryyb Jbeyq' | perl -pe 'tr|a-zA-Z|n-za-mN-ZA-M|'
+Hello World
+```
+
+* if arguments are of different lengths
+
+```bash
+$ # when second argument is longer, the extra characters are ignored
+$ echo 'foo bar cat baz' | perl -pe 'tr/abc/1-9/'
+foo 21r 31t 21z
+
+$ # when first argument is longer
+$ # the last character of second argument gets padded to make it equal
+$ echo 'foo bar cat baz' | perl -pe 'tr/a-z/123/'
+333 213 313 213
+```
+
+* modifiers
+
+```bash
+$ # no padding, absent mappings are deleted
+$ echo 'fob bar cat baz' | perl -pe 'tr/a-z/123/d'
+2 21 31 21
+$ echo 'Hello:123:World' | perl -pe 'tr/a-z//d'
+H:123:W
+
+$ # c modifier complements first argument characters
+$ echo 'Hello:123:World' | perl -lpe 'tr/a-z//cd'
+elloorld
+
+$ # s modifier to keep only one copy of repeated characters
+$ echo 'FFoo seed 11233' | perl -pe 'tr/a-z//s'
+FFo sed 11233
+$ # when replacement is done as well, only replaced characters are squeezed
+$ # unlike 'tr -s' which squeezes characters specified by second argument
+$ echo 'FFoo seed 11233' | perl -pe 'tr/A-Z/a-z/s'
+foo seed 11233
+
+$ perl -e '$x="food"; $y=$x=~tr/a-z/A-Z/r; print "x=$x\ny=$y\n"'
+x=food
+y=FOOD
+```
+
+* since `-` is used for character ranges, place it at the start/end to represent it literally
+* similarly, to represent `\` literally, use `\\`
+
+```bash
+$ echo '/foo-bar/baz/report' | perl -pe 'tr/-a-z/_A-Z/'
+/FOO_BAR/BAZ/REPORT
+
+$ echo '/foo-bar/baz/report' | perl -pe 'tr|/-|\\_|'
+\foo_bar\baz\report
+```
+
+* return value is number of replacements made
+
+```bash
+$ echo 'Hello there. How are you?' | grep -o '[a-z]' | wc -l
+17
+
+$ echo 'Hello there. How are you?' | perl -lne 'print tr/a-z//'
+17
+```
+
+* unicode examples
+
+```bash
+$ echo 'hello!' | perl -CS -pe 'tr/a-z/\x{1d5ee}-\x{1d607}/'
+𝗵𝗲𝗹𝗹𝗼!
+
+$ echo 'How are you?' | perl -Mopen=locale -Mutf8 -pe 'tr/a-zA-Z/𝗮-𝘇𝗔-𝗭/'
+𝗛𝗼𝘄 𝗮𝗿𝗲 𝘆𝗼𝘂?
 ```
 
 <br>
