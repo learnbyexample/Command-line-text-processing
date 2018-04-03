@@ -2213,19 +2213,33 @@ $ # same as: perl -lane 'print join " ", sort @F'
 $ echo "$s" | ruby -lane 'print $F.sort * " "'
 aimed baz foo v22
 
-$ # same as default sort
-$ echo "$s" | ruby -lane 'print $F.sort { |a,b| a <=> b } * " "'
-aimed baz foo v22
+$ # demonstrating the <=> operator
+$ ruby -e 'puts 4 <=> 2'
+1
+$ ruby -e 'puts 4 <=> 20'
+-1
+$ ruby -e 'puts 4 <=> 4'
+0
+
 $ # descending order
 $ # same as: perl -lane 'print join " ", sort {$b cmp $a} @F'
 $ echo "$s" | ruby -lane 'print $F.sort { |a,b| b <=> a } * " "'
 v22 foo baz aimed
+$ # can also reverse the array after default sorting
+$ echo "$s" | ruby -lane 'print $F.sort.reverse * " "'
+v22 foo baz aimed
+```
 
+* using `sort_by` to sort based on a key
+
+```bash
 $ s='floor bat to dubious four'
 $ # can also use: ruby -lane 'print $F.sort_by(&:length) * ":"'
 $ echo "$s" | ruby -lane 'print $F.sort_by {|a| a.length} * ":"'
 to:bat:four:floor:dubious
-$ echo "$s" | ruby -lane 'print $F.sort {|a,b| b.length <=> a.length} * ":"'
+
+$ # for descending order, simply negate the key
+$ echo "$s" | ruby -lane 'print $F.sort_by {|a| -a.length} * ":"'
 dubious:floor:four:bat:to
 ```
 
