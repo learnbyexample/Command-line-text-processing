@@ -2241,6 +2241,14 @@ to:bat:four:floor:dubious
 $ # for descending order, simply negate the key
 $ echo "$s" | ruby -lane 'print $F.sort_by {|a| -a.length} * ":"'
 dubious:floor:four:bat:to
+
+$ # need to explicitly convert from string to number for numeric input
+$ s='23 756 -983 5'
+$ echo "$s" | ruby -lane 'print $F.sort_by(&:to_i) * " "'
+-983 5 23 756
+$ s='5.33:2.2e3:42'
+$ echo "$s" | ruby -F: -lane 'print $F.sort_by{|n| -n.to_f} * ":"'
+2.2e3:42:5.33
 ```
 
 * sorting characters within word
