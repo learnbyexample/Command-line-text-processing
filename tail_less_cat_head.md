@@ -407,13 +407,13 @@ Consider this sample file, with line numbers prefixed
 
 ```bash
 $ cat sample.txt
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
- 4) How do you do?
+ 4) How are you
  5) 
- 6) Just do it
- 7) Believe it!
+ 6) Just do-it
+ 7) Believe it
  8) 
  9) Today is sunny
 10) Not a bit funny
@@ -428,8 +428,8 @@ $ cat sample.txt
 
 ```bash
 $ tail sample.txt
- 6) Just do it
- 7) Believe it!
+ 6) Just do-it
+ 7) Believe it
  8) 
  9) Today is sunny
 10) Not a bit funny
@@ -556,13 +556,13 @@ DESCRIPTION
 
 ```bash
 $ head sample.txt
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
- 4) How do you do?
+ 4) How are you
  5) 
- 6) Just do it
- 7) Believe it!
+ 6) Just do-it
+ 7) Believe it
  8) 
  9) Today is sunny
 10) Not a bit funny
@@ -572,16 +572,16 @@ $ head sample.txt
 
 ```bash
 $ head -n3 sample.txt
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
 
 $ # some versions of head allow to skip explicit n character
 $ head -4 sample.txt
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
- 4) How do you do?
+ 4) How are you
 ```
 
 * when number is prefixed with `-` sign, all lines are fetched except those many lines to end of file
@@ -589,12 +589,12 @@ $ head -4 sample.txt
 ```bash
 $ # except last 9 lines of file
 $ head -n -9 sample.txt
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
- 4) How do you do?
+ 4) How are you
  5) 
- 6) Just do it
+ 6) Just do-it
 
 $ # except last 2 lines
 $ seq 13 17 | head -n -2
@@ -634,7 +634,7 @@ Warning: something went wrong
 more blah
 
 ==> sample.txt <==
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
 
@@ -643,7 +643,7 @@ $ head -q -n3 report.log sample.txt
 blah blah
 Warning: something went wrong
 more blah
- 1) Hello World!
+ 1) Hello World
  2) 
  3) Good day
 ```
@@ -661,8 +661,8 @@ $ head -n11 sample.txt | tail -n3
 11) No doubt you like it too
 
 $ tail sample.txt | head -n2
- 6) Just do it
- 7) Believe it!
+ 6) Just do-it
+ 7) Believe it
 ```
 
 <br>
