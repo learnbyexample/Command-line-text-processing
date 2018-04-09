@@ -63,13 +63,13 @@ DESCRIPTION
 #### <a name="default-sort"></a>Default sort
 
 ```bash
-$ cat poem.txt 
+$ cat poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
 And so are you.
 
-$ sort poem.txt 
+$ sort poem.txt
 And so are you.
 Roses are red,
 Sugar is sweet,
@@ -145,7 +145,7 @@ you
 * This is simply reversing from default ascending order to descending order
 
 ```bash
-$ sort -r poem.txt 
+$ sort -r poem.txt
 Violets are blue,
 Sugar is sweet,
 Roses are red,
@@ -157,13 +157,13 @@ And so are you.
 #### <a name="various-number-sorting"></a>Various number sorting
 
 ```bash
-$ cat numbers.txt 
+$ cat numbers.txt
 20
 53
 3
 101
 
-$ sort numbers.txt 
+$ sort numbers.txt
 101
 20
 3
@@ -175,13 +175,13 @@ $ sort numbers.txt
 * First up is `-n` option, which sorts based on numerical value
 
 ```bash
-$ sort -n numbers.txt 
+$ sort -n numbers.txt
 3
 20
 53
 101
 
-$ sort -nr numbers.txt 
+$ sort -nr numbers.txt
 101
 53
 20
@@ -220,13 +220,13 @@ $ sort -n numbers.txt <(echo '31.24')
 * Use `-g` if input contains numbers prefixed by `+` or [E scientific notation](https://en.wikipedia.org/wiki/Scientific_notation#E_notation)
 
 ```bash
-$ cat generic_numbers.txt 
+$ cat generic_numbers.txt
 +120
 -1.53
 3.14e+4
 42.1e-2
 
-$ sort -g generic_numbers.txt 
+$ sort -g generic_numbers.txt
 -1.53
 42.1e-2
 +120
@@ -265,14 +265,14 @@ $ du -s --si * | sort -h
 * If this sorting is needed simply while displaying directory contents, use `ls -v` instead of piping to `sort -V`
 
 ```bash
-$ cat versions.txt 
+$ cat versions.txt
 foo_v1.2
 bar_v2.1.3
 foobar_v2
 foo_v1.2.1
 foo_v1.3
 
-$ sort -V versions.txt 
+$ sort -V versions.txt
 bar_v2.1.3
 foobar_v2
 foo_v1.2
@@ -283,13 +283,13 @@ foo_v1.3
 * Another common use case is when there are multiple filenames differentiated by numbers
 
 ```bash
-$ cat files.txt 
+$ cat files.txt
 file0
 file10
 file3
 file4
 
-$ sort -V files.txt 
+$ sort -V files.txt
 file0
 file3
 file4
@@ -300,7 +300,7 @@ file10
 
 ```bash
 $ # different solving durations
-$ cat rubik_time.txt 
+$ cat rubik_time.txt
 5m35.363s
 3m20.058s
 4m5.099s
@@ -309,7 +309,7 @@ $ cat rubik_time.txt
 4m33.083s
 
 $ # assuming consistent min/sec format
-$ sort -V rubik_time.txt 
+$ sort -V rubik_time.txt
 3m20.058s
 3m42.833s
 4m1.130s
@@ -328,7 +328,7 @@ $ sort -V rubik_time.txt
 * See also [How can I shuffle the lines of a text file on the Unix command line or in a shell script?](https://stackoverflow.com/questions/2153882/how-can-i-shuffle-the-lines-of-a-text-file-on-the-unix-command-line-or-in-a-shel)
 
 ```bash
-$ cat nums.txt 
+$ cat nums.txt
 1
 10
 10
@@ -337,7 +337,7 @@ $ cat nums.txt
 563
 
 $ # the two 10s will always be next to each other
-$ sort -R nums.txt 
+$ sort -R nums.txt
 563
 12
 1
@@ -346,7 +346,7 @@ $ sort -R nums.txt
 23
 
 $ # duplicates can end up anywhere
-$ shuf nums.txt 
+$ shuf nums.txt
 10
 23
 1
@@ -363,7 +363,7 @@ $ shuf nums.txt
 * Useful for in place editing
 
 ```bash
-$ sort -R nums.txt -o rand_nums.txt 
+$ sort -R nums.txt -o rand_nums.txt
 $ cat rand_nums.txt
 23
 1
@@ -402,7 +402,7 @@ $ for f in *.txt; do sort -V "$f" -o "$f"; done
 * Keep only first copy of lines that are deemed to be same according to `sort` option used
 
 ```bash
-$ cat duplicates.txt 
+$ cat duplicates.txt
 foo
 12 carrots
 foo
@@ -410,7 +410,7 @@ foo
 5 guavas
 
 $ # only one copy of foo in output
-$ sort -u duplicates.txt 
+$ sort -u duplicates.txt
 12 apples
 12 carrots
 5 guavas
@@ -423,7 +423,7 @@ foo
 
 ```bash
 $ # note how first copy of line starting with 12 is retained
-$ sort -nu duplicates.txt 
+$ sort -nu duplicates.txt
 foo
 5 guavas
 12 carrots
@@ -439,7 +439,7 @@ foo
 * Use `-f` option to ignore case of alphabets while determining duplicates
 
 ```bash
-$ cat words.txt 
+$ cat words.txt
 CAR
 are
 car
@@ -448,7 +448,7 @@ foot
 are
 
 $ # only the two 'are' were considered duplicates
-$ sort -u words.txt 
+$ sort -u words.txt
 are
 Are
 car
@@ -456,7 +456,7 @@ CAR
 foot
 
 $ # note again that first copy of duplicate is retained
-$ sort -fu words.txt 
+$ sort -fu words.txt
 are
 CAR
 foot
@@ -490,20 +490,20 @@ From `info sort`
 * By default, blank characters (space and tab) serve as field separators
 
 ```bash
-$ cat fruits.txt 
+$ cat fruits.txt
 apple   42
 guava   6
 fig     90
 banana  31
 
-$ sort fruits.txt 
+$ sort fruits.txt
 apple   42
 banana  31
 fig     90
 guava   6
 
 $ # sort based on 2nd column numbers
-$ sort -k2,2n fruits.txt 
+$ sort -k2,2n fruits.txt
 guava   6
 banana  31
 apple   42
@@ -515,7 +515,7 @@ fig     90
 
 ```bash
 $ # name:pet_name:no_of_pets
-$ cat pets.txt 
+$ cat pets.txt
 foo:dog:2
 xyz:cat:1
 baz:parrot:5
@@ -532,7 +532,7 @@ boss:dog:10
 ```bash
 $ # only 2nd column
 $ # -k2,4 would mean 2nd column to 4th column
-$ sort -t: -k2,2 pets.txt 
+$ sort -t: -k2,2 pets.txt
 abcd:cat:3
 xyz:cat:1
 boss:dog:10
@@ -543,7 +543,7 @@ baz:parrot:5
 temp_var:squirrel:4
 
 $ # from 2nd column to end of line
-$ sort -t: -k2 pets.txt 
+$ sort -t: -k2 pets.txt
 xyz:cat:1
 abcd:cat:3
 joe:dog:1
@@ -559,7 +559,7 @@ temp_var:squirrel:4
 
 ```bash
 $ # default sort for 2nd column, numeric sort on 3rd column to resolve ties
-$ sort -t: -k2,2 -k3,3n pets.txt 
+$ sort -t: -k2,2 -k3,3n pets.txt
 xyz:cat:1
 abcd:cat:3
 joe:dog:1
@@ -570,7 +570,7 @@ baz:parrot:5
 temp_var:squirrel:4
 
 $ # numeric sort on 3rd column, default sort for 2nd column to resolve ties
-$ sort -t: -k3,3n -k2,2 pets.txt 
+$ sort -t: -k3,3n -k2,2 pets.txt
 xyz:cat:1
 joe:dog:1
 bar:fox:1
@@ -584,7 +584,7 @@ boss:dog:10
 * Use `-s` option to retain original order of lines in case of tie
 
 ```bash
-$ sort -s -t: -k2,2 pets.txt 
+$ sort -s -t: -k2,2 pets.txt
 xyz:cat:1
 abcd:cat:3
 foo:dog:2
@@ -598,14 +598,14 @@ temp_var:squirrel:4
 * The `-u` option, as seen earlier, will retain only first match
 
 ```bash
-$ sort -u -t: -k2,2 pets.txt 
+$ sort -u -t: -k2,2 pets.txt
 xyz:cat:1
 foo:dog:2
 bar:fox:1
 baz:parrot:5
 temp_var:squirrel:4
 
-$ sort -u -t: -k3,3n pets.txt 
+$ sort -u -t: -k3,3n pets.txt
 xyz:cat:1
 foo:dog:2
 abcd:cat:3
@@ -642,7 +642,7 @@ temp_var:squirrel:4
 * If character position is not specified, defaults to `1` for starting column and `0` (last character) for ending column
 
 ```bash
-$ cat marks.txt 
+$ cat marks.txt
 fork,ap_12,54
 flat,up_342,1.2
 fold,tn_48,211
@@ -650,7 +650,7 @@ more,ap_93,7
 rest,up_5,63
 
 $ # for 2nd column, sort numerically only from 4th character to end
-$ sort -t, -k2.4,2n marks.txt 
+$ sort -t, -k2.4,2n marks.txt
 rest,up_5,63
 fork,ap_12,54
 fold,tn_48,211
@@ -658,7 +658,7 @@ more,ap_93,7
 flat,up_342,1.2
 
 $ # sort uniquely based on first two characters of line
-$ sort -u -k1.1,1.2 marks.txt 
+$ sort -u -k1.1,1.2 marks.txt
 flat,up_342,1.2
 fork,ap_12,54
 more,ap_93,7
@@ -668,7 +668,7 @@ rest,up_5,63
 * If there are headers
 
 ```bash
-$ cat header.txt 
+$ cat header.txt
 fruit   qty
 apple   42
 guava   6
@@ -728,7 +728,7 @@ DESCRIPTION
 #### <a name="default-uniq"></a>Default uniq
 
 ```bash
-$ cat word_list.txt 
+$ cat word_list.txt
 are
 are
 to
@@ -765,7 +765,7 @@ to
 
 ```bash
 $ # duplicates adjacent to each other
-$ uniq -d word_list.txt 
+$ uniq -d word_list.txt
 are
 bad
 
@@ -779,7 +779,7 @@ good
 * To get only duplicates as well as show all duplicates
 
 ```bash
-$ uniq -D word_list.txt 
+$ uniq -D word_list.txt
 are
 are
 bad
@@ -918,7 +918,7 @@ $ awk '{print $1}' "$HISTFILE" | sort | uniq -c | sort -nr | head
     392 perl
     325 printf
     320 sort
-    
+
 $ # extract command name from start of line or preceded by 'spaces|spaces'
 $ # won't catch commands in other places like command substitution though
 $ grep -oP '(^| +\| +)\K[^ ]+' "$HISTFILE" | sort | uniq -c | sort -nr | head
@@ -948,14 +948,14 @@ bad
 Are
 
 $ # note how first copy is retained
-$ uniq -i another_list.txt 
+$ uniq -i another_list.txt
 food
 good
 are
 bad
 Are
 
-$ uniq -iD another_list.txt 
+$ uniq -iD another_list.txt
 food
 Food
 ```
@@ -1016,7 +1016,7 @@ food
     * Number of spaces/tabs between fields should be same
 
 ```bash
-$ cat shopping.txt 
+$ cat shopping.txt
 lemon 5
 mango 5
 banana 8
@@ -1024,7 +1024,7 @@ bread 1
 orange 5
 
 $ # skips first field
-$ uniq -f1 shopping.txt 
+$ uniq -f1 shopping.txt
 lemon 5
 banana 8
 bread 1
@@ -1036,7 +1036,7 @@ $ # use -f3 to skip first three fields and so on
 * Skipping characters
 
 ```bash
-$ cat text 
+$ cat text
 glue
 blue
 black
@@ -1044,14 +1044,14 @@ stack
 stuck
 
 $ # don't consider first 2 characters
-$ uniq -s2 text 
+$ uniq -s2 text
 glue
 black
 stuck
 
 $ # to visualize the above example
 $ # assume there are two fields and uniq is applied on 2nd column
-$ sed 's/^../& /' text 
+$ sed 's/^../& /' text
 gl ue
 bl ue
 bl ack
@@ -1063,14 +1063,14 @@ st uck
 
 ```bash
 $ # consider only first 2 characters
-$ uniq -w2 text 
+$ uniq -w2 text
 glue
 blue
 stack
 
 $ # to visualize the above example
 $ # assume there are two fields and uniq is applied on 1st column
-$ sed 's/^../& /' text 
+$ sed 's/^../& /' text
 gl ue
 bl ue
 bl ack
@@ -1083,7 +1083,7 @@ st uck
 
 ```bash
 $ # skip first 3 characters and then use next 2 characters
-$ uniq -s3 -w2 text 
+$ uniq -s3 -w2 text
 glue
 black
 ```
@@ -1302,7 +1302,7 @@ DESCRIPTION
 * Without repeating input lines
 
 ```bash
-$ cat nums.txt 
+$ cat nums.txt
 1
 10
 10
@@ -1312,7 +1312,7 @@ $ cat nums.txt
 
 $ # duplicates can end up anywhere
 $ # all lines are part of output
-$ shuf nums.txt 
+$ shuf nums.txt
 10
 23
 1
@@ -1321,7 +1321,7 @@ $ shuf nums.txt
 12
 
 $ # limit max number of output lines
-$ shuf -n2 nums.txt 
+$ shuf -n2 nums.txt
 563
 23
 ```
@@ -1330,8 +1330,8 @@ $ shuf -n2 nums.txt
 * Helpful for inplace editing
 
 ```bash
-$ shuf nums.txt -o nums.txt 
-$ cat nums.txt 
+$ shuf nums.txt -o nums.txt
+$ cat nums.txt
 10
 12
 23
@@ -1344,7 +1344,7 @@ $ cat nums.txt
 
 ```bash
 $ # -n3 for max 3 lines, -r allows input lines to be repeated
-$ shuf -n3 -r nums.txt 
+$ shuf -n3 -r nums.txt
 1
 1
 563
@@ -1422,7 +1422,7 @@ $ shuf -r -n5 -i 0-1
 1
 ```
 
-* Use [seq](./miscellaneous.md#seq) input if negative numbers, floating point, etc are needed
+* Use [seq](./miscellaneous.md#seq) input if negative numbers, floating point, etc are needed
 
 ```bash
 $ seq 2 -1 -2 | shuf

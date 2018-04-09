@@ -166,7 +166,7 @@ nl (1)               - number lines of files
 * Useful for example to see trailing spaces
 
 ```bash
-$ cat -E marks_2015.txt 
+$ cat -E marks_2015.txt
 Name    Maths   Science $
 foo     67      78$
 bar     87      85$
@@ -175,7 +175,7 @@ bar     87      85$
 * TAB identified by `^I`
 
 ```bash
-$ cat -T marks_2015.txt 
+$ cat -T marks_2015.txt
 Name^IMaths^IScience 
 foo^I67^I78
 bar^I87^I85
@@ -210,7 +210,7 @@ $ cat > sample.txt
 This is an example of adding text to a new file using cat command.
 Press Ctrl+d on a newline to save and quit.
 
-$ cat sample.txt 
+$ cat sample.txt
 This is an example of adding text to a new file using cat command.
 Press Ctrl+d on a newline to save and quit.
 ```
@@ -234,7 +234,7 @@ $ seq 3 | tac
 2
 1
 
-$ tac marks_2015.txt 
+$ tac marks_2015.txt
 bar     87      85
 foo     67      78
 Name    Maths   Science
@@ -245,7 +245,7 @@ Name    Maths   Science
     * See [GNU sed chapter](./gnu_sed.md#lines-between-two-regexps) for details on the `sed` command used below
 
 ```bash
-$ cat report.log 
+$ cat report.log
 blah blah
 Warning: something went wrong
 more blah
@@ -336,7 +336,7 @@ $ type pager less
 pager is /usr/bin/pager
 less is /usr/bin/less
 
-$ realpath /usr/bin/pager 
+$ realpath /usr/bin/pager
 /bin/less
 $ realpath /usr/bin/less
 /bin/less
@@ -406,7 +406,7 @@ DESCRIPTION
 Consider this sample file, with line numbers prefixed
 
 ```bash
-$ cat sample.txt 
+$ cat sample.txt
  1) Hello World!
  2) 
  3) Good day
@@ -427,7 +427,7 @@ $ cat sample.txt
 * default behavior - display last 10 lines
 
 ```bash
-$ tail sample.txt 
+$ tail sample.txt
  6) Just do it
  7) Believe it!
  8) 
@@ -443,13 +443,13 @@ $ tail sample.txt
 * Use `-n` option to control number of lines to filter
 
 ```bash
-$ tail -n3 sample.txt 
+$ tail -n3 sample.txt
 13) Much ado about nothing
 14) He he he
 15) Adios amigo
 
 $ # some versions of tail allow to skip explicit n character
-$ tail -5 sample.txt 
+$ tail -5 sample.txt
 11) No doubt you like it too
 12) 
 13) Much ado about nothing
@@ -460,7 +460,7 @@ $ tail -5 sample.txt
 * when number is prefixed with `+` sign, all lines are fetched from that particular line number to end of file
 
 ```bash
-$ tail -n +10 sample.txt 
+$ tail -n +10 sample.txt
 10) Not a bit funny
 11) No doubt you like it too
 12) 
@@ -495,7 +495,7 @@ i there!
 #### <a name="multiple-file-input-for-tail"></a>multiple file input for tail
 
 ```bash
-$ tail -n2 report.log sample.txt 
+$ tail -n2 report.log sample.txt
 ==> report.log <==
 Error: something seriously went wrong
 blah blah blah
@@ -505,7 +505,7 @@ blah blah blah
 15) Adios amigo
 
 $ # -q option to avoid filename in output
-$ tail -q -n2 report.log sample.txt 
+$ tail -q -n2 report.log sample.txt
 Error: something seriously went wrong
 blah blah blah
 14) He he he
@@ -555,7 +555,7 @@ DESCRIPTION
 * default behavior - display starting 10 lines
 
 ```bash
-$ head sample.txt 
+$ head sample.txt
  1) Hello World!
  2) 
  3) Good day
@@ -571,13 +571,13 @@ $ head sample.txt
 * Use `-n` option to control number of lines to filter
 
 ```bash
-$ head -n3 sample.txt 
+$ head -n3 sample.txt
  1) Hello World!
  2) 
  3) Good day
 
 $ # some versions of head allow to skip explicit n character
-$ head -4 sample.txt 
+$ head -4 sample.txt
  1) Hello World!
  2) 
  3) Good day
@@ -588,7 +588,7 @@ $ head -4 sample.txt
 
 ```bash
 $ # except last 9 lines of file
-$ head -n -9 sample.txt 
+$ head -n -9 sample.txt
  1) Hello World!
  2) 
  3) Good day
@@ -627,7 +627,7 @@ Hi the
 #### <a name="multiple-file-input-for-head"></a>multiple file input for head
 
 ```bash
-$ head -n3 report.log sample.txt 
+$ head -n3 report.log sample.txt
 ==> report.log <==
 blah blah
 Warning: something went wrong
@@ -639,7 +639,7 @@ more blah
  3) Good day
 
 $ # -q option to avoid filename in output
-$ head -q -n3 report.log sample.txt 
+$ head -q -n3 report.log sample.txt
 blah blah
 Warning: something went wrong
 more blah

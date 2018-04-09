@@ -83,18 +83,18 @@ DESCRIPTION
 * More than one file can be specified or input given from stdin
 
 ```bash
-$ cat poem.txt 
+$ cat poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
 And so are you.
 
-$ grep 'are' poem.txt 
+$ grep 'are' poem.txt
 Roses are red,
 Violets are blue,
 And so are you.
 
-$ grep 'so are' poem.txt 
+$ grep 'so are' poem.txt
 And so are you.
 ```
 
@@ -115,10 +115,10 @@ int a[5]
 ## <a name="case-insensitive-search"></a>Case insensitive search
 
 ```bash
-$ grep -i 'rose' poem.txt 
+$ grep -i 'rose' poem.txt
 Roses are red,
 
-$ grep -i 'and' poem.txt 
+$ grep -i 'and' poem.txt
 And so are you.
 ```
 
@@ -130,7 +130,7 @@ And so are you.
 * Tip: Look out for other opposite pairs like `-l -L`, `-h -H`, opposites in regular expression, etc
 
 ```bash
-$ grep -v 'are' poem.txt 
+$ grep -v 'are' poem.txt
 Sugar is sweet,
 
 $ # example for input from stdin
@@ -148,21 +148,21 @@ $ seq 5 | grep -v '3'
 * Show line number of matching lines
 
 ```bash
-$ grep -n 'sweet' poem.txt 
+$ grep -n 'sweet' poem.txt
 3:Sugar is sweet,
 ```
 
 * Count number of matching lines
 
 ```bash
-$ grep -c 'are' poem.txt 
+$ grep -c 'are' poem.txt
 3
 ```
 
 * Limit number of matching lines
 
 ```bash
-$ grep -m2 'are' poem.txt 
+$ grep -m2 'are' poem.txt
 Roses are red,
 Violets are blue,
 ```
@@ -175,7 +175,7 @@ Violets are blue,
 
 ```bash
 $ # search blue or you
-$ grep -e 'blue' -e 'you' poem.txt 
+$ grep -e 'blue' -e 'you' poem.txt
 Violets are blue,
 And so are you.
 ```
@@ -184,12 +184,12 @@ If there are lot of search strings, use a file input
 
 ```bash
 $ printf 'rose\nsugar\n' > search_strings.txt
-$ cat search_strings.txt 
+$ cat search_strings.txt
 rose
 sugar
 
 $ # -f option accepts file input with search terms in separate lines
-$ grep -if search_strings.txt poem.txt 
+$ grep -if search_strings.txt poem.txt
 Roses are red,
 Sugar is sweet,
 ```
@@ -211,10 +211,10 @@ And so are you.
 * `grep` skips the rest of file once a match is found
 
 ```bash
-$ grep -l 'Rose' poem.txt 
+$ grep -l 'Rose' poem.txt
 poem.txt
 
-$ grep -L 'are' poem.txt search_strings.txt 
+$ grep -L 'are' poem.txt search_strings.txt
 search_strings.txt
 ```
 
@@ -223,16 +223,16 @@ search_strings.txt
 * `-H` is default for multiple file input, file name prefix in output
 
 ```bash
-$ grep -h 'Rose' poem.txt 
+$ grep -h 'Rose' poem.txt
 Roses are red,
-$ grep -H 'Rose' poem.txt 
+$ grep -H 'Rose' poem.txt
 poem.txt:Roses are red,
 
 $ # -H is default for multiple file input
-$ grep -i 'sugar' poem.txt search_strings.txt 
+$ grep -i 'sugar' poem.txt search_strings.txt
 poem.txt:Sugar is sweet,
 search_strings.txt:sugar
-$ grep -ih 'sugar' poem.txt search_strings.txt 
+$ grep -ih 'sugar' poem.txt search_strings.txt
 Sugar is sweet,
 sugar
 ```
@@ -283,7 +283,7 @@ car
     * `never` explicitly specify no highlighting
 
 ```bash
-$ grep --color=auto 'blue' poem.txt 
+$ grep --color=auto 'blue' poem.txt
 Violets are blue,
 ```
 
@@ -310,13 +310,13 @@ Violets are ^[[01;31m^[[Kblue^[[m^[[K,
 * Comes in handy if overall number of matches is required, instead of only line wise
 
 ```bash
-$ grep -o 'are' poem.txt 
+$ grep -o 'are' poem.txt
 are
 are
 are
 
 $ # -c only gives count of matching lines
-$ grep -c 'e' poem.txt 
+$ grep -c 'e' poem.txt
 4
 $ grep -co 'e' poem.txt
 4
@@ -332,13 +332,13 @@ $ grep -o 'e' poem.txt | wc -l
 * The `-A`, `-B` and `-C` options are useful to get lines after/before/around matching line respectively
 
 ```bash
-$ grep -A1 'blue' poem.txt 
+$ grep -A1 'blue' poem.txt
 Violets are blue,
 Sugar is sweet,
-$ grep -B1 'blue' poem.txt 
+$ grep -B1 'blue' poem.txt
 Roses are red,
 Violets are blue,
-$ grep -C1 'blue' poem.txt 
+$ grep -C1 'blue' poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
@@ -393,7 +393,7 @@ First let's create some more test files
 
 ```bash
 $ mkdir -p test_files/hidden_files
-$ printf 'Red\nGreen\nBlue\nBlack\nWhite\n' > test_files/colors.txt 
+$ printf 'Red\nGreen\nBlue\nBlack\nWhite\n' > test_files/colors.txt
 $ printf 'Violet\nIndigo\nBlue\nGreen\nYellow\nOrange\nRed\n' > test_files/vibgyor.txt
 $ printf '#!/usr/bin/python3\n\nprint("Hello World")\n' > test_files/hello.py
 $ printf 'I like yellow\nWhat about you\n' > test_files/hidden_files/.fav_color.info
@@ -495,13 +495,13 @@ $ grep -d skip -il 'yellow' **/*
 test_files/vibgyor.txt
 
 $ # include hidden files as well
-$ shopt -s dotglob 
+$ shopt -s dotglob
 $ grep -d skip -il 'yellow' **/*
 test_files/hidden_files/.fav_color.info
 test_files/vibgyor.txt
 
 $ # use extended glob patterns
-$ shopt -s extglob 
+$ shopt -s extglob
 $ # other than poem.txt
 $ grep -d skip -il 'red' **/!(poem.txt)
 test_files/colors.txt
@@ -621,18 +621,18 @@ test_files/vibgyor.txt
 * See also [stackoverflow - Fastest way to find lines of a text file from another larger text file](https://stackoverflow.com/questions/42239179/fastest-way-to-find-lines-of-a-text-file-from-another-larger-text-file-in-bash) - read all answers
 
 ```bash
-$ grep -if test_files/colors.txt poem.txt 
+$ grep -if test_files/colors.txt poem.txt
 Roses are red,
 Violets are blue,
 
 $ # get common lines between two files
-$ grep -Fxf test_files/colors.txt test_files/vibgyor.txt 
+$ grep -Fxf test_files/colors.txt test_files/vibgyor.txt
 Blue
 Green
 Red
 
 $ # get lines present in vibgyor.txt but not in colors.txt
-$ grep -Fvxf test_files/colors.txt test_files/vibgyor.txt 
+$ grep -Fvxf test_files/colors.txt test_files/vibgyor.txt
 Violet
 Indigo
 Yellow
@@ -648,10 +648,10 @@ Orange
     * Check out [this practical script](https://github.com/learnbyexample/command_help/blob/master/ch) using the `-q` option
 
 ```bash
-$ grep -qi 'rose' poem.txt 
+$ grep -qi 'rose' poem.txt
 $ echo $?
 0
-$ grep -qi 'lily' poem.txt 
+$ grep -qi 'lily' poem.txt
 $ echo $?
 1
 
@@ -725,20 +725,20 @@ int a[5]
 ```bash
 $ echo 'Fantasy is my favorite genre' > fav.txt
 $ echo 'My favorite genre is Fantasy' >> fav.txt
-$ cat fav.txt 
+$ cat fav.txt
 Fantasy is my favorite genre
 My favorite genre is Fantasy
 
 $ # start of line
-$ grep '^Fantasy' fav.txt 
+$ grep '^Fantasy' fav.txt
 Fantasy is my favorite genre
 
 $ # end of line
-$ grep 'Fantasy$' fav.txt 
+$ grep 'Fantasy$' fav.txt
 My favorite genre is Fantasy
 
 $ # without anchors
-$ grep 'Fantasy' fav.txt 
+$ grep 'Fantasy' fav.txt
 Fantasy is my favorite genre
 My favorite genre is Fantasy
 ```
@@ -837,10 +837,10 @@ apparent
 * `|` is one of meta characters that requires different syntax between BRE/ERE
 
 ```bash
-$ grep 'blue\|you' poem.txt 
+$ grep 'blue\|you' poem.txt
 Violets are blue,
 And so are you.
-$ grep -E 'blue|you' poem.txt 
+$ grep -E 'blue|you' poem.txt
 Violets are blue,
 And so are you.
 
@@ -862,13 +862,13 @@ e
     * the line anchors will match every input line, even empty lines as they are position markers
 
 ```bash
-$ grep --color=auto -E '^|are' poem.txt 
+$ grep --color=auto -E '^|are' poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
 And so are you.
 
-$ grep --color=auto -E 'is|$' poem.txt 
+$ grep --color=auto -E 'is|$' poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
@@ -1048,7 +1048,7 @@ on
 
 ```bash
 $ # words made up of letters o and n, at least 2 letters
-$ grep -xE '[on]{2,}' /usr/share/dict/words 
+$ grep -xE '[on]{2,}' /usr/share/dict/words
 no
 non
 noon
@@ -1234,18 +1234,18 @@ $#
 
 ```bash
 $ # 5 letter words starting with c and ending with ty or ly
-$ grep -xE 'c..(ty|ly)' /usr/share/dict/words 
+$ grep -xE 'c..(ty|ly)' /usr/share/dict/words
 catty
 coyly
 curly
 
 $ # 7 letter words starting with e and ending with rged or sted
-$ grep -xE 'e..(rg|st)ed' /usr/share/dict/words 
+$ grep -xE 'e..(rg|st)ed' /usr/share/dict/words
 emerged
 existed
 
 $ # repeat a pattern 3 times
-$ grep -xE '([a-d][r-z]){3}' /usr/share/dict/words 
+$ grep -xE '([a-d][r-z]){3}' /usr/share/dict/words
 avatar
 awards
 cravat
@@ -1274,7 +1274,7 @@ foo:123:bar:baz
 
 ```bash
 $ # note how first three and last three letters are same
-$ grep -xE '([a-d]..)\1' /usr/share/dict/words 
+$ grep -xE '([a-d]..)\1' /usr/share/dict/words
 bonbon
 cancan
 chichi
@@ -1293,7 +1293,7 @@ all
 seen
 
 $ # 17 letter words with first and last as same letter
-$ grep -xE '(.)[a-z]{15}\1' /usr/share/dict/words 
+$ grep -xE '(.)[a-z]{15}\1' /usr/share/dict/words
 semiprofessionals
 transcendentalist
 ```
@@ -1324,13 +1324,13 @@ Appleseed
 * Use `-z` option (covered later) to match repetition in consecutive lines
 
 ```bash
-$ cat story.txt 
+$ cat story.txt
 singing tin in the rain
 walking for for a cause
 have a nice day
 day and night
 
-$ grep -wE '(\w+)\W+\1' story.txt 
+$ grep -wE '(\w+)\W+\1' story.txt
 walking for for a cause
 ```
 
@@ -1371,7 +1371,7 @@ green
 * if some characteristics of input is known, `[[:space:]]` can be used as workaround, which matches all white-space characters
 
 ```bash
-$ grep -oz 'Roses.*blue,[[:space:]]' poem.txt 
+$ grep -oz 'Roses.*blue,[[:space:]]' poem.txt
 Roses are red,
 Violets are blue,
 ```
@@ -1423,7 +1423,7 @@ $ echo 'foo=5, bar=3; x=83, y=120' | grep -oP '\d+'
 120
 
 $ # (?s) allows newlines to be also matches when using . meta character
-$ grep -ozP '(?s)Roses.*blue,\n' poem.txt 
+$ grep -ozP '(?s)Roses.*blue,\n' poem.txt
 Roses are red,
 Violets are blue,
 ```
@@ -1565,10 +1565,10 @@ $ echo '2008-03-24 and 2012-08-12 foo' | grep -oP '(\d{4}-\d{2}-\d{2})\D+(?1)'
 
 ```bash
 $ # spaces are special
-$ grep so are poem.txt 
+$ grep so are poem.txt
 grep: are: No such file or directory
 poem.txt:And so are you.
-$ grep 'so are' poem.txt 
+$ grep 'so are' poem.txt
 And so are you.
 
 $ # use of # indicates start of comment
@@ -1594,7 +1594,7 @@ $ echo '*.txt' | grep -F '*.txt'
 ```bash
 $ # sample output on bash shell, might vary for different shells
 $ color='blue'
-$ grep "$color" poem.txt 
+$ grep "$color" poem.txt
 Violets are blue,
 ```
 
@@ -1626,7 +1626,7 @@ $ printf -- '-1+2=1\n'
 * Tip: Options can be specified at end of command as well, useful if option was forgotten and have to quickly add it to previous command from history
 
 ```bash
-$ grep 'are' poem.txt 
+$ grep 'are' poem.txt
 Roses are red,
 Violets are blue,
 And so are you.

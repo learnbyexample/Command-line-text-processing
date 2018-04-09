@@ -56,7 +56,7 @@ DESCRIPTION
 #### <a name="various-counts"></a>Various counts
 
 ```bash
-$ cat sample.txt 
+$ cat sample.txt
 Hello World
 Good day
 No doubt you like it too
@@ -64,19 +64,19 @@ Much ado about nothing
 He he he
 
 $ # by default, gives newline/word/byte count (in that order)
-$ wc sample.txt 
+$ wc sample.txt
  5 17 78 sample.txt
 
 $ # options to get individual numbers
-$ wc -l sample.txt 
+$ wc -l sample.txt
 5 sample.txt
-$ wc -w sample.txt 
+$ wc -w sample.txt
 17 sample.txt
-$ wc -c sample.txt 
+$ wc -c sample.txt
 78 sample.txt
 
 $ # use shell input redirection if filename is not needed
-$ wc -l < sample.txt 
+$ wc -l < sample.txt
 5
 ```
 
@@ -84,10 +84,10 @@ $ wc -l < sample.txt
 * automatically displays total at end
 
 ```bash
-$ cat greeting.txt 
+$ cat greeting.txt
 Hello there
 Have a safe journey
-$ cat fruits.txt 
+$ cat fruits.txt
 Fruit   Price
 apple   42
 banana  31
@@ -104,7 +104,7 @@ $ wc *.txt
 * use `-L` to get length of longest line
 
 ```bash
-$ wc -L < sample.txt 
+$ wc -L < sample.txt
 24
 
 $ echo 'foo bar baz' | wc -L
@@ -280,7 +280,7 @@ $ du -S
 
 ```bash
 $ # number of bytes
-$ stat -c %s words.txt 
+$ stat -c %s words.txt
 938848
 $ du -b words.txt
 938848  words.txt
@@ -514,7 +514,7 @@ $ df -h --output=pcent,fstype | awk -F'%' 'NR>2 && $1>=40'
 $ touch --version | head -n1
 touch (GNU coreutils) 8.25
 
-$ man touch 
+$ man touch
 TOUCH(1)                         User Commands                        TOUCH(1)
 
 NAME
@@ -544,7 +544,7 @@ $ ls foo.txt
 foo.txt
 
 $ # use -c if new file shouldn't be created
-$ rm foo.txt 
+$ rm foo.txt
 $ touch -c foo.txt
 $ ls foo.txt
 ls: cannot access 'foo.txt': No such file or directory
@@ -564,7 +564,7 @@ $ # last modification time
 $ stat -c %y fruits.txt
 2017-07-13 13:54:03.576055933 +0530
 
-$ touch fruits.txt 
+$ touch fruits.txt
 $ stat -c %x fruits.txt
 2017-07-21 10:11:44.241921229 +0530
 $ stat -c %y fruits.txt
@@ -642,14 +642,14 @@ $ stat -c $'%x\n%y' story.txt
 2017-06-24 12:59:53.316751651 +0530
 $ # tmp.txt is temporary empty file
 $ touch -r story.txt tmp.txt
-$ stat -c $'%x\n%y' tmp.txt 
+$ stat -c $'%x\n%y' tmp.txt
 2017-06-24 13:00:31.773583923 +0530
 2017-06-24 12:59:53.316751651 +0530
 
 $ # after text processing, copy back the timestamps and remove temporary file
 $ sed -i 's/cat/dog/g' story.txt
-$ touch -r tmp.txt story.txt && rm tmp.txt 
-$ stat -c $'%x\n%y' story.txt 
+$ touch -r tmp.txt story.txt && rm tmp.txt
+$ stat -c $'%x\n%y' story.txt
 2017-06-24 13:00:31.773583923 +0530
 2017-06-24 12:59:53.316751651 +0530
 ```
@@ -699,10 +699,10 @@ DESCRIPTION
 #### <a name="file-type-examples"></a>File type examples
 
 ```bash
-$ file sample.txt 
+$ file sample.txt
 sample.txt: ASCII text
 $ # without file name in output
-$ file -b sample.txt 
+$ file -b sample.txt
 ASCII text
 
 $ printf 'hi👍\n' | file -

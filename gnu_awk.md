@@ -100,7 +100,7 @@ DESCRIPTION
     * `$(NF-1)` will give second last field and so on
 
 ```bash
-$ cat fruits.txt 
+$ cat fruits.txt
 fruit   qty
 apple   42
 banana  31
@@ -108,7 +108,7 @@ fig     90
 guava   6
 
 $ # print only first field
-$ awk '{print $1}' fruits.txt 
+$ awk '{print $1}' fruits.txt
 fruit
 apple
 banana
@@ -116,7 +116,7 @@ fig
 guava
 
 $ # print only second field
-$ awk '{print $2}' fruits.txt 
+$ awk '{print $2}' fruits.txt
 qty
 42
 31
@@ -265,7 +265,7 @@ Sample string with numbers
 * `1` is typically used to represent always true condition and thus print contents of `$0`
 
 ```bash
-$ cat poem.txt 
+$ cat poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
@@ -273,7 +273,7 @@ And so are you.
 
 $ # displaying contents of input file(s) similar to 'cat' command
 $ # equivalent to using awk '{print $0}' and awk '1'
-$ awk '{print}' poem.txt 
+$ awk '{print}' poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
@@ -289,13 +289,13 @@ And so are you.
 
 ```bash
 $ # if first field exactly matches the string 'apple'
-$ awk '$1=="apple"{print $2}' fruits.txt 
+$ awk '$1=="apple"{print $2}' fruits.txt
 42
 
 $ # print first field if second field > 35
 $ # NR>1 to avoid the header line
 $ # NR built-in variable contains record number
-$ awk 'NR>1 && $2>35{print $1}' fruits.txt 
+$ awk 'NR>1 && $2>35{print $1}' fruits.txt
 apple
 fig
 
@@ -315,7 +315,7 @@ guava   6
     * Of course, for medium to large programs, it is better to put the code in separate file. See [awk scripts](#awk-scripts) section
 
 ```bash
-$ # awk '$1=="apple"{print $2}' fruits.txt 
+$ # awk '$1=="apple"{print $2}' fruits.txt
 $ awk '{
          if($1 == "apple"){
             print $2
@@ -402,18 +402,18 @@ $ awk '$0 ~ "/foo/a/"' paths.txt
 
 ```bash
 $ # if first field contains 'a'
-$ awk '$1 ~ /a/' fruits.txt 
+$ awk '$1 ~ /a/' fruits.txt
 apple   42
 banana  31
 guava   6
 
 $ # if first field contains 'a' and qty > 20
-$ awk '$1 ~ /a/ && $2 > 20' fruits.txt 
+$ awk '$1 ~ /a/ && $2 > 20' fruits.txt
 apple   42
 banana  31
 
 $ # if first field does NOT contain 'a'
-$ awk '$1 !~ /a/' fruits.txt 
+$ awk '$1 !~ /a/' fruits.txt
 fruit   qty
 fig     90
 ```
@@ -477,20 +477,20 @@ i*(t+9-g)/8,4-a+b
 
 ```bash
 $ # same as: head -n2 poem.txt | tail -n1
-$ awk 'NR==2' poem.txt 
+$ awk 'NR==2' poem.txt
 Violets are blue,
 
 $ # print 2nd and 4th line
-$ awk 'NR==2 || NR==4' poem.txt 
+$ awk 'NR==2 || NR==4' poem.txt
 Violets are blue,
 And so are you.
 
 $ # same as: tail -n1 poem.txt
 $ # statements inside END are executed after processing all input text
-$ awk 'END{print}' poem.txt 
+$ awk 'END{print}' poem.txt
 And so are you.
 
-$ awk 'NR==4{print $2}' fruits.txt 
+$ awk 'NR==4{print $2}' fruits.txt
 90
 ```
 
@@ -522,16 +522,16 @@ sys     0m0.092s
 ## <a name="case-insensitive-filtering"></a>Case Insensitive filtering
 
 ```bash
-$ # same as: grep -i 'rose' poem.txt 
-$ awk -v IGNORECASE=1 '/rose/' poem.txt 
+$ # same as: grep -i 'rose' poem.txt
+$ awk -v IGNORECASE=1 '/rose/' poem.txt
 Roses are red,
 
 $ # for small enough set, can also use REGEXP character class
-$ awk '/[rR]ose/' poem.txt 
+$ awk '/[rR]ose/' poem.txt
 Roses are red,
 
 $ # another way is to use built-in string function 'tolower'
-$ awk 'tolower($0) ~ /rose/' poem.txt 
+$ awk 'tolower($0) ~ /rose/' poem.txt
 Roses are red,
 ```
 
@@ -688,7 +688,7 @@ Much ado about nothing. He he he
 * Some marker like `Error` or `Warning` etc
 
 ```bash
-$ cat report.log 
+$ cat report.log
 blah blah
 Error: something went wrong
 more blah
@@ -779,7 +779,7 @@ $ # easier: perl -pe 's/-\n//' msg.txt as newline is still part of input line
 
 ```bash
 $ printf 'foo\0bar\0' | cat -A
-foo^@bar^@$ 
+foo^@bar^@$
 $ printf 'foo\0bar\0' | awk -v RS='\0' '{print}'
 foo
 bar
@@ -901,12 +901,12 @@ $ echo 'foo:123:bar:baz' | awk -v dq='"' '{$0=gensub(/[^:]+/, dq"&"dq, "g")} 1'
 * Use this option with caution, preferably after testing that the `awk` code is working as intended
 
 ```bash
-$ cat greeting.txt 
+$ cat greeting.txt
 Hi there
 Have a nice day
 
-$ awk -i inplace '{gsub("e", "E")} 1' greeting.txt 
-$ cat greeting.txt 
+$ awk -i inplace '{gsub("e", "E")} 1' greeting.txt
+$ cat greeting.txt
 Hi thErE
 HavE a nicE day
 ```
@@ -1028,12 +1028,12 @@ foo and bar XYZ baz land good
 
 ```bash
 $ # NR for overall record number
-$ awk 'NR==1' poem.txt greeting.txt 
+$ awk 'NR==1' poem.txt greeting.txt
 Roses are red,
 
 $ # FNR for individual file's record number
 $ # same as: head -q -n1 poem.txt greeting.txt
-$ awk 'FNR==1' poem.txt greeting.txt 
+$ awk 'FNR==1' poem.txt greeting.txt
 Roses are red,
 Hi thErE
 ```
@@ -1096,7 +1096,7 @@ Total input files: 2
 Remember that by default there is a loop that goes over all input records and constructs like `BEGIN` and `END` fall outside that loop
 
 ```bash
-$ cat nums.txt 
+$ cat nums.txt
 42
 -2
 10101
@@ -1125,7 +1125,7 @@ $ awk '{sum += $1} END{print sum+0}' /dev/null
 * See also [gawk manual - Switch](https://www.gnu.org/software/gawk/manual/html_node/Switch-Statement.html)
 
 ```bash
-$ # same as: sed -n '/are/ s/so/SO/p' poem.txt 
+$ # same as: sed -n '/are/ s/so/SO/p' poem.txt
 $ # remember that sub/gsub returns number of substitutions made
 $ awk '/are/{if(sub("so", "SO")) print}' poem.txt
 And SO are you.
@@ -1146,7 +1146,7 @@ fruit   qty
 * See also [stackoverflow - finding min and max value of a column](https://stackoverflow.com/a/29784278/4082052)
 
 ```bash
-$ cat nums.txt 
+$ cat nums.txt
 42
 -2
 10101
@@ -1257,18 +1257,18 @@ colors_2.txt
 * Processing consecutive lines
 
 ```bash
-$ cat poem.txt 
+$ cat poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
 And so are you.
 
 $ # match two consecutive lines
-$ awk 'p~/are/ && /is/{print p ORS $0} {p=$0}' poem.txt 
+$ awk 'p~/are/ && /is/{print p ORS $0} {p=$0}' poem.txt
 Violets are blue,
 Sugar is sweet,
 $ # if only the second line is needed
-$ awk 'p~/are/ && /is/; {p=$0}' poem.txt 
+$ awk 'p~/are/ && /is/; {p=$0}' poem.txt
 Sugar is sweet,
 
 $ # match three consecutive lines
@@ -1276,9 +1276,9 @@ $ awk 'p2~/red/ && p1~/blue/ && /is/{print p2} {p2=p1; p1=$0}' poem.txt
 Roses are red,
 
 $ # common mistake
-$ sed -n '/are/{N;/is/p}' poem.txt 
+$ sed -n '/are/{N;/is/p}' poem.txt
 $ # would need something like this and not practical to extend for other cases
-$ sed '$!N; /are.*\n.*is/p; D' poem.txt 
+$ sed '$!N; /are.*\n.*is/p; D' poem.txt
 Violets are blue,
 Sugar is sweet,
 ```
@@ -1286,7 +1286,7 @@ Sugar is sweet,
 Consider this sample input file
 
 ```bash
-$ cat range.txt 
+$ cat range.txt
 foo
 BEGIN
 1234
@@ -1311,7 +1311,7 @@ baz
         * `0 && ` - evaluates to `false` ... no decrementing `n` and hence will be `false` until `n` is re-assigned non-zero value
 
 ```bash
-$ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt 
+$ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt
 $ awk '/BEGIN/{n=2} n && n--' range.txt
 BEGIN
 1234
@@ -1320,7 +1320,7 @@ a
 
 $ # only print the line after matching line
 $ # can also use: awk '/BEGIN/{n=1; next} n && n--' range.txt
-$ awk 'n && n--; /BEGIN/{n=1}' range.txt 
+$ awk 'n && n--; /BEGIN/{n=1}' range.txt
 1234
 a
 $ # generic case: print nth line after match
@@ -1790,7 +1790,7 @@ test toy 123
 Consider the below sample input file, which doesn't have any unbroken blocks (i.e **BEGIN** and **END** are always present in pairs)
 
 ```bash
-$ cat range.txt 
+$ cat range.txt
 foo
 BEGIN
 1234
@@ -1867,7 +1867,7 @@ baz
 
 $ # the other three cases would be
 $ awk '/END/{f=0} !f; /BEGIN/{f=1}' range.txt
-$ awk '!f; /BEGIN/{f=1} /END/{f=0}' range.txt 
+$ awk '!f; /BEGIN/{f=1} /END/{f=0}' range.txt
 $ awk '/BEGIN/{f=1} /END/{f=0} !f' range.txt
 ```
 
@@ -1878,7 +1878,7 @@ $ awk '/BEGIN/{f=1} /END/{f=0} !f' range.txt
 * Getting first block
 
 ```bash
-$ awk '/BEGIN/{f=1} f; /END/{exit}' range.txt 
+$ awk '/BEGIN/{f=1} f; /END/{exit}' range.txt
 BEGIN
 1234
 6789
@@ -1986,7 +1986,7 @@ END
 * But if both kinds of broken blocks are present, accumulate the records and print accordingly
 
 ```bash
-$ cat multiple_broken.txt 
+$ cat multiple_broken.txt
 qqqqqqq
 BEGIN
 foo
@@ -2137,7 +2137,7 @@ f{
     buf=""
 }
 
-$ awk -f buf.awk multiple_broken.txt 
+$ awk -f buf.awk multiple_broken.txt
 BEGIN
 1234
 6789

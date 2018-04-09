@@ -25,7 +25,7 @@ Learn about various commands available for common and exotic text processing nee
     * paste, column, pr, fold
 * [File attributes](./file_attributes.md)
     * wc, du, df, touch, file
-* [Miscellaneous](./miscellaneous.md) 
+* [Miscellaneous](./miscellaneous.md)
     * cut, tr, basename, dirname, xargs, seq
 
 Rough drafts

@@ -362,7 +362,7 @@ $ echo '"Foo1!", "Bar.", ":Baz:"' | tr -d '[:punct:]'
 Foo1 Bar Baz
 
 $ # deleting carriage return character
-$ cat -v greeting.txt 
+$ cat -v greeting.txt
 Hi there^M
 How are you^M
 $ tr -d '\r' < greeting.txt | cat -v

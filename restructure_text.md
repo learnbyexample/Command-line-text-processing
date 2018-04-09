@@ -31,7 +31,7 @@
 $ paste --version | head -n1
 paste (GNU coreutils) 8.25
 
-$ man paste 
+$ man paste
 PASTE(1)                         User Commands                        PASTE(1)
 
 NAME
@@ -87,7 +87,7 @@ $ paste -d'|' <(seq 3) <(seq 4 6) <(seq 7 10)
 * to paste without any character in between, use `\0` as delimiter
     * note that `\0` here doesn't mean the ASCII NUL character
     * can also use `-d ''` with `GNU paste`
-    
+
 ```bash
 $ paste -d'\0' <(seq 3) <(seq 6 8)
 16
@@ -133,7 +133,7 @@ $ seq 10 | paste -d: - - - - -
 6:7:8:9:10
 
 $ # input redirection for file input
-$ paste -d, - - < colors_1.txt 
+$ paste -d, - - < colors_1.txt
 Blue,Brown
 Purple,Red
 Teal,
@@ -233,7 +233,7 @@ $ paste -sd, colors_1.txt
 Blue,Brown,Purple,Red,Teal
 
 $ # multiple files each gets a row
-$ paste -sd: colors_1.txt colors_2.txt 
+$ paste -sd: colors_1.txt colors_2.txt
 Blue:Brown:Purple:Red:Teal
 Black:Blue:Green:Red:White
 
@@ -300,13 +300,13 @@ DESCRIPTION
 * by default whitespace is input delimiter
 
 ```bash
-$ cat dishes.txt 
+$ cat dishes.txt
 North alootikki baati khichdi makkiroti poha
 South appam bisibelebath dosa koottu sevai
 West dhokla khakhra modak shiro vadapav
 East handoguri litti momo rosgulla shondesh
 
-$ column -t dishes.txt 
+$ column -t dishes.txt
 North  alootikki  baati         khichdi  makkiroti  poha
 South  appam      bisibelebath  dosa     koottu     sevai
 West   dhokla     khakhra       modak    shiro      vadapav
@@ -401,7 +401,7 @@ DESCRIPTION
 
 ```bash
 $ # truncated output shown
-$ pr fruits.txt 
+$ pr fruits.txt
 
 
 2017-04-21 17:49                    fruits.txt                    Page 1
@@ -590,7 +590,7 @@ pomegranate
 
 ```bash
 $ # delimiter is single character, so easy to use tr to change it to newline
-$ cat dishes.txt 
+$ cat dishes.txt
 North alootikki baati khichdi makkiroti poha
 South appam bisibelebath dosa koottu sevai
 West dhokla khakhra modak shiro vadapav
@@ -660,7 +660,7 @@ $ nl story.txt
      2	Still here? okay, read on: The prince of Happalakkahuhu wished he could be as brave as his sister and vowed to train harder
 
 $ # default folding width is 80
-$ fold story.txt 
+$ fold story.txt
 The princess of a far away land fought bravely to rescue a travelling group from
  bandits. And the happy story ends here. Have a nice day.
 Still here? okay, read on: The prince of Happalakkahuhu wished he could be as br
@@ -676,7 +676,7 @@ $ fold story.txt | nl
 * `-s` option breaks at spaces to avoid word splitting
 
 ```bash
-$ fold -s story.txt 
+$ fold -s story.txt
 The princess of a far away land fought bravely to rescue a travelling group 
 from bandits. And the happy story ends here. Have a nice day.
 Still here? okay, read on: The prince of Happalakkahuhu wished he could be as 
@@ -686,7 +686,7 @@ brave as his sister and vowed to train harder
 * Use `-w` to change default width
 
 ```bash
-$ fold -s -w60 story.txt 
+$ fold -s -w60 story.txt
 The princess of a far away land fought bravely to rescue a 
 travelling group from bandits. And the happy story ends 
 here. Have a nice day.

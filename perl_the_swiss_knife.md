@@ -454,7 +454,7 @@ fig     90
 guava   6
 
 $ # print only first field, indexing starts from 0
-$ # same as: awk '{print $1}' fruits.txt 
+$ # same as: awk '{print $1}' fruits.txt
 $ perl -lane 'print $F[0]' fruits.txt
 fruit
 apple
@@ -463,7 +463,7 @@ fig
 guava
 
 $ # print only second field
-$ # same as: awk '{print $2}' fruits.txt 
+$ # same as: awk '{print $2}' fruits.txt
 $ perl -lane 'print $F[1]' fruits.txt
 qty
 42
@@ -507,7 +507,7 @@ $ perl -lane 'print $F[1] if $F[0] eq "apple"' fruits.txt
 42
 
 $ # print first field if second field > 35 (excluding header)
-$ # same as: awk 'NR>1 && $2>35{print $1}' fruits.txt 
+$ # same as: awk 'NR>1 && $2>35{print $1}' fruits.txt
 $ perl -lane 'print $F[0] if $F[1]>35 && $.>1' fruits.txt
 apple
 fig
@@ -520,7 +520,7 @@ banana  31
 guava   6
 
 $ # if first field does NOT contain 'a'
-$ # same as: awk '$1 !~ /a/' fruits.txt 
+$ # same as: awk '$1 !~ /a/' fruits.txt
 $ perl -ane 'print if $F[0] !~ /a/' fruits.txt
 fruit   qty
 fig     90
@@ -722,11 +722,11 @@ $ printf "$s" | perl -0040 -l -ne 'print if /a/'
 a sample 
 ```
 
-* `-0` option used without argument will use the ASCII NUL character as input record separator 
+* `-0` option used without argument will use the ASCII NUL character as input record separator
 
 ```bash
 $ printf 'foo\0bar\0' | cat -A
-foo^@bar^@$ 
+foo^@bar^@$
 $ printf 'foo\0bar\0' | perl -l -0 -ne 'print'
 foo
 bar
@@ -819,7 +819,7 @@ Much ado about nothing. He he he
 * multi-character separator
 
 ```bash
-$ cat report.log 
+$ cat report.log
 blah blah
 Error: something went wrong
 more blah
@@ -922,7 +922,7 @@ $ seq 8 | perl -l0 -ne 'print if /[24]/' | cat -A
 
 $ # comma separator, won't have a newline at end
 $ seq 8 | perl -l054 -ne 'print if /[24]/'
-2,4, 
+2,4,
 
 $ # to add a final newline to output, use END and printf
 $ seq 8 | perl -l054 -ne 'print if /[24]/; END{printf "\n"}'
@@ -936,7 +936,7 @@ $ seq 8 | perl -l054 -ne 'print if /[24]/; END{printf "\n"}'
 * Processing consecutive lines
 
 ```bash
-$ cat poem.txt 
+$ cat poem.txt
 Roses are red,
 Violets are blue,
 Sugar is sweet,
@@ -961,7 +961,7 @@ Roses are red,
 Consider this sample input file
 
 ```bash
-$ cat range.txt 
+$ cat range.txt
 foo
 BEGIN
 1234
@@ -985,7 +985,7 @@ baz
         * `0 && ` - evaluates to `false` ... no decrementing `$n` and hence will be `false` until `$n` is re-assigned non-zero value
 
 ```bash
-$ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt 
+$ # similar to: grep --no-group-separator -A1 'BEGIN' range.txt
 $ # same as: awk '/BEGIN/{n=2} n && n--' range.txt
 $ perl -ne '$n=2 if /BEGIN/; print if $n && $n--' range.txt
 BEGIN
@@ -1044,7 +1044,7 @@ $ echo 'foo:123:bar:789' | sed -E 's/[^:]+$/xyz/'
 foo:123:bar:xyz
 $ # newline character gets replaced too as shown by shell prompt
 $ echo 'foo:123:bar:789' | perl -pe 's/[^:]+$/xyz/'
-foo:123:bar:xyz$ 
+foo:123:bar:xyz$
 $ # simple workaround is to use -l option
 $ echo 'foo:123:bar:789' | perl -lpe 's/[^:]+$/xyz/'
 foo:123:bar:xyz
@@ -1680,7 +1680,7 @@ $ echo 'foo 123 baz' | base64
 Zm9vIDEyMyBiYXoK
 $ echo 'foo 123 baz' | perl -MMIME::Base64 -ne 'print encode_base64 $_'
 Zm9vIDEyMyBiYXoK
-$ echo 'Zm9vIDEyMyBiYXoK' | perl -MMIME::Base64 -ne 'print decode_base64 $_' 
+$ echo 'Zm9vIDEyMyBiYXoK' | perl -MMIME::Base64 -ne 'print decode_base64 $_'
 foo 123 baz
 ```
 
@@ -2023,7 +2023,7 @@ CSE     Amy     67      sports_rep
 * there is no gawk's `FNR/BEGINFILE/ENDFILE` equivalent in perl, but it can be worked around
 
 ```bash
-$ # same as: awk 'FNR==2' poem.txt greeting.txt 
+$ # same as: awk 'FNR==2' poem.txt greeting.txt
 $ # close ARGV will reset $. to 0
 $ perl -ne 'print if $.==2; close ARGV if eof' poem.txt greeting.txt
 Violets are blue,
@@ -2190,7 +2190,7 @@ test toy 123
 Consider the below sample input file, which doesn't have any unbroken blocks (i.e **BEGIN** and **END** are always present in pairs)
 
 ```bash
-$ cat range.txt 
+$ cat range.txt
 foo
 BEGIN
 1234
@@ -2265,7 +2265,7 @@ $ perl -ne '$f=1 if /BEGIN/; $f=0 if /END/; print if !$f' range.txt
 * Getting first block
 
 ```bash
-$ # same as: awk '/BEGIN/{f=1} f; /END/{exit}' range.txt 
+$ # same as: awk '/BEGIN/{f=1} f; /END/{exit}' range.txt
 $ perl -ne '$f=1 if /BEGIN/; print if $f; exit if /END/' range.txt
 BEGIN
 1234
@@ -2342,7 +2342,7 @@ $ seq 30 | b=2 perl -ne '$f=1, $c++ if /4/;
 ```bash
 $ # string to match inside block: 23
 $ perl -ne 'if(/BEGIN/){$f=1; $m=0; $b=""}; $m=1 if $f && /23/;
-            $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt 
+            $b.=$_ if $f; if(/END/){print $b if $m; $f=0}' range.txt
 BEGIN
 1234
 6789
@@ -2393,7 +2393,7 @@ END
 * But if both kinds of broken blocks are present, for ex:
 
 ```bash
-$ cat multiple_broken.txt 
+$ cat multiple_broken.txt
 qqqqqqq
 BEGIN
 foo
@@ -2632,7 +2632,7 @@ $ s='foo baz v22 aimed'
 $ echo "$s" | perl -lane 'print join " ", sort @F'
 aimed baz foo v22
 
-$ # same as default sort 
+$ # same as default sort
 $ echo "$s" | perl -lane 'print join " ", sort {$a cmp $b} @F'
 aimed baz foo v22
 $ # descending order, note how $a and $b are switched
@@ -2664,7 +2664,7 @@ flee
 reed
 
 $ # words with characters in ascending order
-$ perl -F -lane 'print if (join "", sort @F) eq $_' words.txt 
+$ perl -F -lane 'print if (join "", sort @F) eq $_' words.txt
 bot
 art
 
@@ -3165,7 +3165,7 @@ $ perl -e '$nums = qx/seq 3/; print $nums'
     * [perldoc - special variables](https://perldoc.perl.org/perlvar.html)
     * [perldoc - perlretut](https://perldoc.perl.org/perlretut.html)
 * Tutorials and Q&A
-    * [Perl one-liners explained](http://www.catonmat.net/series/perl-one-liners-explained) 
+    * [Perl one-liners explained](http://www.catonmat.net/series/perl-one-liners-explained)
     * [perl Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/perl?sort=votes&pageSize=15)
     * [regex FAQ on SO](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
     * [regexone](https://regexone.com/) - interative tutorial
