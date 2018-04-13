@@ -30,16 +30,34 @@ DESCRIPTION
 ...
 ```
 
-Useful to compare binary files. If the two files are same, no output is displayed (exit status 0)  
-If there is a difference, it prints the first difference - line number and byte location (exit status 1)  
-Option `-s` allows to suppress the output, useful in scripts
+* Comparison stops immediately at the first difference found
+* If verbose option `-l` is used, comparison would stop at whichever input reaches end of file first
 
 ```bash
-$ cmp /bin/grep /bin/fgrep
-/bin/grep /bin/fgrep differ: byte 25, line 1
-```
+$ echo 'foo 123' > f1; echo 'food 123' > f2
+$ cmp f1 f2
+f1 f2 differ: byte 4, line 1
 
-* More examples [here](http://www.sanfoundry.com/5-cmp-command-usage-examples-linux/)
+$ # print differing bytes
+$ cmp -b f1 f2
+f1 f2 differ: byte 4, line 1 is  40   144 d
+
+$ # skip given bytes from each file
+$ # if only one number is given, it is used for both inputs
+$ cmp -i 3:4 f1 f2
+$ echo $?
+0
+
+$ # compare only given number of bytes from start of inputs
+$ cmp -n 3 f1 f2
+$ echo $?
+0
+
+$ # suppress output
+$ cmp -s f1 f2
+$ echo $?
+1
+```
 
 <br>
 
