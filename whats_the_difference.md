@@ -30,8 +30,8 @@ DESCRIPTION
 ...
 ```
 
-* Comparison stops immediately at the first difference found
-* If verbose option `-l` is used, comparison would stop at whichever input reaches end of file first
+* As the comparison is byte by byte, it doesn't matter if file is human readable or not
+* A typical use case is to check if two executables are same or not
 
 ```bash
 $ echo 'foo 123' > f1; echo 'food 123' > f2
@@ -59,6 +59,26 @@ $ echo $?
 1
 ```
 
+* Comparison stops immediately at the first difference found
+* If verbose option `-l` is used, comparison would stop at whichever input reaches end of file first
+
+```bash
+$ # first column is byte number
+$ # second/third column is respective octal value of differing bytes
+$ cmp -l f1 f2
+4  40 144
+5  61  40
+6  62  61
+7  63  62
+8  12  63
+cmp: EOF on f1
+```
+
+**Further Reading**
+
+* `man cmp` and `info cmp` for more options and detailed documentation
+
+
 <br>
 
 ## <a name="diff"></a>diff
@@ -81,29 +101,87 @@ DESCRIPTION
 ...
 ```
 
-Useful to compare old and new versions of text files  
-All the differences are printed, which might not be desirable if files are too long
+* `diff` output shows lines from first file input starting with `<`
+* lines from second file input starts with `>`
+* between the two file contents, `---` is used as separator
+* each difference is prefixed by a command that indicates the differences (see links at end of section for more details)
 
-**Options**
+```bash
+$ paste d1 d2
+1       1
+2       hello
+3       3
+world   4
 
-* `-s` convey message when two files are same
-* `-y` two column output
-* `-i` ignore case while comparing
-* `-w` ignore white-spaces
-* `-r` recursively compare files between the two directories specified
-* `-q` report if files differ, not the details of difference
+$ diff d1 d2
+2c2
+< 2
+---
+> hello
+4c4
+< world
+---
+> 4
 
-**Examples**
+$ diff <(seq 4) <(seq 5)
+4a5
+> 5
+```
 
-* `diff -s test_list_mar2.txt test_list_mar3.txt` compare two files
-* `diff -s report.log bkp/mar10/` no need to specify second filename if names are same
-* `diff -qr report/ bkp/mar10/report/` recursively compare files between report and bkp/mar10/report directories, filenames not matching are also specified in output
-    * see [this link](https://stackoverflow.com/questions/6217628/diff-to-output-only-the-file-names) for detailed analysis and corner cases
-* `diff report/ bkp/mar10/report/ | grep -w '^diff'` useful trick to get only names of mismatching files (provided no mismatches contain the whole word diff at start of line)
+* use `-i` option to ignore case
+
+```bash
+$ echo 'Hello World!' > i1
+$ echo 'hello world!' > i2
+
+$ diff i1 i2
+1c1
+< Hello World!
+---
+> hello world!
+
+$ diff -i i1 i2
+$ echo $?
+0
+```
+
+* ignoring difference in white spaces
+
+```bash
+$ diff <(echo 'good day') <(echo 'good    day')
+1c1
+< good day
+---
+> good    day
+$ # -b option to ignore changes in the amount of white space
+$ diff -b <(echo 'good day') <(echo 'good    day')
+$ echo $?
+0
+
+$ diff <(echo 'hi    there ') <(echo ' hi there')
+1c1
+< hi    there 
+---
+>  hi there
+$ # -w option to ignore all white spaces
+$ diff -w <(echo 'hi    there ') <(echo ' hi there')
+$ echo $?
+0
+$ diff -w <(echo 'hi    there ') <(echo 'hithere')
+$ echo $?
+0
+```
+
+*More to come*
+
+<br>
 
 **Further Reading**
 
+* `man diff` and `info diff` for more options and detailed documentation
+* `diff3`, `vimdiff/gvimdiff` and `patch` commands
 * [diff Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/diff?sort=votes&pageSize=15)
-* `gvimdiff` edit two, three or four versions of a file with Vim and show differences
 * [GUI diff and merge tools](http://askubuntu.com/questions/2946/what-are-some-good-gui-diff-and-merge-applications-available-for-ubuntu)
+* [unix.stackexchange - Understanding diff output](https://unix.stackexchange.com/questions/81998/understanding-of-diff-output)
+* [stackoverflow - Using output of diff to create patch](https://stackoverflow.com/questions/437219/using-the-output-of-diff-to-create-the-patch)
 
