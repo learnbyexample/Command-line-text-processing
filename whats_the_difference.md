@@ -172,6 +172,54 @@ $ echo $?
 0
 ```
 
+* side-by-side output
+
+```bash
+$ diff -y d1 d2
+1                                                               1
+2                                                             | hello
+3                                                               3
+world                                                         | 4
+
+$ # -y is usually used along with other options
+$ # default width is 130 print columns
+$ diff -W 60 --suppress-common-lines -y d1 d2
+2                            |  hello
+world                        |  4
+
+$ diff -W 20 --left-column -y <(seq 4) <(seq 5)
+1     (
+2     (
+3     (
+4     (
+      > 5
+```
+
+* `-s` and `-q` options
+* by default, there is no output if input files are same. Use `-s` option to additionally indicate files are same
+* by default, all differences are shown. Use `-q` option to indicate only that files differ
+
+```bash
+$ cp i1 i1_copy
+$ diff -s i1 i1_copy
+Files i1 and i1_copy are identical
+$ diff -s i1 i2
+1c1
+< Hello World!
+---
+> hello world!
+
+$ diff -q i1 i1_copy
+$ diff -q i1 i2
+Files i1 and i2 differ
+
+$ # combine them to always get one line output
+$ diff -sq i1 i1_copy
+Files i1 and i1_copy are identical
+$ diff -sq i1 i2
+Files i1 and i2 differ
+```
+
 *More to come*
 
 <br>
