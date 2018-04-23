@@ -4,6 +4,7 @@
 
 * [cmp](#cmp)
 * [diff](#diff)
+    * [Comparing Directories](#comparing-directories)
 
 <br>
 
@@ -195,7 +196,6 @@ $ diff -W 20 --left-column -y <(seq 4) <(seq 5)
       > 5
 ```
 
-* `-s` and `-q` options
 * by default, there is no output if input files are same. Use `-s` option to additionally indicate files are same
 * by default, all differences are shown. Use `-q` option to indicate only that files differ
 
@@ -220,6 +220,89 @@ $ diff -sq i1 i2
 Files i1 and i2 differ
 ```
 
+<br>
+
+#### <a name="comparing-directories"></a>Comparing Directories
+
+* when comparing two files of same name from different directories, specifying the filename is optional for one of the directories
+
+```bash
+$ mkdir dir1 dir2
+$ echo 'Hello World!' > dir1/i1
+$ echo 'hello world!' > dir2/i1
+
+$ diff dir1/i1 dir2
+1c1
+< Hello World!
+---
+> hello world!
+
+$ diff -s i1 dir1/
+Files i1 and dir1/i1 are identical
+$ diff -s . dir1/i1
+Files ./i1 and dir1/i1 are identical
+```
+
+* if both arguments are directories, all files are compared
+
+```bash
+$ touch dir1/report.log dir1/lists dir2/power.log
+$ cp f1 dir1/
+$ cp f1 dir2/
+
+$ # by default, all differences are reported
+$ # as well as filenames which are unique to respective directories
+$ diff dir1 dir2
+diff dir1/i1 dir2/i1
+1c1
+< Hello World!
+---
+> hello world!
+Only in dir1: lists
+Only in dir2: power.log
+Only in dir1: report.log
+```
+
+* to report only filenames
+
+```bash
+$ diff -sq dir1 dir2
+Files dir1/f1 and dir2/f1 are identical
+Files dir1/i1 and dir2/i1 differ
+Only in dir1: lists
+Only in dir2: power.log
+Only in dir1: report.log
+
+$ # list only differing files
+$ # also useful to copy-paste the command for GUI diffs like tkdiff/vimdiff
+$ diff dir1 dir2 | grep '^diff '
+diff dir1/i1 dir2/i1
+```
+
+* to recursively compare sub-directories as well, use `-r`
+
+```bash
+$ mkdir dir1/subdir dir2/subdir
+$ echo 'good' > dir1/subdir/f1
+$ echo 'goad' > dir2/subdir/f1
+
+$ diff -srq dir1 dir2
+Files dir1/f1 and dir2/f1 are identical
+Files dir1/i1 and dir2/i1 differ
+Only in dir1: lists
+Only in dir2: power.log
+Only in dir1: report.log
+Files dir1/subdir/f1 and dir2/subdir/f1 differ
+
+$ diff -r dir1 dir2 | grep '^diff '
+diff -r dir1/i1 dir2/i1
+diff -r dir1/subdir/f1 dir2/subdir/f1
+```
+
+* See [GNU diffutils manual - comparing directories](https://www.gnu.org/software/diffutils/manual/diffutils.html#Comparing-Directories) for further options and details like excluding files, ignoring filename case, etc
+
+<br>
+
 *More to come*
 
 <br>
@@ -227,6 +310,7 @@ Files i1 and i2 differ
 **Further Reading**
 
 * `man diff` and `info diff` for more options and detailed documentation
+* [GNU diffutils manual](https://www.gnu.org/software/diffutils/manual/diffutils.html) for a better documentation than `man/info` versions
 * `diff3`, `vimdiff/gvimdiff` and `patch` commands
 * [diff Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/diff?sort=votes&pageSize=15)
 * [GUI diff and merge tools](http://askubuntu.com/questions/2946/what-are-some-good-gui-diff-and-merge-applications-available-for-ubuntu)
