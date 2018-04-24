@@ -5,6 +5,7 @@
 * [cmp](#cmp)
 * [diff](#diff)
     * [Comparing Directories](#comparing-directories)
+    * [colordiff](#colordiff)
 
 <br>
 
@@ -149,21 +150,11 @@ $ echo $?
 * ignoring difference in white spaces
 
 ```bash
-$ diff <(echo 'good day') <(echo 'good    day')
-1c1
-< good day
----
-> good    day
 $ # -b option to ignore changes in the amount of white space
 $ diff -b <(echo 'good day') <(echo 'good    day')
 $ echo $?
 0
 
-$ diff <(echo 'hi    there ') <(echo ' hi there')
-1c1
-< hi    there 
----
->  hi there
 $ # -w option to ignore all white spaces
 $ diff -w <(echo 'hi    there ') <(echo ' hi there')
 $ echo $?
@@ -171,6 +162,10 @@ $ echo $?
 $ diff -w <(echo 'hi    there ') <(echo 'hithere')
 $ echo $?
 0
+
+# use -B to ignore only blank lines
+# use -E to ignore changes due to tab expansion
+# use -z to ignore trailing white spaces at end of line
 ```
 
 * side-by-side output
@@ -299,21 +294,39 @@ diff -r dir1/i1 dir2/i1
 diff -r dir1/subdir/f1 dir2/subdir/f1
 ```
 
-* See [GNU diffutils manual - comparing directories](https://www.gnu.org/software/diffutils/manual/diffutils.html#Comparing-Directories) for further options and details like excluding files, ignoring filename case, etc
+* See also [GNU diffutils manual - comparing directories](https://www.gnu.org/software/diffutils/manual/diffutils.html#Comparing-Directories) for further options and details like excluding files, ignoring filename case, etc and `dirdiff` command
 
 <br>
 
-*More to come*
+#### <a name="colordiff"></a>colordiff
+
+```bash
+$ whatis colordiff 
+colordiff (1)        - a tool to colorize diff output
+
+$ whatis wdiff
+wdiff (1)            - display word differences between text files
+```
+
+* simply replace `diff` with `colordiff`
+
+![colordiff](./images/colordiff.png)
+
+* or, pass output of a `diff` tool to `colordiff`
+
+![wdiff to colordiff](./images/wdiff_to_colordiff.png)
+
+* See also [stackoverflow - How to colorize diff on the command line?](https://stackoverflow.com/questions/8800578/how-to-colorize-diff-on-the-command-line) for other options
 
 <br>
 
 **Further Reading**
 
 * `man diff` and `info diff` for more options and detailed documentation
-* [GNU diffutils manual](https://www.gnu.org/software/diffutils/manual/diffutils.html) for a better documentation than `man/info` versions
-* `diff3`, `vimdiff/gvimdiff` and `patch` commands
+    * [GNU diffutils manual](https://www.gnu.org/software/diffutils/manual/diffutils.html) for a better documentation
+* `man -k diff` to get list of all commands related to `diff`
 * [diff Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/diff?sort=votes&pageSize=15)
-* [GUI diff and merge tools](http://askubuntu.com/questions/2946/what-are-some-good-gui-diff-and-merge-applications-available-for-ubuntu)
+* [unix.stackexchange - GUI diff and merge tools](https://unix.stackexchange.com/questions/4573/which-gui-diff-viewer-would-you-recommend-with-copy-to-left-right-functionality)
 * [unix.stackexchange - Understanding diff output](https://unix.stackexchange.com/questions/81998/understanding-of-diff-output)
 * [stackoverflow - Using output of diff to create patch](https://stackoverflow.com/questions/437219/using-the-output-of-diff-to-create-the-patch)
 
