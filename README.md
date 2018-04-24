@@ -23,6 +23,7 @@ Learn about various commands available for common and exotic text processing nee
     * sort, uniq, comm, shuf
 * [Restructure text](./restructure_text.md)
     * paste, column, pr, fold
+* [Whats the difference](./whats_the_difference.md)
 * [File attributes](./file_attributes.md)
     * wc, du, df, touch, file
 * [Miscellaneous](./miscellaneous.md)
@@ -31,7 +32,6 @@ Learn about various commands available for common and exotic text processing nee
 Rough drafts
 
 * [Wheres my file](./wheres_my_file.md)
-* [Whats the difference](./whats_the_difference.md)
 
 Possible additions
 
