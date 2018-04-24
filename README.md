@@ -24,6 +24,7 @@ Learn about various commands available for common and exotic text processing nee
 * [Restructure text](./restructure_text.md)
     * paste, column, pr, fold
 * [Whats the difference](./whats_the_difference.md)
+    * cmp, diff
 * [File attributes](./file_attributes.md)
     * wc, du, df, touch, file
 * [Miscellaneous](./miscellaneous.md)
