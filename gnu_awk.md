@@ -428,7 +428,7 @@ fig     90
 
 ```bash
 $ cat eqns.txt
-a=b,a+b=c,c*d
+a=b,a-b=c,c*d
 a+b,pi=3.14,5e12
 i*(t+9-g)/8,4-a+b
 
@@ -2678,7 +2678,7 @@ real    0m0.045s
     * [funtoo - using examples](https://www.funtoo.org/Awk_by_Example,_Part_1)
     * [grymoire - detailed tutorial](http://www.grymoire.com/Unix/Awk.html) - covers information about different `awk` versions as well
     * [catonmat - one liners explained](http://www.catonmat.net/series/awk-one-liners-explained)
-    * [Why Learn AWK?](http://blog.jpalardy.com/posts/why-learn-awk/)
+    * [Why Learn AWK?](https://blog.jpalardy.com/posts/why-learn-awk/)
     * [awk Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/awk?sort=votes&pageSize=15)
     * [awk Q&A on unix.stackexchange](https://unix.stackexchange.com/questions/tagged/awk?sort=votes&pageSize=15)
 * Alternatives
@@ -2691,7 +2691,7 @@ real    0m0.045s
     * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
     * [awk-libs](https://github.com/e36freak/awk-libs) - lots of useful functions
     * [awkaster](https://github.com/TheMozg/awk-raycaster) - Pseudo-3D shooter written completely in awk using raycasting technique
-    * [awk REPL](http://awk.js.org/) - live editor on browser
+    * [awk REPL](https://awk.js.org/) - live editor on browser
 * examples for some of the stuff not covered in this tutorial
     * [unix.stackexchange - rand/srand](https://unix.stackexchange.com/questions/372816/awk-get-random-lines-of-file-satisfying-a-condition)
     * [unix.stackexchange - strftime](https://unix.stackexchange.com/questions/224969/current-date-in-awk)
