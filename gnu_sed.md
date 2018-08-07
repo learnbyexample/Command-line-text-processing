@@ -947,9 +947,6 @@ Have a good day. Cya later
     * For example, to distinguish between `par`, `spar` and `apparent`
 * `\b` matches word boundary
     * `\` is meta character and certain combinations like `\b` and `\B` have special meaning
-* One can also use these alternatives for `\b`
-    * `\<` for start of word
-    * `\>` for end of word
 
 ```bash
 $ # words ending with 'cat'
@@ -997,6 +994,28 @@ too many SSSs around here
 to conSSSenate, use the cmd cat
 SSSapults laid waste to the village
 that is quite a fabriSSSed tale
+```
+
+* One can also use these alternatives for `\b`
+    * `\<` for start of word
+    * `\>` for end of word
+
+```bash
+$ # same as: sed 's/\bcat\b/X/g'
+$ echo 'concatenate cat scat cater' | sed 's/\<cat\>/X/g'
+concatenate X scat cater
+
+$ # add something to both start/end of word
+$ echo 'hi foo_baz 3b' | sed 's/\b/:/g'
+:hi: :foo_baz: :3b:
+
+$ # add something only at start of word
+$ echo 'hi foo_baz 3b' | sed 's/\</:/g'
+:hi :foo_baz :3b
+
+$ # add something only at end of word
+$ echo 'hi foo_baz 3b' | sed 's/\>/:/g'
+hi: foo_baz: 3b:
 ```
 
 <br>
