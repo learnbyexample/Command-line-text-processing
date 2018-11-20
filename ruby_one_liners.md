@@ -309,7 +309,7 @@ i*(t+9-g)/8,4-a+b
 ```
 
 * `index` method returns matching position (starts at 0) and nil if not found
-    * supports both string and regex
+    * supports both string and regexp
     * optional 2nd argument allows to specify offset to start searching
 * See [ruby-doc: index](https://ruby-doc.org/core-2.5.0/String.html#method-i-index) for details
 
@@ -321,7 +321,7 @@ i*(t+9-g)/8,4-a+b
 $ ruby -ne 'print if $_.index("a+b")==0' eqns.txt
 a+b,pi=3.14,5e12
 
-$ # passing regex
+$ # passing regexp
 $ ruby -ne 'print if $_.index(/[+*]/)<5' eqns.txt
 a+b,pi=3.14,5e12
 i*(t+9-g)/8,4-a+b
@@ -924,10 +924,10 @@ a
 ## <a name="ruby-regular-expressions"></a>Ruby regular expressions
 
 * assuming that you are already familiar with basics of regular expressions
-    * if not, see [Ruby Regular Expressions tutorial](https://github.com/learnbyexample/Ruby_Scripting/blob/master/chapters/Regular_expressions.md)
+    * if not, check out [Ruby Regexp](https://leanpub.com/rubyregexp) ebook - step by step guide from beginner to advanced levels
 * examples/descriptions based only on ASCII encoding
 * See [ruby-doc: Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for syntax and feature details
-* See [rexegg ruby](https://www.rexegg.com/regex-ruby.html) for a bit of ruby regex history and differences with other regex engines
+* See [rexegg ruby](https://www.rexegg.com/regex-ruby.html) for a bit of ruby regexp history and differences with other regexp engines
 
 <br>
 
@@ -1397,7 +1397,7 @@ $ s='a+b' ruby -ne 'print if /#{Regexp.escape(ENV["s"])}/' eqns.txt
 a+b,pi=3.14,5e12
 i*(t+9-g)/8,4-a+b
 
-$ # use regex as needed around variable content, for ex: end of line anchor
+$ # use regexp as needed around variable content, for ex: end of line anchor
 $ ruby -pe 'BEGIN{s="a+b"}; sub(/#{Regexp.escape(s)}$/, "a**b")' eqns.txt
 a=b,a-b=c,c*d
 a+b,pi=3.14,5e12
@@ -2153,15 +2153,30 @@ $ ruby -e 'books=%w[Elantris Martian Dune Alchemist]
 
 #### <a name="filtering"></a>Filtering
 
-* based on a condition
+* based on regexp
 
-```bash
-$ # based on regex matching
+```ruby
 $ s='foo:123:bar:baz'
-$ echo "$s" | ruby -F: -lane 'print $F.select { |s| s =~ /[a-z]/ } * ":"'
+$ echo "$s" | ruby -F: -lane 'print $F.grep(/[a-z]/) * ":"'
 foo:bar:baz
 
+$ words='tryst fun glyph pity why'
+$ echo "$words" | ruby -lane 'puts $F.grep(/[a-g]/)'
+fun
+glyph
+
+$ # grep_v inverts the selection
+$ echo "$words" | ruby -lane 'puts $F.grep_v(/[aeiou]/)'
+tryst
+glyph
+why
+```
+
+* use `select` or `reject` for generic conditions
+
+```bash
 $ # to get index instead of matches
+$ s='foo:123:bar:baz'
 $ echo "$s" | ruby -F: -lane 'print $F.each_index.select{|i| $F[i] =~ /[a-z]/}'
 [0, 2, 3]
 
@@ -2171,10 +2186,9 @@ $ echo "$s" | ruby -lane 'print $F.select { |s| s.to_i < 100 } * " "'
 23 -983 5
 
 $ # filters only those elements with successful substitution
+$ # for opposite, either use negated condition or use reject instead of select
 $ echo "$s" | ruby -lane 'print $F.select { |s| s.sub!(/3/, "E") } * " "'
 2E -98E
-
-$ # for opposite, either use negated condition or use reject instead of select
 ```
 
 * random element(s)
@@ -2423,7 +2437,7 @@ $ # specify a negative count to preserve trailing empty fields
 $ echo ':123::' | ruby -lne 'print $_.split(/:/, -1) * ","'
 ,123,,
 
-$ # use string argument for fixed-string split instead of regex
+$ # use string argument for fixed-string split instead of regexp
 $ echo 'foo**123**baz' | ruby -lne 'print $_.split("**") * ":"'
 foo:123:baz
 
