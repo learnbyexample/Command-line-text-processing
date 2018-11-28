@@ -211,7 +211,7 @@ I bought two bananas and three mangoes
 * one way is to use `variable =~ /REGEXP/FLAGS` to check for a match
     * use `variable !~ /REGEXP/FLAGS` for negated match
     * by default acts on `$_` if variable is not specified
-    * see [ruby-doc: Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for regular expression details
+    * see [ruby-doc: Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for documentation
 * as we need to print only selective lines, use `-n` option
     * by default, contents of `$_` will be printed if no argument is passed to `print`
 
@@ -925,8 +925,8 @@ a
 
 * assuming that you are already familiar with basics of regular expressions
     * if not, check out [Ruby Regexp](https://leanpub.com/rubyregexp) ebook - step by step guide from beginner to advanced levels
-* examples/descriptions based only on ASCII encoding
-* See [ruby-doc: Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for syntax and feature details
+* examples/descriptions are for string containing ASCII characters only
+* See [ruby-doc: Regexp](https://ruby-doc.org/core-2.5.0/Regexp.html) for documentation
 * See [rexegg ruby](https://www.rexegg.com/regex-ruby.html) for a bit of ruby regexp history and differences with other regexp engines
 
 <br>
@@ -960,9 +960,9 @@ $ echo 'foo,baz,,xyz,,,123' | ruby -lpe 'gsub(/[^,]*/, "A")'
 AA,AA,A,AA,A,A,AA
 
 $ # one workaround is to use lookarounds(covered later)
-$ echo ',baz,,xyz,,,' | ruby -lpe 'gsub(/(?<=^|,)[^,]*(?=,|$)/, "A")'
+$ echo ',baz,,xyz,,,' | ruby -lpe 'gsub(/(?<=^|,)[^,]*/, "A")'
 A,A,A,A,A,A,A
-$ echo 'foo,baz,,xyz,,,123' | ruby -lpe 'gsub(/(?<=^|,)[^,]*(?=,|$)/, "A")'
+$ echo 'foo,baz,,xyz,,,123' | ruby -lpe 'gsub(/(?<=^|,)[^,]*/, "A")'
 A,A,A,A,A,A,A
 ```
 
@@ -1007,7 +1007,10 @@ $ seq 14 | ruby -ne 'print if /2\n\z/'
 2
 12
 
-$ # without newline at end of line, both \z and \Z will give same result
+$ # without newline at end of line, both \z and \Z will behave same
+$ seq 14 | ruby -lne 'print if /2\z/'
+2
+12
 ```
 
 * delimiters and quoting
@@ -1045,10 +1048,12 @@ $ # \& can also be used instead of \0
 
 #### <a name="backslash-sequences"></a>Backslash sequences
 
+* `\w` for `[A-Za-z0-9_]`
 * `\d` for `[0-9]`
 * `\s` for `[ \t\r\n\f\v]`
 * `\h` for `[0-9a-fA-F]` or `[[:xdigit:]]`
-* `\D`, `\S`, `\H`, respectively for their opposites
+* `\W`, `\D`, `\S`, `\H`, respectively for their opposites
+* See also [ruby-doc: scan](https://ruby-doc.org/core-2.5.0/String.html#method-i-scan)
 
 ```bash
 $ # same as: perl -ne 'print if /^[[:xdigit:]]+$/'
@@ -1066,6 +1071,11 @@ $ # note again the use of -l because of newline in input record
 $ # same as: perl -lpe 's/\D+/xxx/g'
 $ echo 'like 42 and 37' | ruby -lpe 'gsub(/\D+/, "xxx")'
 xxx42xxx37
+
+$ # get all matches as an array
+$ echo 'tea sea-pit sit' | ruby -ne 'puts $_.scan(/[\w\s]+/)'
+tea sea
+pit sit
 ```
 
 <br>
@@ -1077,11 +1087,11 @@ xxx42xxx37
 
 ```bash
 $ # greedy matching
-$ echo 'foo and bar and baz land good' | ruby -pe 'sub(/foo.*and/, "")'
- good
+$ echo 'foo and bar and baz land good' | ruby -lne 'print $_.scan(/.*and/)'
+["foo and bar and baz land"]
 $ # non-greedy matching
-$ echo 'foo and bar and baz land good' | ruby -pe 'sub(/foo.*?and/, "")'
- bar and baz land good
+$ echo 'foo and bar and baz land good' | ruby -lne 'print $_.scan(/.*?and/)'
+["foo and", " bar and", " baz land"]
 
 $ echo '12342789' | ruby -pe 'sub(/\d{2,5}/, "")'
 789
@@ -1116,7 +1126,6 @@ $ echo '123:42:789:good:5:bad' | ruby -pe 'sub(/:.*:[a-z]/, ":")'
 The string matched by lookarounds are like word boundaries and anchors, do not constitute as part of matched string. They are termed as **zero-width patterns**
 
 * positive lookbehind `(?<=`
-* See also [ruby-doc: scan](https://ruby-doc.org/core-2.5.0/String.html#method-i-scan)
 
 ```bash
 $ s='foo=5, bar=3; x=83, y=120'
@@ -1211,8 +1220,8 @@ $ echo '1 and 2 and 3 land 4' | ruby -pe 'sub(/(and.*?){2}\Kand/, "-")'
 1 and 2 and 3 l- 4
 ```
 
-* note that `\K` behaves differently than `perl` or `vim`'s `\zs` when it comes to consecutive matches with empty string in between
-    * `\K` is [not mentioned in documentation](https://bugs.ruby-lang.org/issues/14500), so not sure if this is intended behavior or a bug
+* don't use `\K` if there are consecutive matches
+* this is because of how the regexp engine has been implemented, `perl` or `vim`'s `\zs` don't have this limitation
 
 ```bash
 $ echo ',,' | perl -pe 's/,\K/foo/g'
@@ -2628,6 +2637,7 @@ $ ruby -e 'nums = %x/seq 3/; print nums'
     * [Ruby one-liners](http://benoithamelin.tumblr.com/ruby1line) based on [awk one-liners](http://www.pement.org/awk/awk1line.txt)
     * [Ruby Tricks, Idiomatic Ruby, Refactorings and Best Practices](https://franzejr.github.io/best-ruby/index.html)
     * [freecodecamp - learning Ruby](https://medium.freecodecamp.org/learning-ruby-from-zero-to-hero-90ad4eecc82d)
+    * [Ruby Regexp](https://leanpub.com/rubyregexp) ebook - step by step guide from beginner to advanced levels
     * [regex FAQ on SO](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
 * Alternatives
     * [bioruby](https://github.com/bioruby/bioruby)
