@@ -470,14 +470,16 @@ $ ruby -ane 'puts $F[1] if $F[0] == "apple"' fruits.txt
 42
 
 $ # print first field if second field > 35 (excluding header)
+# TODO: Modify comment below to reflect removal of `$.`
 $ # same as: perl -lane 'print $F[0] if $F[1]>35 && $.>1' fruits.txt
-$ ruby -ane 'puts $F[0] if $F[1].to_i > 35 && $.>1' fruits.txt
+$ ruby -ane 'puts $F[0] if $F[1].to_i > 35' fruits.txt
 apple
 fig
 
 $ # print header and lines with qty < 35
+# TODO: Modify comment below to reflect removal of `$.`
 $ # same as: perl -ane 'print if $F[1]<35 || $.==1' fruits.txt
-$ ruby -ane 'print if $F[1].to_i < 35 || $.==1' fruits.txt
+$ ruby -ane 'print if $F[1].to_i < 35' fruits.txt
 fruit   qty
 banana  31
 guava   6
