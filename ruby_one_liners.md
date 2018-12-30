@@ -136,17 +136,17 @@ $ ruby -e 'x=25; y=12; puts x**y'
 
 ```bash
 $ # sample stdin data
-$ seq 10 | paste -sd,
+$ seq 10 | paste -sd, -
 1,2,3,4,5,6,7,8,9,10
 
 $ # change only first ',' to ' : '
 $ # same as: perl -pe 's/,/ : /'
-$ seq 10 | paste -sd, | ruby -pe 'sub(/,/, " : ")'
+$ seq 10 | paste -sd, - | ruby -pe 'sub(/,/, " : ")'
 1 : 2,3,4,5,6,7,8,9,10
 
 $ # change all ',' to ' : '
 $ # same as: perl -pe 's/,/ : /g'
-$ seq 10 | paste -sd, | ruby -pe 'gsub(/,/, " : ")'
+$ seq 10 | paste -sd, - | ruby -pe 'gsub(/,/, " : ")'
 1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : 9 : 10
 
 $ # sub(/,/, " : ") is shortcut for $_.sub!(/,/, " : ")
@@ -2581,7 +2581,7 @@ Hello World
 $ ruby -e 'system("wc poem.txt")'
  4 13 65 poem.txt
 
-$ ruby -e 'system("seq 10 | paste -sd, > out.txt")'
+$ ruby -e 'system("seq 10 | paste -sd, - > out.txt")'
 $ cat out.txt
 1,2,3,4,5,6,7,8,9,10
 
