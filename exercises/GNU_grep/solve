@@ -71,3 +71,5 @@ done 3<"$ref_file" 4<"$sol_file"
 ((count==sol_count)) && printf "\t\t$(tput bold)${blue}All Pass${clr_color}$(tput rmso)\t\t\n"
 
 mv "$tmp_file" "$sol_file"
+
+# vim: syntax=bash
