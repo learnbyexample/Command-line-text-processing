@@ -182,6 +182,8 @@ And so are you.
 
 If there are lot of search strings, use a file input
 
+**Note** Be careful to avoid empty lines in the file, it would result in matching all the lines
+
 ```bash
 $ printf 'rose\nsugar\n' > search_strings.txt
 $ cat search_strings.txt
@@ -1521,6 +1523,11 @@ $ # extract words, but not those at start of line or end of line
 $ echo 'car bat cod map' | grep -owP '(?<!^)\w+(?!$)'
 bat
 cod
+
+$ # matching multiple search patterns in any order
+$ grep -P '(?=.*are)(?=.*s).*d' poem.txt
+Roses are red,
+And so are you.
 ```
 
 <br>
