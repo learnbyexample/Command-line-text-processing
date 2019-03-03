@@ -43,7 +43,7 @@ while IFS= read -u3 -r ref_line && read -u4 -r sol_line; do
             sub_sol=0
         fi
 
-        if [[ $(eval "command ${ref_line:10}") == $(eval "command $sol_line") ]]; then
+        if [[ "$(eval "command ${ref_line:10}")" == "$(eval "command $sol_line")" ]]; then
             (( sol_count++ ))
             # use color if terminal supports
             echo '---------------------------------------------'
