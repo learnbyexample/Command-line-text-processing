@@ -3206,14 +3206,14 @@ real    0m0.073s
 * Manual and related
     * `man sed` and `info sed` for more details, known issues/limitations as well as options/commands not covered in this tutorial
     * [GNU sed manual](https://www.gnu.org/software/sed/manual/sed.html) has even more detailed information and examples
-    * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), but last modified '10 March 2003'
+    * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), last modified '10 March 2003'
     * [stackoverflow - BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/questions/24275070/sed-not-giving-me-correct-substitute-operation-for-newline-with-mac-difference/24276470#24276470)
     * [unix.stackexchange - Differences between sed on Mac OSX and other standard sed](https://unix.stackexchange.com/questions/13711/differences-between-sed-on-mac-osx-and-other-standard-sed)
 * Tutorials and Q&A
     * [sed basics](https://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
-    * [sed detailed tutorial](http://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
-    * [sed one-liners explained](http://www.catonmat.net/series/sed-one-liners-explained)
-    * [cheat sheet](http://www.catonmat.net/download/sed.stream.editor.cheat.sheet.txt)
+    * [sed detailed tutorial](https://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
+    * [sed one-liners explained](https://catonmat.net/sed-one-liners-explained-part-one)
+    * [cheat sheet](https://catonmat.net/ftp/sed.stream.editor.cheat.sheet.txt)
     * [unix.stackexchange - common search and replace examples](https://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files)
     * [sed Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/sed?sort=votes&pageSize=15)
     * [sed Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/sed?sort=votes&pageSize=15)
@@ -3229,6 +3229,8 @@ real    0m0.073s
     * [regexcrossword](https://regexcrossword.com/)
     * [stackoverflow - What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
 * Related tools
-    * [sedsed - Debugger, indenter and HTMLizer for sed scripts](https://github.com/aureliojargas/sedsed)
-    * [xo - composes regular expression match groups](https://github.com/ezekg/xo)
+    * [sd](https://github.com/chmln/sd) - simple search and replace, implemented in Rust
+    * [sedsed](https://github.com/aureliojargas/sedsed) - Debugger, indenter and HTMLizer for sed scripts
+    * [xo](https://github.com/ezekg/xo) - composes regular expression match groups
 * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
+
