@@ -2672,12 +2672,12 @@ real    0m0.045s
 * What's up with different `awk` versions?
     * [unix.stackexchange - brief explanation](https://unix.stackexchange.com/questions/29576/difference-between-gawk-vs-awk)
     * [Differences between gawk, nawk, mawk, and POSIX awk](https://www.reddit.com/r/awk/comments/4omosp/differences_between_gawk_nawk_mawk_and_posix_awk/)
-    * [cheat sheet for awk/nawk/gawk](http://www.catonmat.net/download/awk.cheat.sheet.txt)
+    * [cheat sheet for awk/nawk/gawk](https://catonmat.net/ftp/awk.cheat.sheet.txt)
 * Tutorials and Q&A
     * [code.snipcademy - gentle intro](https://code.snipcademy.com/tutorials/shell-scripting/awk/introduction)
     * [funtoo - using examples](https://www.funtoo.org/Awk_by_Example,_Part_1)
-    * [grymoire - detailed tutorial](http://www.grymoire.com/Unix/Awk.html) - covers information about different `awk` versions as well
-    * [catonmat - one liners explained](http://www.catonmat.net/series/awk-one-liners-explained)
+    * [grymoire - detailed tutorial](https://www.grymoire.com/Unix/Awk.html) - covers information about different `awk` versions as well
+    * [catonmat - one liners explained](https://catonmat.net/awk-one-liners-explained-part-one)
     * [Why Learn AWK?](https://blog.jpalardy.com/posts/why-learn-awk/)
     * [awk Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/awk?sort=votes&pageSize=15)
     * [awk Q&A on unix.stackexchange](https://unix.stackexchange.com/questions/tagged/awk?sort=votes&pageSize=15)
