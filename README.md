@@ -73,7 +73,9 @@ Includes only completed chapters
 * Read as ebook on [gitbook](https://learnbyexample.gitbooks.io/command-line-text-processing/content/)
 * Download ebook for offline reading - [link](https://www.gitbook.com/book/learnbyexample/command-line-text-processing/details)
 
-Stay tuned for separate ebooks (for ex: one just for `grep`) with more content, explanations, exercises, etc.
+Individual ebooks with more content, explanations, exercises, etc:
+
+* [GNU grep and ripgrep](https://github.com/learnbyexample/learn_gnugrep_ripgrep)
 
 <br>
 
