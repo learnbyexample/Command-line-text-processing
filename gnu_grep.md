@@ -47,6 +47,10 @@
 
 <br>
 
+This chapter has also been [converted to a book](https://github.com/learnbyexample/learn_gnugrep_ripgrep) with additional examples, exercises and covers popular alternative `ripgrep`
+
+<br>
+
 ```bash
 $ grep -V | head -1
 grep (GNU grep) 2.25
@@ -245,6 +249,8 @@ sugar
 
 * Word search using `-w` option
     * word constitutes of alphabets, numbers and underscore character
+* This will ensure that given patterns are not surrounded by other word characters
+    * this is slightly different than using word boundaries in regular expressions
 * For example, this helps to distinguish `par` from `spar`, `part`, etc
 
 ```bash
@@ -285,6 +291,7 @@ car
     * `never` explicitly specify no highlighting
 
 ```bash
+$ # can also use grep --color 'blue' as auto is default
 $ grep --color=auto 'blue' poem.txt
 Violets are blue,
 ```
@@ -302,6 +309,13 @@ Violets are blue,
 $ grep --color=always 'blue' poem.txt > saved_output.txt
 $ cat -v saved_output.txt
 Violets are ^[[01;31m^[[Kblue^[[m^[[K,
+
+$ # some commands like 'less' are capable of using the color information
+$ grep --color=always 'are' poem.txt | less -R
+$ # highlight multiple matching patterns
+$ grep --color=always 'are' poem.txt | grep --color 'd'
+Roses are red,
+And so are you.
 ```
 
 <br>
@@ -347,6 +361,7 @@ Sugar is sweet,
 ```
 
 * If there are multiple non-adjacent matching segments, by default `grep` adds a line `--` to separate them
+    * non-adjacent here implies that segments are separated by at least one line
 
 ```bash
 $ seq 29 | grep -A1 '3'
@@ -372,7 +387,7 @@ $ seq 29 | grep --no-group-separator -A1 '3'
 24
 ```
 
-* Use `--group-separator` to specify an alternate separator
+* Use `--group-separator` to customize the separator
 
 ```bash
 $ seq 29 | grep --group-separator='*****' -A1 '3'
@@ -389,7 +404,6 @@ $ seq 29 | grep --group-separator='*****' -A1 '3'
 <br>
 
 ## <a name="recursive-search"></a>Recursive search
-
 
 First let's create some more test files
 
@@ -547,6 +561,7 @@ $ find -type f -not -name '*.txt' -exec grep -in 'you' {} +
 
 ```bash
 $ # prompt at end of line not shown for simplicity
+$ # ^@ here indicates the NUL character
 $ grep -rlZ 'you' | cat -A
 poem.txt^@test_files/hidden_files/.fav_color.info^@
 
