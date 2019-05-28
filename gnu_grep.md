@@ -361,7 +361,7 @@ Sugar is sweet,
 ```
 
 * If there are multiple non-adjacent matching segments, by default `grep` adds a line `--` to separate them
-    * non-adjacent here implies that segments are separated by at least one line
+    * non-adjacent here implies that segments are separated by at least one line in input data
 
 ```bash
 $ seq 29 | grep -A1 '3'
@@ -792,7 +792,7 @@ $ printf 'foo\cbar' | grep -o '\\c'
 
 * The `-w` option works well to match whole words. But what about matching only start or end of words?
 * Anchors `\<` and `\>` will match start/end positions of a word
-* `\b` can also be used instead of `\<` and `\>` which matches either edge of a word
+* `\b` can also be used instead of `\<` and `\>` which matches both edges of a word
 
 ```bash
 $ printf 'spar\npar\npart\napparent\n'
@@ -841,6 +841,24 @@ $ # word containing par but not as end of word
 $ printf 'spar\npar\npart\napparent\n' | grep 'par\B'
 part
 apparent
+```
+
+* the word boundary escape sequences differ slightly from `-w` option
+
+```bash
+$ # this fails because there is no word boundary between space and +
+$ echo '2 +3 = 5' | grep '\b+3\b'
+$ # this works as -w only ensures that there are no surrounding word characters
+$ echo '2 +3 = 5' | grep -w '+3'
+2 +3 = 5
+
+$ # doesn't work as , isn't at start of word boundary
+$ echo 'hi, 2 one' | grep '\<, 2\>'
+$ # won't match as there are word characters before ,
+$ echo 'hi, 2 one' | grep -w ', 2'
+$ # works as \b matches both edges and , is at end of word after i
+$ echo 'hi, 2 one' | grep '\b, 2\b'
+hi, 2 one
 ```
 
 <br>
@@ -933,7 +951,7 @@ $ echo '1 & 2' | grep -o '.'
 
 <br>
 
-#### <a name="quantifiers"></a>Quantifiers
+#### <a name="quantifiers"></a>Greedy Quantifiers
 
 Defines how many times a character (simplified for now) should be matched
 
@@ -963,6 +981,8 @@ act
 
 * `*` will try to match 0 or more times
 * There is no upper limit and `*` will try to match as many times as possible
+    * if matching maximum times results in overall regex failing, then next best count is chosen until overall regex passes
+    * if there are multiple quantifiers, left-most quantifier gets precedence
 
 ```bash
 $ echo 'abbbc' | grep -o 'b*'
@@ -990,7 +1010,7 @@ $ # matching overall expression gets preference
 $ echo 'car bat cod map scat dot abacus' | grep -o 'c.*at'
 car bat cod map scat
 
-$ # precendence is left to right in case of multiple matches
+$ # precedence is left to right in case of multiple matches
 $ echo 'car bat cod map scat dot abacus' | grep -o 'b.*m'
 bat cod m
 $ echo 'car bat cod map scat dot abacus' | grep -o 'b.*m*'
@@ -1015,30 +1035,30 @@ ac
 abbc
 ```
 
-* For more precise control on number of times to match, `{}` (`\{\}` for BRE) is useful
-* It can take one of four forms, `{n}`, `{n,m}`, `{,m}` and `{n,}`
-
+* For more precise control on number of times to match, `{}` is useful
+    * use `\{\}` for BRE
+* It can take one of four forms, `{m,n}`, `{,n}`, `{m,}` and `{n}`
 
 ```bash
-$ # {n} - exactly n times
-$ echo 'ac abc abbc abbbc' | grep -Eo 'ab{2}c'
-abbc
-
-$ # {n,m} - n to m, including both n and m
+$ # {m,n} - m to n, including both m and n
 $ echo 'ac abc abbc abbbc' | grep -Eo 'ab{1,2}c'
 abc
 abbc
 
-$ # {,m} - 0 to m times
+$ # {,n} - 0 to n times
 $ echo 'ac abc abbc abbbc' | grep -Eo 'ab{,2}c'
 ac
 abc
 abbc
 
-$ # {n,} - at least n times
+$ # {m,} - at least m times
 $ echo 'ac abc abbc abbbc' | grep -Eo 'ab{2,}c'
 abbc
 abbbc
+
+$ # {n} - exactly n times
+$ echo 'ac abc abbc abbbc' | grep -Eo 'ab{2}c'
+abbc
 ```
 
 <br>
@@ -1214,7 +1234,6 @@ bar
 ```
 
 * backslash character classes
-* The **word** `-w` option matches the same set of characters as that of `\w`
 
 | Character classes | Description |
 | ------------- | ----------- |
@@ -1247,7 +1266,7 @@ $#
 * One of the uses of grouping is analogous to character classes for whole regular expressions, instead of just list of characters
 * The meta characters `()` are used for grouping
     * requires `\(\)` for BRE
-* Similar to maths `ab + ac = a(b+c)`, think of regular expression `a(b|c) = ab|ac`
+* Similar to `a(b+c)d = abd+acd` in maths, you get `a(b|c)d = abd|acd` in regular expressions
 
 ```bash
 $ # 5 letter words starting with c and ending with ty or ly
@@ -1315,6 +1334,19 @@ semiprofessionals
 transcendentalist
 ```
 
+* Spotting repeated words
+
+```bash
+$ cat story.txt
+singing tin in the rain
+walking for for a cause
+have a nice day
+day and night
+
+$ grep -wE '(\w+)\W+\1' story.txt
+walking for for a cause
+```
+
 * **Note** that there is an [issue for certain usage of back-reference and quantifier](https://debbugs.gnu.org/cgi/bugreport.cgi?bug=26864)
 
 ```bash
@@ -1335,20 +1367,6 @@ Annabelle
 Annette
 Appaloosa
 Appleseed
-```
-
-* Useful to spot repeated words
-* Use `-z` option (covered later) to match repetition in consecutive lines
-
-```bash
-$ cat story.txt
-singing tin in the rain
-walking for for a cause
-have a nice day
-day and night
-
-$ grep -wE '(\w+)\W+\1' story.txt
-walking for for a cause
 ```
 
 <br>
@@ -1408,6 +1426,7 @@ $ man grep | sed -n '/^\s*-P/,/^$/p'
 ```
 
 * The man page informs that `-P` is *highly experimental*. So far, haven't faced any issues. But do keep this in mind.
+    * newer versions of `GNU grep` has fixes for some `-P` bugs, see [release notes](https://savannah.gnu.org/news/?group_id=67) for an overview of changes between versions
 * Only a few highlights is presented here
 * For more info
     * `man pcrepattern` or [read it online](https://www.pcre.org/original/doc/html/pcrepattern.html)
@@ -1733,10 +1752,10 @@ real    0m0.008s
 * `*` match preceding character/group 0 or more times
 * `+` match preceding character/group 1 or more times
 * `?` match preceding character/group 0 or 1 times
+* `{m,n}` match preceding character/group m to n times, including m and n
+* `{m,}` match preceding character/group m or more times
+* `{,n}` match preceding character/group 0 to n times
 * `{n}` match preceding character/group exactly n times
-* `{n,}` match preceding character/group n or more times
-* `{n,m}` match preceding character/group n to m times, including n and m
-* `{,m}` match preceding character/group up to m times
 
 <br>
 
@@ -1764,8 +1783,7 @@ real    0m0.008s
 
 #### <a name="basic-vs-extended-regular-expressions"></a>Basic vs Extended Regular Expressions
 
-By default, the pattern passed to `grep` is treated as Basic Regular Expressions(BRE), which can be overridden using options like `-E` for ERE and `-P` for Perl Compatible Regular Expression(PCRE)  
-Paraphrasing from `info grep`
+By default, the pattern passed to `grep` is treated as Basic Regular Expressions(BRE), which can be overridden using options like `-E` for ERE and `-P` for Perl Compatible Regular Expression(PCRE). Paraphrasing from `info grep`
 
 >In Basic Regular Expressions the meta-characters `? + { | ( )` lose their special meaning, instead use the backslashed versions `\? \+ \{ \| \( \)`
 
@@ -1776,22 +1794,24 @@ Paraphrasing from `info grep`
 * `man grep` and `info grep`
     * At least go through all options ;)
     * **Usage section** in `info grep` has good examples as well
+* This chapter has also been [converted to a book](https://github.com/learnbyexample/learn_gnugrep_ripgrep) with additional examples, exercises and covers popular alternative `ripgrep`
 * A bit of history
+    * [Brian Kernighan remembers the origins of grep](https://thenewstack.io/brian-kernighan-remembers-the-origins-of-grep/)
     * [how grep command was born](https://medium.com/@rualthanzauva/grep-was-a-private-command-of-mine-for-quite-a-while-before-i-made-it-public-ken-thompson-a40e24a5ef48)
     * [why GNU grep is fast](https://lists.freebsd.org/pipermail/freebsd-current/2010-August/019310.html)
     * [unix.stackexchange - Difference between grep, egrep and fgrep](https://unix.stackexchange.com/questions/17949/what-is-the-difference-between-grep-egrep-and-fgrep)
-* Tutorials and Q&A
-    * [grep tutorial](https://www.panix.com/~elflord/unix/grep.html)
-    * [grep examples](https://alvinalexander.com/unix/edu/examples/grep.shtml)
+* Q&A on stackoverflow/stackexchange are good source of learning material, good for practice exercises as well
     * [grep Q&A on stackoverflow](https://stackoverflow.com/questions/tagged/grep?sort=votes&pageSize=15)
     * [grep Q&A on unix stackexchange](https://unix.stackexchange.com/questions/tagged/grep?sort=votes&pageSize=15)
 * Learn Regular Expressions (has information on flavors other than BRE/ERE/PCRE too)
     * [Regular Expressions Tutorial](https://www.regular-expressions.info/tutorial.html)
+    * [rexegg](https://www.rexegg.com/) - tutorials, tricks and more
     * [regexcrossword](https://regexcrossword.com/)
     * [stackoverflow - What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
     * [online regex tester and debugger](https://regex101.com/) - by default `pcre` flavor
 * Alternatives
+    * [ripgrep](https://github.com/BurntSushi/ripgrep)
     * [pcregrep](https://www.pcre.org/original/doc/html/pcregrep.html)
     * [ag - silver searcher](https://github.com/ggreer/the_silver_searcher)
-    * [ripgrep](https://github.com/BurntSushi/ripgrep)
 * [unix.stackexchange - When to use grep, sed, awk, perl, etc](https://unix.stackexchange.com/questions/303044/when-to-use-grep-less-awk-sed)
+
