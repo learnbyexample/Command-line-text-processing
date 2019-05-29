@@ -1712,9 +1712,10 @@ $ awk -M '!($2 in seen){c++} {seen[$2]} END{print +c}' duplicates.txt
 
 * For multiple fields, separate them using `,` or form a string with some character in between
     * choose a character unlikely to appear in input data, else there can be false matches
+    * `FS` is a good choice as fields wouldn't contain separator character(s)
 
 ```bash
-$ awk '!seen[$2"_"$3]++' duplicates.txt
+$ awk '!seen[$2 FS $3]++' duplicates.txt
 abc  7   4
 food toy ****
 test toy 123
