@@ -1669,6 +1669,7 @@ dam
 ```
 
 * first, examples that retain only first copy of duplicates
+* See also [iridakos: remove duplicates](https://iridakos.com/how-to/2019/05/16/remove-duplicate-lines-preserving-order-linux.html) for a detailed explanation
 * See also [stackoverflow - add a letter to duplicate entries](https://stackoverflow.com/questions/47774779/add-letter-to-second-third-fourth-occurrence-of-a-string)
 
 ```bash
@@ -2672,7 +2673,7 @@ real    0m0.045s
     * [awk FAQ](http://www.faqs.org/faqs/computer-lang/awk/faq/) - from 2002, but plenty of information, especially about all the various `awk` implementations
 * What's up with different `awk` versions?
     * [unix.stackexchange - brief explanation](https://unix.stackexchange.com/questions/29576/difference-between-gawk-vs-awk)
-    * [Differences between gawk, nawk, mawk, and POSIX awk](https://www.reddit.com/r/awk/comments/4omosp/differences_between_gawk_nawk_mawk_and_posix_awk/)
+    * [Differences between gawk, nawk, mawk, and POSIX awk](https://archive.is/btGky)
     * [cheat sheet for awk/nawk/gawk](https://catonmat.net/ftp/awk.cheat.sheet.txt)
 * Tutorials and Q&A
     * [code.snipcademy - gentle intro](https://code.snipcademy.com/tutorials/shell-scripting/awk/introduction)
