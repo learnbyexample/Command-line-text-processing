@@ -97,7 +97,7 @@ DESCRIPTION
 
 ## <a name="simple-search-and-replace"></a>Simple search and replace
 
-Detailed examples for **substitute** command will be convered in later sections, syntax is
+Detailed examples for **substitute** command will be covered in later sections, syntax is
 
 ```
 s/REGEXP/REPLACEMENT/FLAGS
@@ -785,7 +785,7 @@ $ seq 10 | sed -n '1~2p'
 7
 9
 
-$ # match line numbers: 2, 2+2*2, 2+3*2, etc
+$ # match line numbers: 2, 2+1*4, 2+1*4, etc
 $ seq 10 | sed -n '2~4p'
 2
 6
