@@ -40,12 +40,10 @@ Possible additions - seems like these won't be coming any time soon :(
 
 ## <a name="contributing"></a>Contributing
 
-* Please open an issue for typos/bugs/suggestions/etc
+* Please [open an issue](https://github.com/learnbyexample/Command-line-text-processing/issues) for typos/bugs/suggestions/etc
     * Even for pull requests, open an issue for discussion before submitting PRs
-    * or [gitter group chat](https://gitter.im/learnbyexample/scripting_course) for discussion as well as for help/mentorship
 * Share the repo with friends/colleagues, on social media, etc to help reach other learners
-* In case you need to reach me, use [gitter private chat](https://gitter.im/learnbyexample)
-    * or mail me at `echo 'yrneaolrknzcyr.arg@tznvy.pbz' | tr 'a-z' 'n-za-m'`
+* In case you need to reach me, mail me at `echo 'yrneaolrknzcyr.arg@tznvy.pbz' | tr 'a-z' 'n-za-m'` or send a DM via [twitter](https://twitter.com/learn_byexample)
 
 <br>
 
@@ -70,12 +68,13 @@ As of now, only `grep` exercises has been added. Stay tuned for more
 
 Includes only completed chapters
 
-* Read as ebook on [gitbook](https://learnbyexample.gitbooks.io/command-line-text-processing/content/)
-* Download ebook for offline reading - [link](https://www.gitbook.com/book/learnbyexample/command-line-text-processing/details)
+* Read as online ebook at [gitbook](https://learnbyexample.gitbooks.io/command-line-text-processing/content/)
+* Download PDF for offline reading [using this link](https://legacy.gitbook.com/download/pdf/book/learnbyexample/command-line-text-processing)
 
 Individual ebooks with more content, explanations, exercises, etc:
 
 * [GNU grep and ripgrep](https://github.com/learnbyexample/learn_gnugrep_ripgrep)
+* GNU sed - coming soon...
 
 <br>
 
