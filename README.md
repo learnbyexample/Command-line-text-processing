@@ -74,7 +74,8 @@ Includes only completed chapters
 Individual ebooks with more content, explanations, exercises, etc:
 
 * [GNU grep and ripgrep](https://github.com/learnbyexample/learn_gnugrep_ripgrep)
-* GNU sed - coming soon...
+* [GNU sed](https://github.com/learnbyexample/learn_gnused)
+* GNU awk - coming soon...
 
 <br>
 
