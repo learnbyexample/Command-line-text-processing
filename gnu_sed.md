@@ -67,6 +67,10 @@
 
 <br>
 
+This chapter has also been [converted to a book](https://github.com/learnbyexample/learn_gnused) with additional description, examples and exercises.
+
+<br>
+
 ```bash
 $ sed --version | head -n1
 sed (GNU sed) 4.2.2
@@ -3209,6 +3213,7 @@ real    0m0.073s
     * [sed FAQ](http://sed.sourceforge.net/sedfaq.html), last modified '10 March 2003'
     * [stackoverflow - BSD/macOS Sed vs GNU Sed vs the POSIX Sed specification](https://stackoverflow.com/questions/24275070/sed-not-giving-me-correct-substitute-operation-for-newline-with-mac-difference/24276470#24276470)
     * [unix.stackexchange - Differences between sed on Mac OSX and other standard sed](https://unix.stackexchange.com/questions/13711/differences-between-sed-on-mac-osx-and-other-standard-sed)
+* This chapter has also been [converted to a book](https://github.com/learnbyexample/learn_gnused) with additional description, examples and exercises.
 * Tutorials and Q&A
     * [sed basics](https://code.snipcademy.com/tutorials/shell-scripting/sed/introduction)
     * [sed detailed tutorial](https://www.grymoire.com/Unix/Sed.html) - has details on differences between various `sed` versions as well
@@ -3229,6 +3234,7 @@ real    0m0.073s
     * [regexcrossword](https://regexcrossword.com/)
     * [stackoverflow - What does this regex mean?](https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean)
 * Related tools
+    * [rpl](https://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files/251742#251742) - search and replace tool, has interesting options like interactive mode and recursive mode
     * [sd](https://github.com/chmln/sd) - simple search and replace, implemented in Rust
     * [sedsed](https://github.com/aureliojargas/sedsed) - Debugger, indenter and HTMLizer for sed scripts
     * [xo](https://github.com/ezekg/xo) - composes regular expression match groups
