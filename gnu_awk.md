@@ -926,10 +926,10 @@ $ cat f2
 I bought two bananas and three mangoes
 ```
 
-* to create backups of original file, set `INPLACE_SUFFIX` variable
+* to create backups of original file, set `inplace::suffix` variable
 
 ```bash
-$ awk -i inplace -v INPLACE_SUFFIX='.bkp' '{gsub("three", "3")} 1' f1
+$ awk -i inplace -v inplace::suffix='.bkp' '{gsub("three", "3")} 1' f1
 $ cat f1
 I ate 3 apples
 $ cat f1.bkp
