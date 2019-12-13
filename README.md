@@ -77,6 +77,8 @@ Individual ebooks with more content, explanations, exercises, etc:
 * [GNU sed](https://github.com/learnbyexample/learn_gnused)
 * GNU awk - coming soon...
 
+Or, as part of **Awesome Regex** bundle from https://leanpub.com/b/regex
+
 <br>
 
 ## <a name="acknowledgements"></a>Acknowledgements
