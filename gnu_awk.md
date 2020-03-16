@@ -927,6 +927,7 @@ I bought two bananas and three mangoes
 ```
 
 * to create backups of original file, set `INPLACE_SUFFIX` variable
+* **Note** that in newer versions, you have to use `inplace::suffix` instead of `INPLACE_SUFFIX`
 
 ```bash
 $ awk -i inplace -v INPLACE_SUFFIX='.bkp' '{gsub("three", "3")} 1' f1
@@ -1333,10 +1334,11 @@ $ awk '/END/{print p2} {p2=p1; p1=$0}' range.txt
 1234
 b
 $ # save all lines in an array for generic case
-$ awk '/END/{print a[NR-3]} {a[NR]=$0}' range.txt
-BEGIN
-a
-$ # or use the reversing trick
+$ # NR>n is checked to avoid printing empty line if there is a match
+$ # within first n lines
+$ awk -v n=3 '/BEGIN/ && NR>n{print a[NR-n]} {a[NR]=$0}' range.txt
+6789
+$ # or, use the reversing trick
 $ tac range.txt | awk 'n && !--n; /END/{n=3}' | tac
 BEGIN
 a
@@ -1627,7 +1629,7 @@ Amy sports_rep
 Tia placement_rep
 
 $ awk -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
-         {NF++; $NF = NR==1 ? "Role" : $NF=r[$2]} 1' list4 marks.txt
+         {$(NF+1) = FNR==1 ? "Role" : r[$2]} 1' list4 marks.txt
 Dept    Name    Marks   Role
 ECE     Raj     53      class_rep
 ECE     Joel    72
@@ -2170,7 +2172,7 @@ $ echo 'foo:123:bar:baz' | awk -f quotes.awk
 
 ```bash
 $ awk -o -v OFS='\t' 'NR==FNR{r[$1]=$2; next}
-         {NF++; if(FNR==1)$NF="Role"; else $NF=r[$2]} 1' list4 marks.txt
+         {$(NF+1) = FNR==1 ? "Role" : r[$2]} 1' list4 marks.txt
 Dept    Name    Marks   Role
 ECE     Raj     53      class_rep
 ECE     Joel    72
@@ -2185,7 +2187,7 @@ File name can be passed along `-o` option, otherwise by default `awkprof.out` wi
 
 ```bash
 $ cat awkprof.out
-        # gawk profile, created Tue Oct 24 15:10:02 2017
+        # gawk profile, created Mon Mar 16 10:11:11 2020
 
         # Rule(s)
 
@@ -2195,12 +2197,7 @@ $ cat awkprof.out
         }
 
         {
-                NF++
-                if (FNR == 1) {
-                        $NF = "Role"
-                } else {
-                        $NF = r[$2]
-                }
+                $(NF + 1) = (FNR == 1 ? "Role" : r[$2])
         }
 
         1 {
@@ -2591,7 +2588,7 @@ nums.txt 10062.9
 /dev/fd/63 10068.9
 
 $ # step 4 - correctly initialize variables
-$ awk 'BEGINFILE{sum=0} {sum += $1} ENDFILE{print FILENAME, sum}' nums.txt <(seq 3)
+$ awk '{sum += $1} ENDFILE{print FILENAME, sum; sum=0}' nums.txt <(seq 3)
 nums.txt 10062.9
 /dev/fd/63 6
 ```
