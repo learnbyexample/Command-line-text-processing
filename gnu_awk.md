@@ -77,6 +77,7 @@ DESCRIPTION
 * familiarity with regular expressions
     * if not, check out **ERE** portion of [GNU sed regular expressions](./gnu_sed.md#regular-expressions) which is close enough to features available in `gawk`
 * this tutorial is primarily focussed on short programs that are easily usable from command line, similar to using `grep`, `sed`, etc
+* this tutorial has also been [converted to an ebook](https://github.com/learnbyexample/learn_gnuawk) with additional descriptions, examples, a chapter on regular expressions, etc.
 * see [Gawk: Effective AWK Programming](https://www.gnu.org/software/gawk/manual/) manual for complete reference, has information on other `awk` versions as well as notes on POSIX standard
 
 <br>
@@ -1504,7 +1505,7 @@ EEE 65
 CSE 80
 
 $ # extract line matching Dept and minimum marks specified in list3
-$ awk 'NR==FNR{d[$1]; m[$1]=$2; next} $1 in d && $3 >= m[$1]' list3 marks.txt
+$ awk 'NR==FNR{d[$1]=$2; next} $1 in d && $3 >= d[$1]' list3 marks.txt
 ECE     Joel    72
 EEE     Moi     68
 CSE     Surya   81
@@ -2668,6 +2669,7 @@ real    0m0.045s
     * `man awk` and `info awk` for quick reference from command line
     * [gawk manual](https://www.gnu.org/software/gawk/manual/gawk.html#SEC_Contents) for complete reference, extensions and more
     * [awk FAQ](http://www.faqs.org/faqs/computer-lang/awk/faq/) - from 2002, but plenty of information, especially about all the various `awk` implementations
+* this tutorial has also been [converted to an ebook](https://github.com/learnbyexample/learn_gnuawk) with additional descriptions, examples, a chapter on regular expressions, etc.
 * What's up with different `awk` versions?
     * [unix.stackexchange - brief explanation](https://unix.stackexchange.com/questions/29576/difference-between-gawk-vs-awk)
     * [Differences between gawk, nawk, mawk, and POSIX awk](https://archive.is/btGky)
