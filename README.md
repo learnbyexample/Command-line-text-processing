@@ -75,9 +75,10 @@ Individual ebooks with more content, explanations, exercises, etc:
 
 * [GNU grep and ripgrep](https://github.com/learnbyexample/learn_gnugrep_ripgrep)
 * [GNU sed](https://github.com/learnbyexample/learn_gnused)
-* GNU awk - coming soon...
+* [GNU awk](https://github.com/learnbyexample/learn_gnuawk)
+* More books planned, stay tuned...
 
-Or, as part of **Awesome Regex** bundle from https://leanpub.com/b/regex
+See https://learnbyexample.github.io/books/ for links to bundles and other ebooks
 
 <br>
 
