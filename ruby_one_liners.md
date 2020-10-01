@@ -50,6 +50,12 @@
     * [Executing external commands](#executing-external-commands)
 * [Further Reading](#further-reading)
 
+---
+
+:information_source: :information_source: This chapter has been converted into a better formatted ebook - https://learnbyexample.github.io/learn_ruby_oneliners/. The ebook also has content updated for newer version of `ruby`, extra chapter for parsing json/csv/xml, includes exercises, solutions, etc.
+
+---
+
 <br>
 
 ```
