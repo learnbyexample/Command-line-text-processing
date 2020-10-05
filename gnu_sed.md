@@ -65,11 +65,17 @@
 * [Gotchas and Tips](#gotchas-and-tips)
 * [Further Reading](#further-reading)
 
-<br>
+<br> <br> <br>
 
-This chapter has also been [converted to a book](https://github.com/learnbyexample/learn_gnused) with additional description, examples and exercises.
+---
 
-<br>
+:information_source: :information_source: This chapter has been converted into a better formatted ebook: https://learnbyexample.github.io/learn_gnused/. The ebook also has content updated for newer version of the commands, includes exercises, solutions, etc.
+
+For markdown source and links to buy pdf/epub versions, see: https://github.com/learnbyexample/learn_gnused
+
+---
+
+<br> <br> <br>
 
 ```bash
 $ sed --version | head -n1
