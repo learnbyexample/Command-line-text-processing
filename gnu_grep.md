@@ -45,11 +45,18 @@
     * [Basic vs Extended Regular Expressions](#basic-vs-extended-regular-expressions)
 * [Further Reading](#further-reading)
 
-<br>
 
-This chapter has also been [converted to a book](https://github.com/learnbyexample/learn_gnugrep_ripgrep) with additional examples, exercises and covers popular alternative `ripgrep`
+<br> <br> <br>
 
-<br>
+---
+
+:information_source: :information_source: This chapter has been converted into a better formatted ebook: https://learnbyexample.github.io/learn_gnugrep_ripgrep/. The ebook also has content updated for newer version of the commands, includes exercises, solutions, has a separate chapter for popular alternative `ripgrep`, etc.
+
+For markdown source and links to buy pdf/epub versions, see: https://github.com/learnbyexample/learn_gnugrep_ripgrep
+
+---
+
+<br> <br> <br>
 
 ```bash
 $ grep -V | head -1
