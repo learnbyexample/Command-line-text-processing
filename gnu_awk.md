@@ -45,7 +45,17 @@
 * [Gotchas and Tips](#gotchas-and-tips)
 * [Further Reading](#further-reading)
 
-<br>
+<br> <br> <br>
+
+---
+
+:information_source: :information_source: This chapter has been converted into a better formatted ebook: https://learnbyexample.github.io/learn_gnuawk/. The ebook also has content updated for newer version of the commands, includes a chapter on regular expressions, has exercises, solutions, etc.
+
+For markdown source and links to buy pdf/epub versions, see: https://github.com/learnbyexample/learn_gnuawk
+
+---
+
+<br> <br> <br>
 
 ```bash
 $ awk --version | head -n1
@@ -77,7 +87,6 @@ DESCRIPTION
 * familiarity with regular expressions
     * if not, check out **ERE** portion of [GNU sed regular expressions](./gnu_sed.md#regular-expressions) which is close enough to features available in `gawk`
 * this tutorial is primarily focussed on short programs that are easily usable from command line, similar to using `grep`, `sed`, etc
-* this tutorial has also been [converted to an ebook](https://github.com/learnbyexample/learn_gnuawk) with additional descriptions, examples, a chapter on regular expressions, etc.
 * see [Gawk: Effective AWK Programming](https://www.gnu.org/software/gawk/manual/) manual for complete reference, has information on other `awk` versions as well as notes on POSIX standard
 
 <br>
