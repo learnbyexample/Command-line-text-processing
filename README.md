@@ -75,6 +75,7 @@ Individual online ebooks with better formatting, explanations, exercises, soluti
 * [GNU sed](https://learnbyexample.github.io/learn_gnused/)
 * [GNU awk](https://learnbyexample.github.io/learn_gnuawk/)
 * [Ruby one-liners cookbook](https://learnbyexample.github.io/learn_ruby_oneliners/)
+* [Perl one-liners cookbook](https://learnbyexample.github.io/learn_perl_oneliners/)
 * More books planned, stay tuned...
 
 See https://learnbyexample.github.io/books/ for links to pdf/epub versions and other ebooks
