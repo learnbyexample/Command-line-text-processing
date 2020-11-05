@@ -1,3 +1,15 @@
+<br> <br> <br>
+
+---
+
+:information_source: :information_source: This chapter has been converted into a better formatted ebook - https://learnbyexample.github.io/learn_perl_oneliners/. The ebook also has content updated for newer version of `perl`, includes exercises, solutions, etc.
+
+For markdown source and links to buy pdf/epub versions, see: https://github.com/learnbyexample/learn_perl_oneliners
+
+---
+
+<br> <br> <br>
+
 # <a name="perl-one-liners"></a>Perl one liners
 
 **Table of Contents**
