@@ -1738,7 +1738,7 @@ real    0m0.008s
 
 <br>
 
-## <a name="regular-expressions-reference-ere"></a>Regular Expressions Reference (ERE)
+## <a name="regular-expressions-reference-ere"></a>Regular Expressions Reference (RER)
 
 <br>
 
