@@ -4,7 +4,7 @@ Learn about various commands available for common and exotic text processing nee
 
 ---
 
-:warning: :warning: I'm no longer actively working on this repo. Instead, I've been converting existing chapters into ebooks (see [ebook section](#ebooks) below for links), available under the same license. These ebooks are better formatted, updated for newer versions of the software, includes exercises, solutions, etc. Once all the chapters have been converted, I'll be archiving this repo.
+:warning: :warning: I'm no longer actively working on this repo. Instead, I've converted existing chapters into ebooks (see [ebook section](#ebooks) below for links), available under the same license. These ebooks are better formatted, updated for newer versions of the software, includes exercises, solutions, etc. Since all the chapters have been converted, I'm archiving this repo.
 
 ---
 
@@ -20,6 +20,7 @@ Individual online ebooks with better formatting, explanations, exercises, soluti
 * [Ruby one-liners cookbook](https://learnbyexample.github.io/learn_ruby_oneliners/)
 * [Perl one-liners cookbook](https://learnbyexample.github.io/learn_perl_oneliners/)
 * [Command line text processing with GNU Coreutils](https://learnbyexample.github.io/cli_text_processing_coreutils/)
+* [Computing from the Command Line](https://learnbyexample.github.io/cli-computing/)
 
 See https://learnbyexample.github.io/books/ for links to pdf/epub versions and other ebooks.
 
