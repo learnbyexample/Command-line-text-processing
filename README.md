@@ -14,15 +14,15 @@ Learn about various commands available for common and exotic text processing nee
 
 Individual online ebooks with better formatting, explanations, exercises, solutions, etc:
 
-* [GNU grep and ripgrep](https://learnbyexample.github.io/learn_gnugrep_ripgrep/)
-* [GNU sed](https://learnbyexample.github.io/learn_gnused/)
-* [GNU awk](https://learnbyexample.github.io/learn_gnuawk/)
-* [Ruby one-liners cookbook](https://learnbyexample.github.io/learn_ruby_oneliners/)
-* [Perl one-liners cookbook](https://learnbyexample.github.io/learn_perl_oneliners/)
-* [Command line text processing with GNU Coreutils](https://learnbyexample.github.io/cli_text_processing_coreutils/)
-* [Computing from the Command Line](https://learnbyexample.github.io/cli-computing/)
+* [CLI text processing with GNU grep and ripgrep](https://learnbyexample.github.io/learn_gnugrep_ripgrep/)
+* [CLI text processing with GNU sed](https://learnbyexample.github.io/learn_gnused/)
+* [CLI text processing with GNU awk](https://learnbyexample.github.io/learn_gnuawk/)
+* [Ruby One-Liners Guide](https://learnbyexample.github.io/learn_ruby_oneliners/)
+* [Perl One-Liners Guide](https://learnbyexample.github.io/learn_perl_oneliners/)
+* [CLI text processing with GNU Coreutils](https://learnbyexample.github.io/cli_text_processing_coreutils/)
+* [Linux Command Line Computing](https://learnbyexample.github.io/cli-computing/)
 
-See https://learnbyexample.github.io/books/ for links to pdf/epub versions and other ebooks.
+See https://learnbyexample.github.io/books/ for links to PDF/EPUB versions and other ebooks.
 
 <br>
 
@@ -58,11 +58,15 @@ Recorded couple of videos based on content in the chapters, not sure if I'll do 
 * [Using the sort command](https://www.youtube.com/watch?v=qLfAwwb5vGs)
 * [Using uniq and comm](https://www.youtube.com/watch?v=uAb2kxA2TyQ)
 
+See also my short videos on [Linux command line tips](https://www.youtube.com/watch?v=p0KCLusMd5Q&list=PLTv2U3HnAL4PNTmRqZBSUgKaiHbRL2zeY)
+
 <br>
 
 ## Exercises
 
 Check out [exercises](./exercises) directory to solve practice questions on `grep`, right from the command line itself.
+
+See also my [TUI-apps](https://github.com/learnbyexample/TUI-apps) repo for interactive CLI text processing exercises.
 
 <br>
 
